@@ -22,6 +22,7 @@ class Task(models.Model):
     Связи:
         - executor.executed_tasks — список задач, в которых работник является исполнителем.
         - creator.created_tasks — список задач, созданных работником.
+        - comments (Reverse relation): Комментарии к задаче
     """
     class StatusTask(models.TextChoices):
         OPEN = "OP", _("Открыто")
@@ -49,8 +50,26 @@ class Evaluation(models.Model):
     - from_worker: сотрудник, который выставил оценку (может быть None при удалении).
     """
     score = models.PositiveSmallIntegerField(
-        verbose_name="Оценка выполния задачи", 
+        verbose_name="Оценка выполния задачи",
         validators=[MinValueValidator(1), MaxValueValidator(5)])
     task = models.OneToOneField(Task, verbose_name="Оцениваемая задача", on_delete=models.CASCADE)
     to_worker = models.ForeignKey(Worker, verbose_name="Оценен", on_delete=models.SET_NULL, null=True, blank=True, related_name="received_evaluations")
     from_worker = models.ForeignKey(Worker, verbose_name="Оценил", on_delete=models.SET_NULL, null=True, blank=True, related_name="given_evaluations")
+
+
+class Comment(models.Model):
+    """
+    Модель комментария к задаче.
+
+    Поля:
+    - task: задача, к которой относится комментарий.
+    - text: текст комментария.
+    - creator: сотрудник, оставивший комментарий.
+    - created_at: дата и время создания комментария.
+    - updated_at: дата и время последнего изменения комментария.
+    """
+    task = models.ForeignKey(Task, verbose_name="Комментируемая задача", on_delete=models.CASCADE, related_name="comments")
+    text = models.TextField(verbose_name="Текст комментария")
+    creator = models.ForeignKey(Worker, verbose_name="Автор комментария", on_delete=models.DO_NOTHING, related_name="comments")
+    created_at = models.DateTimeField(verbose_name="Даты и время создания", auto_now_add=True)
+    updated_at = models.DateTimeField(verbose_name="Даты и время обновления", auto_now=True)

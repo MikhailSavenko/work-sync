@@ -21,6 +21,7 @@ class Worker(models.Model):
         created_tasks (Reverse relation): Список задач(Task) пользователя-создателя
         received_evaluations (Reverse relation): Полученные оценки(Evaluation)
         given_evaluations (Reverse relation): Поставленные оценки(Evaluation)
+        comments (Reverse relation): Твои оставленные комментарии к задачам
     """
     class Role(models.TextChoices):
         NORMAL = "NM", _("Обычный пользователь")
