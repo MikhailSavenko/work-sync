@@ -15,6 +15,10 @@ class Worker(models.Model):
         user (OneToOneField): Связь с моделью User.
         role (CharField): Роль сотрудника в команде (обычный пользователь, менеджер, админ).
         team (ForeignKey): Связь с моделью Team; может быть None, если сотрудник не состоит в команде.
+
+    Связи:
+        executed_tasks (Reverse relation): Список задач(Task) пользователя-исполнителя
+        created_tasks (Reverse relation): Список задач(Task) пользователя-создателя
     """
     class Role(models.TextChoices):
         NORMAL = "NM", _("Обычный пользователь")
