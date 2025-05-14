@@ -18,4 +18,7 @@ class Worker(models.Model):
     team = models.ForeignKey("Team", related_name="workers", on_delete=models.SET_NULL, null=True, blank=True)
 
 
+class Team(models.Model):
+    title = models.CharField(verbose_name="Название команды")
+    description = models.CharField(verbose_name="Описание команды")
 
