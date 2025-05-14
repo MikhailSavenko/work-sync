@@ -8,6 +8,14 @@ class User(AbstractUser):
 
 
 class Worker(models.Model):
+    """
+    Модель Worker, представляющая сотрудника компании.
+
+    Атрибуты:
+        user (OneToOneField): Связь с моделью User.
+        role (CharField): Роль сотрудника в команде (обычный пользователь, менеджер, админ).
+        team (ForeignKey): Связь с моделью Team; может быть None, если сотрудник не состоит в команде.
+    """
     class Role(models.TextChoices):
         NORMAL = "NM", _("Обычный пользователь")
         MANAGER = "MG", _("Менеджер")
@@ -19,6 +27,15 @@ class Worker(models.Model):
 
 
 class Team(models.Model):
-    title = models.CharField(verbose_name="Название команды")
-    description = models.CharField(verbose_name="Описание команды")
+    """
+    Модель Team, представляющая команду в системе.
 
+    Атрибуты:
+        title (CharField): Название команды.
+        description (CharField): Описание команды.
+
+    Связи:
+        workers (Reverse relation): Список связанных объектов Worker, привязанных к данной команде.
+    """
+    title = models.CharField(max_length=255, verbose_name="Название команды")
+    description = models.TextField(verbose_name="Описание команды")
