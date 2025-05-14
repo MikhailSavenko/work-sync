@@ -19,6 +19,8 @@ class Worker(models.Model):
     Связи:
         executed_tasks (Reverse relation): Список задач(Task) пользователя-исполнителя
         created_tasks (Reverse relation): Список задач(Task) пользователя-создателя
+        received_evaluations (Reverse relation): Полученные оценки(Evaluation)
+        given_evaluations (Reverse relation): Поставленные оценки(Evaluation)
     """
     class Role(models.TextChoices):
         NORMAL = "NM", _("Обычный пользователь")
