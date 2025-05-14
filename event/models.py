@@ -13,7 +13,7 @@ class Meeting(models.Model):
     """
     datetime = models.DateTimeField(verbose_name="Дата и время встречи")
     creator = models.ForeignKey(Worker, on_delete=models.CASCADE, verbose_name="Инициатор встречи", related_name="created_meetings")
-    workers = models.ManyToManyField(Worker, throught="MeetingWorker", related_name="meetings", verbose_name="Сотрудники приглашенные на встречу")
+    workers = models.ManyToManyField(Worker, through="MeetingWorker", related_name="meetings", verbose_name="Сотрудники приглашенные на встречу")
 
 
 class MeetingWorker(models.Model):
