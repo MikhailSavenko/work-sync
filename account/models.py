@@ -1,10 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+from account.managers import CustomUserManager
 
 
 class User(AbstractUser):
-    pass
+    username = None
+    email = models.CharField(max_length=40, unique=True)
+
+    USERNAME_FIELD = "email"
+
+    REQUIRED_FIELDS = []
+
+    objects = CustomUserManager()
 
 
 class Worker(models.Model):
