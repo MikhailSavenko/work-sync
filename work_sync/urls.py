@@ -5,5 +5,6 @@ VERSION = "v1"
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path(f"api/{VERSION}/", include("account.urls", namespace="account"))
+    path(f"api/{VERSION}/", include("account.urls", namespace="account")),
+    path(f"api/{VERSION}/", include("task.urls", namespace="task")),
 ]
