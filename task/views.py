@@ -1,12 +1,12 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from task.models import Task
-from task.serializers import CreateTaskSerializer, GetTaskSerializer, UpdateTaskSerializer
+from task.models import Task, Comment
+from task.serializers import CreateTaskSerializer, GetTaskSerializer, UpdateTaskSerializer, CommentSerializer
 
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user.worker)
@@ -23,4 +23,11 @@ class TaskViewSet(viewsets.ModelViewSet):
         elif self.action == "partial_update":
             self.serializer_class = UpdateTaskSerializer
         return self.serializer_class
-    
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user.worker)

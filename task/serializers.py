@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from task.models import Task
+from task.models import Comment, Task
 from account.models import Worker
 
 
@@ -51,3 +51,11 @@ class UpdateTaskSerializer(serializers.ModelSerializer):
             "deadline":  {"help_text": "YYYY-MM-DD"},
             "status":  {"help_text": "OP|AW|DN"}
         }
+        
+
+class CommentSerializer(serializers.ModelSerializer):
+    """Комменты сериалайзер"""
+
+    class Meta:
+        model = Comment
+        fields = ("id", "task", "text", "creator", "created_at", "updated_at")
