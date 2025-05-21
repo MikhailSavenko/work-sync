@@ -12,6 +12,18 @@ class TaskViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user.worker)
 
+    def perform_update(self, serializer):
+        executor = serializer.validated_data.get("executor")
+        status = serializer.validated_data.get("status")
+        instance = self.get_object()
+
+        if hasattr(instance, "evaluation"):
+            if executor and executor != instance.executor:
+                raise serializers.ValidationError({"task": "Ошибка. Нельзя изменить исполнителя для оцененной и завершенной задачи."})
+            if status and status != instance.status:
+                raise serializers.ValidationError({"task": "Ошибка. Нельзя изменить статус для оцененной и завершенной задачи."})
+        serializer.save()
+
     def get_serializer_class(self):
         if self.action == "create":
             self.serializer_class = CreateTaskSerializer

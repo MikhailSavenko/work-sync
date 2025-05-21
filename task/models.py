@@ -23,6 +23,7 @@ class Task(models.Model):
         - executor.executed_tasks — список задач, в которых работник является исполнителем.
         - creator.created_tasks — список задач, созданных работником.
         - comments (Reverse relation): Комментарии к задаче
+        - evaluation (Reverse relation): Оценка выполненой задачи
     """
     class StatusTask(models.TextChoices):
         OPEN = "OP", _("Открыто")

@@ -29,10 +29,12 @@ class GetTaskSerializer(serializers.ModelSerializer):
 
 class CreateTaskSerializer(serializers.ModelSerializer):
     """Сериалайзер для создания Task"""
+    status = serializers.ReadOnlyField(source="get_status_display")
+
     class Meta:
 
         model = Task
-        fields = ("id", "title", "description", "deadline", "status", "executor")
+        fields = ("id", "title", "description", "status", "deadline", "executor")
         extra_kwargs = {
             "executor": {"help_text": "id"},
             "deadline":  {"help_text": "YYYY-MM-DD"},
@@ -45,7 +47,7 @@ class UpdateTaskSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Task
-        fields = ("title", "description", "deadline", "status", "executor")
+        fields = ("id", "title", "description", "deadline", "status", "executor")
         extra_kwargs = {
             "executor": {"help_text": "id"},
             "deadline":  {"help_text": "YYYY-MM-DD"},
