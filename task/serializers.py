@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from task.models import Comment, Task
+from task.models import Comment, Evaluation, Task
 from account.models import Worker
 
 
@@ -76,3 +76,30 @@ class UpdateCommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ("text", )
 
+
+class CreateEvaluation(serializers.ModelSerializer):
+    """
+    Создание оценки на Task для executor
+    score - min 1 max 5
+    task - id Task на который оставляют оценку, берем из kwarsg
+    to_worker - кому оценка, id берем из Task.executor
+    from_worker - кто выставляет, берем из request.user.worker
+    """
+
+    class Meta:
+        model = Evaluation
+        fields = ("id", "score", "task")
+
+
+class UpdateEvaluation(serializers.ModelSerializer):
+    """
+    Обновление оценки на Task для executor
+    score - min 1 max 5
+    task - id Task на который оставляют оценку, берем из kwarsg
+    to_worker - кому оценка, id берем из Task.executor
+    from_worker - кто выставляет, берем из request.user.worker
+    """
+
+    class Meta:
+        model = Evaluation
+        fields = ("score",)
