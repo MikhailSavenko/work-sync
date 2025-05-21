@@ -64,7 +64,9 @@ class EvaluationViewSet(mixins.CreateModelMixin,
         task = serializer.validated_data.get("task")
         from_worker = self.request.user.worker
         if not task.executor:
-            raise serializers.ValidationError({"task": "Задача за которую выставляется оценка не имеет назначенного исполнителя."})
+            raise serializers.ValidationError({"evaluation": "Задача, за которую выставляется оценка, не имеет назначенного исполнителя."})
+        elif task.status != Task.StatusTask.DONE:
+            raise serializers.ValidationError({"evaluation": "Задача, за которую выставляется оценка, должна быть в статусе выполнена."})
         serializer.save(to_worker=task.executor, from_worker=from_worker)
 
     def get_serializer_class(self):
