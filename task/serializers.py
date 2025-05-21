@@ -32,7 +32,7 @@ class CreateTaskSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Task
-        fields = ("title", "description", "deadline", "status", "executor")
+        fields = ("id", "title", "description", "deadline", "status", "executor")
         extra_kwargs = {
             "executor": {"help_text": "id"},
             "deadline":  {"help_text": "YYYY-MM-DD"},
@@ -53,9 +53,26 @@ class UpdateTaskSerializer(serializers.ModelSerializer):
         }
         
 
-class CommentSerializer(serializers.ModelSerializer):
-    """Комменты сериалайзер"""
+class GetCommentSerializer(serializers.ModelSerializer):
+    """Получить коммент сериалайзер"""
 
     class Meta:
         model = Comment
         fields = ("id", "task", "text", "creator", "created_at", "updated_at")
+
+
+class CreateCommentSerializer(serializers.ModelSerializer):
+    """Создать комменты сериалайзер"""
+
+    class Meta:
+        model = Comment
+        fields = ("id", "task", "text", "created_at", "updated_at")
+
+
+class UpdateCommentSerializer(serializers.ModelSerializer):
+    """Обновить коммент сериалайзер"""
+
+    class Meta:
+        model = Comment
+        fields = ("text", )
+
