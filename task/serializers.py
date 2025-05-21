@@ -12,7 +12,7 @@ class WorkerNameSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = Worker
-        fields = ("worker", "role", "team")
+        fields = ("id", "worker", "role", "team")
 
 
 class GetTaskSerializer(serializers.ModelSerializer):
@@ -20,11 +20,20 @@ class GetTaskSerializer(serializers.ModelSerializer):
     status = serializers.CharField(source="get_status_display", read_only=True)
     executor = WorkerNameSerializer(read_only=True)
     creator = WorkerNameSerializer(read_only=True)
+    
+    evaluation = serializers.SerializerMethodField()
 
     class Meta:
-
         model = Task
-        fields = ("id", "title", "description", "deadline", "status", "executor", "creator", "created_at", "updated_at")
+        fields = ("id", "title", "description", "deadline", "status", "executor", "creator", "evaluation", "created_at", "updated_at")
+
+    def get_evaluation(self, obj: Task):
+        current_worker = self.context.get("request").user.worker
+        # Покажем оценку менеджеру кто назначил задачу и самому исполнителю
+        if (hasattr(obj, "evaluation") and obj.executor and obj.executor == current_worker) or (hasattr(obj, "evaluation") and obj.creator == current_worker):
+            evalu_serializer = EvaluationSerializer(obj.evaluation)
+            return evalu_serializer.data
+        return None
 
 
 class CreateTaskSerializer(serializers.ModelSerializer):
@@ -105,3 +114,9 @@ class UpdateEvaluation(serializers.ModelSerializer):
     class Meta:
         model = Evaluation
         fields = ("score",)
+
+
+class EvaluationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Evaluation
+        fields = ("id", "score", "from_worker", "to_worker")
