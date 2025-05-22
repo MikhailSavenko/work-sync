@@ -7,7 +7,7 @@ from account.models import Team, Worker
 
 class TeamViewSet(viewsets.ModelViewSet):
     """Представление для Team"""
-    queryset = Team.objects.all()
+    queryset = Team.objects.select_related("user", "team").all()
 
     # будет доступен admin_team
 

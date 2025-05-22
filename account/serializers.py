@@ -2,6 +2,13 @@ from rest_framework import serializers
 from account.models import Worker, User, Team
 
 
+class TeamShortSerializer(serializers.ModelSerializer):
+    """Вложенный сериалайзер для Worker.team"""
+    class Meta:
+        model = Team
+        fields = ("id", "title")
+
+
 class WorkerGetSerializer(serializers.ModelSerializer):
     """Сериалайзер Сотрудника"""
     user_id = serializers.IntegerField(source="user.id")
@@ -9,6 +16,7 @@ class WorkerGetSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(source="user.last_name")
     email = serializers.CharField(source="user.email")
     role = serializers.CharField(source='get_role_display', read_only=True)
+    team = TeamShortSerializer()
 
     class Meta:
         model = Worker
