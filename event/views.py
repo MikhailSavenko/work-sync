@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -8,7 +8,12 @@ from event.models import Meeting
 from event.serializers import MeetingSerializer
 
 
-class MeetingViewSet(viewsets.ModelViewSet):
+class MeetingViewSet(mixins.CreateModelMixin,
+                     mixins.RetrieveModelMixin,
+                     mixins.DestroyModelMixin,
+                     mixins.ListModelMixin,
+                     viewsets.GenericViewSet):
+    """Представление Встречи. Создание/Отмена/Получение/Свои встречи"""
     permission_classes = (IsAuthenticated,)
     queryset = Meeting.objects.all()
     serializer_class = MeetingSerializer
