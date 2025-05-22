@@ -19,3 +19,4 @@ class WorkerViewSet(viewsets.GenericViewSet,
     serializer_class = WorkerGetSerializer
     queryset = Worker.objects.all()
 
+    

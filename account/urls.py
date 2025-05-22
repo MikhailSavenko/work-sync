@@ -12,12 +12,12 @@ app_name = "account"
 
 
 router.register(r"teams", TeamViewSet, basename="teams")
-router.register(r"workers", WorkerViewSet, basename="worker")
+router.register(r"workers", WorkerViewSet, basename="worker") # тут добавлять NestedRouter и workers/meetings
 
 urlpatterns = [
-    path("users/", UserViewSet.as_view({"get": "list"}), name="users"),
-    path("users/me/",  UserViewSet.as_view({'get': 'me', 'put': 'me', 'patch': 'me', 'delete': 'me'}), name="user_me"), # разрешен GET PUT PATH DELETE
-    path("users/<int:id>/", UserViewSet.as_view({"get": "retrieve"}), name="user_by_id"),
+    # path("users/", UserViewSet.as_view({"get": "list"}), name="users"), # убрать получение списка users
+    path("users/me/",  UserViewSet.as_view({'put': 'me', 'delete': 'me'}), name="user_me"), # тут оставить put del для смены имени мыла # разрешен GET PUT PATH DELETE
+    # path("users/<int:id>/", UserViewSet.as_view({"get": "retrieve"}), name="user_by_id"), # убрать получение конкретного User
     path("auth/users/register/", UserViewSet.as_view({"post": "create"}), name="register"),
     path("auth/jwt/logout/", TokenBlacklistView.as_view(), name="logout"),
     path("auth/jwt/login/", TokenObtainPairView.as_view(), name="login"),

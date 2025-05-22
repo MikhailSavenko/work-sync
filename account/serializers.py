@@ -10,7 +10,7 @@ class WorkerSerializer(serializers.ModelSerializer):
         model = Worker
         fields = ("id", "team", "role")
 
-
+# Здесь вывести всю инфу по воркеру и user инфу
 class WorkerGetSerializer(serializers.ModelSerializer):
     """Сериалайзер Сотрудника"""
     user_id = serializers.PrimaryKeyRelatedField(read_only=True)
