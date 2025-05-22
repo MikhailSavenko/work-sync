@@ -8,7 +8,7 @@ class WorkerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Worker
-        fields = ("team", "role")
+        fields = ("id", "team", "role")
 
 
 class UserMeSerializer(serializers.ModelSerializer):
