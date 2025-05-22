@@ -3,12 +3,21 @@ from account.models import Worker, User, Team
 
 
 class WorkerSerializer(serializers.ModelSerializer):
-    """Сериалайзер Сотрудника"""
+    """Сериалайзер Сотрудника для вложения в UserMeSerializer"""
     role = serializers.CharField(source='get_role_display', read_only=True)
 
     class Meta:
         model = Worker
         fields = ("id", "team", "role")
+
+
+class WorkerGetSerializer(serializers.ModelSerializer):
+    """Сериалайзер Сотрудника"""
+    user_id = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Worker
+        fields = ("id", "team", "role", "user_id")
 
 
 class UserMeSerializer(serializers.ModelSerializer):

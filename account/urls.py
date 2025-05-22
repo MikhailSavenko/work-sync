@@ -3,7 +3,7 @@ from rest_framework_simplejwt.views import TokenBlacklistView, TokenObtainPairVi
 from djoser.views import UserViewSet
 from rest_framework.routers import DefaultRouter
 
-from account.views import TeamViewSet
+from account.views import TeamViewSet, WorkerViewSet
 
 
 router = DefaultRouter()
@@ -12,6 +12,7 @@ app_name = "account"
 
 
 router.register(r"teams", TeamViewSet, basename="teams")
+router.register(r"workers", WorkerViewSet, basename="worker")
 
 urlpatterns = [
     path("users/", UserViewSet.as_view({"get": "list"}), name="users"),

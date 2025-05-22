@@ -1,7 +1,8 @@
 from rest_framework import viewsets
+from rest_framework import mixins
 
-from account.serializers import TeamSerializer
-from account.models import Team
+from account.serializers import TeamSerializer, WorkerGetSerializer
+from account.models import Team, Worker
 
 
 class TeamViewSet(viewsets.ModelViewSet):
@@ -12,4 +13,9 @@ class TeamViewSet(viewsets.ModelViewSet):
     # будет доступен admin_team
 
 
+class WorkerViewSet(viewsets.GenericViewSet,
+                    mixins.RetrieveModelMixin,
+                    mixins.ListModelMixin):
+    serializer_class = WorkerGetSerializer
+    queryset = Worker.objects.all()
 
