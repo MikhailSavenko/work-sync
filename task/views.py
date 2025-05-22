@@ -1,13 +1,26 @@
 from rest_framework import viewsets, serializers
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import mixins
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
 from task.models import Evaluation, Task, Comment
 from task.serializers import CreateTaskSerializer, GetTaskSerializer, UpdateEvaluation, UpdateTaskSerializer, GetCommentSerializer, UpdateCommentSerializer, CreateCommentSerializer, CreateEvaluation
-from rest_framework import mixins
 
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
+
+    @action(detail=False, methods=["get"], url_path="me")
+    def me(self, request):
+        """Просмотр своих Task"""
+        user_worker = request.user.worker
+
+        tasks = Task.objects.filter(executor=user_worker)
+        serializer = self.get_serializer(tasks, many=True)
+        
+        return Response(serializer.data)
 
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user.worker)
@@ -27,17 +40,13 @@ class TaskViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "create":
             self.serializer_class = CreateTaskSerializer
-        elif self.action == "retrieve":
+        elif self.action in ["retrieve", "list", "me"]:
             self.serializer_class = GetTaskSerializer
-        elif self.action == "list":
-            self.serializer_class = GetTaskSerializer
-        elif self.action == "update":
-            self.serializer_class = UpdateTaskSerializer
-        elif self.action == "partial_update":
+        elif self.action in ["update", "partial_update"]:
             self.serializer_class = UpdateTaskSerializer
         return self.serializer_class
 
-
+    
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     permission_classes = [IsAuthenticated]
