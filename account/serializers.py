@@ -2,23 +2,17 @@ from rest_framework import serializers
 from account.models import Worker, User, Team
 
 
-class WorkerSerializer(serializers.ModelSerializer):
-    """Сериалайзер Сотрудника для вложения в UserMeSerializer"""
+class WorkerGetSerializer(serializers.ModelSerializer):
+    """Сериалайзер Сотрудника"""
+    user_id = serializers.IntegerField(source="user.id")
+    first_name = serializers.CharField(source="user.first_name")
+    last_name = serializers.CharField(source="user.last_name")
+    email = serializers.CharField(source="user.email")
     role = serializers.CharField(source='get_role_display', read_only=True)
 
     class Meta:
         model = Worker
-        fields = ("id", "team", "role")
-
-
-# Здесь вывести всю инфу по воркеру и user инфу
-class WorkerGetSerializer(serializers.ModelSerializer):
-    """Сериалайзер Сотрудника"""
-    user_id = serializers.PrimaryKeyRelatedField(read_only=True)
-
-    class Meta:
-        model = Worker
-        fields = ("id", "team", "role", "user_id")
+        fields = ("id", "team", "role", "user_id", "first_name", "last_name", "email")
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -29,9 +23,18 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ("id", "email", "first_name", "last_name")
 
 
-class TeamSerializer(serializers.ModelSerializer):
-    """Сериалайзер для управления Тeam"""
-    # workers = UserMeSerializer(many=True, read_only=True)
+class TeamCreateUpdateSerializer(serializers.ModelSerializer):
+    """Сериалайзер для создания/обновления Тeam"""
+    workers = serializers.PrimaryKeyRelatedField(queryset=Worker.objects.all(), many=True)
+
+    class Meta:
+        model = Team
+        fields = ("id", "title", "description", "workers")
+
+
+class TeamGetSerializer(serializers.ModelSerializer):
+    """Сериалайзер для просмотра Тeam"""
+    workers = WorkerGetSerializer(many=True)
 
     class Meta:
         model = Team
