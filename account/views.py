@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 
 
 from datetime import datetime, time
-
+import calendar
 
 from account.serializers import TeamCreateUpdateSerializer, WorkerGetSerializer, TeamGetSerializer
 from account.models import Team, Worker
@@ -64,4 +64,30 @@ class WorkerViewSet(viewsets.GenericViewSet,
             "tasks": tasks_serializer_data.data
             })
 
+    @action(detail=False, methods=["get"], url_path="calendar/month/(?P<date>\\d{4}-\\d{2})")
+    def calendar_month(self, request, date):
+        """
+        Эндпоиинт просмотра событий сотрудника за месяц 
+        date - обязательный параметр пути YYYY-MM
+        """
+        worker = request.user.worker
+        parse_date = datetime.strptime(date, "%Y-%m").date()
+        
+        last_day_month = calendar.monthrange(parse_date.year, parse_date.month)[1]
+        end_date = parse_date.replace(day=last_day_month)
+
+        start = datetime.combine(parse_date, time.min)
+        end = datetime.combine(end_date, time.max)
+
+        meetings = Meeting.objects.filter(workers=worker, datetime__range=(start, end))
+        tasks = Task.objects.filter(executor=worker, deadline__range=(start, end))
+
+        meeting_serializer_data = MeetingGetSerializer(meetings, many=True)
+        tasks_serializer_data = GetTaskSerializer(tasks, many=True, context={"request": request})
+
+        return Response(data={
+            "date": parse_date,
+            "meetings": meeting_serializer_data.data,
+            "tasks": tasks_serializer_data.data
+            })
     
