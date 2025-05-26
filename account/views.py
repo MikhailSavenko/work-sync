@@ -16,6 +16,9 @@ from task.models import Task
 from event.serializers import MeetingGetSerializer
 from task.serializers import GetTaskSerializer
 
+from account.services.calendar import get_calendar_events
+
+
 
 class TeamViewSet(viewsets.ModelViewSet):
     """Представление для Team"""
@@ -52,16 +55,11 @@ class WorkerViewSet(viewsets.GenericViewSet,
         start = datetime.combine(parse_date, time.min)
         end = datetime.combine(parse_date, time.max)
 
-        meetings = Meeting.objects.filter(workers=worker, datetime__range=(start, end))
-        tasks = Task.objects.filter(executor=worker, deadline__range=(start, end))
-
-        meeting_serializer_data = MeetingGetSerializer(meetings, many=True)
-        tasks_serializer_data = GetTaskSerializer(tasks, many=True, context={"request": request})
+        calendar_events = get_calendar_events(worker=worker, start_date=start, end_date=end, request=request)
 
         return Response(data={
             "date": parse_date,
-            "meetings": meeting_serializer_data.data,
-            "tasks": tasks_serializer_data.data
+            **calendar_events
             })
 
     @action(detail=False, methods=["get"], url_path="calendar/month/(?P<date>\\d{4}-\\d{2})")
@@ -79,15 +77,10 @@ class WorkerViewSet(viewsets.GenericViewSet,
         start = datetime.combine(parse_date, time.min)
         end = datetime.combine(end_date, time.max)
 
-        meetings = Meeting.objects.filter(workers=worker, datetime__range=(start, end))
-        tasks = Task.objects.filter(executor=worker, deadline__range=(start, end))
-
-        meeting_serializer_data = MeetingGetSerializer(meetings, many=True)
-        tasks_serializer_data = GetTaskSerializer(tasks, many=True, context={"request": request})
+        calendar_events = get_calendar_events(worker=worker, start_date=start, end_date=end, request=request)
 
         return Response(data={
             "date": parse_date,
-            "meetings": meeting_serializer_data.data,
-            "tasks": tasks_serializer_data.data
+            **calendar_events
             })
     
