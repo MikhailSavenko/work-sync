@@ -11,13 +11,7 @@ import calendar
 from account.serializers import TeamCreateUpdateSerializer, WorkerGetSerializer, TeamGetSerializer
 from account.models import Team, Worker
 
-from event.models import Meeting
-from task.models import Task
-from event.serializers import MeetingGetSerializer
-from task.serializers import GetTaskSerializer
-
 from account.services.calendar import get_calendar_events
-
 
 
 class TeamViewSet(viewsets.ModelViewSet):
