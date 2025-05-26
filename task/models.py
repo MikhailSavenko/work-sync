@@ -56,6 +56,8 @@ class Evaluation(models.Model):
     task = models.OneToOneField(Task, verbose_name="Оцениваемая задача", on_delete=models.CASCADE)
     to_worker = models.ForeignKey(Worker, verbose_name="Оценен", on_delete=models.SET_NULL, null=True, blank=True, related_name="received_evaluations")
     from_worker = models.ForeignKey(Worker, verbose_name="Оценил", on_delete=models.SET_NULL, null=True, blank=True, related_name="given_evaluations")
+    created_at = models.DateTimeField(verbose_name="Даты и время создания", auto_now_add=True)
+    updated_at = models.DateTimeField(verbose_name="Даты и время обновления", auto_now=True)
 
 
 class Comment(models.Model):
