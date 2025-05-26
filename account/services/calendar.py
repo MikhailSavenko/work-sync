@@ -8,8 +8,8 @@ from tabulate import tabulate
 
 
 def get_calendar_events(worker: Worker, start_date, end_date, request):
-    meetings = Meeting.objects.filter(workers=worker, datetime__range=(start_date, end_date))
-    tasks = Task.objects.filter(executor=worker, deadline__range=(start_date, end_date))
+    meetings = Meeting.objects.prefetch_related("workers").filter(workers=worker, datetime__range=(start_date, end_date))
+    tasks = Task.objects.select_related("executor").filter(executor=worker, deadline__range=(start_date, end_date))
 
     meeting_serializer_data = MeetingGetSerializer(meetings, many=True)
     tasks_serializer_data = GetTaskSerializer(tasks, many=True, context={"request": request})
@@ -27,10 +27,10 @@ def format_calendar_text_table(meetings, tasks):
     table = []
 
     for meeting in meetings:
-        table.append(["Встреча", meeting.datetime.strftime("%d.%m.%Y %H:%M"), meeting.description])
+        table.append(["Встреча", meeting.datetime.strftime("%d.%m.%Y %H:%M"), meeting.description, ", ".join(worker.user.email for worker in meeting.workers.all())])
 
     for task in tasks:
-        table.append(["Задача", task.deadline.strftime("%d.%m.%Y %H:%M"), task.title])
+        table.append(["Задача", task.deadline.strftime("%d.%m.%Y %H:%M"), task.title, task.executor.user.email])
     print("В ТАБУЛЭЙТ")
 
-    return tabulate(table, headers=["Тип", "Дата и время", "Описание"], tablefmt="grid")
+    return tabulate(table, headers=["Тип", "Дата и время", "Описание", "Участники"], tablefmt="grid")
