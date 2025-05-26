@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from django.utils import timezone
 
 from event.models import Meeting
-from event.serializers import MeetingSerializer
+from event.serializers import MeetingGetSerializer, MeetingCreateSerializer
 
 
 class MeetingViewSet(mixins.CreateModelMixin,
@@ -16,8 +16,14 @@ class MeetingViewSet(mixins.CreateModelMixin,
     """Представление Встречи. Создание/Отмена/Получение/Свои встречи"""
     permission_classes = (IsAuthenticated,)
     queryset = Meeting.objects.all()
-    serializer_class = MeetingSerializer
 
+    def get_serializer_class(self):
+        if self.action in ("list", "retrieve", "me"):
+            return MeetingGetSerializer
+        elif self.action == "create":
+            return MeetingCreateSerializer
+        return super().get_serializer_class()
+    
     def perform_create(self, serializer):
         current_user = self.request.user.worker
         serializer.save(creator=current_user)
@@ -28,7 +34,9 @@ class MeetingViewSet(mixins.CreateModelMixin,
         now = timezone.now()
 
         meetings = Meeting.objects.filter(workers=user_worker, datetime__gt=now)
-        serializer = self.serializer_class(meetings, many=True)
+        
+        serializer = self.get_serializer_class()
+        serializer = serializer(meetings, many=True)
 
         return Response(serializer.data)
         

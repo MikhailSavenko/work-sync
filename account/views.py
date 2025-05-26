@@ -13,8 +13,9 @@ from account.models import Team, Worker
 
 from event.models import Meeting
 from task.models import Task
-from event.serializers import MeetingSerializer
+from event.serializers import MeetingGetSerializer
 from task.serializers import GetTaskSerializer
+
 
 class TeamViewSet(viewsets.ModelViewSet):
     """Представление для Team"""
@@ -54,7 +55,7 @@ class WorkerViewSet(viewsets.GenericViewSet,
         meetings = Meeting.objects.filter(workers=worker, datetime__range=(start, end))
         tasks = Task.objects.filter(executor=worker, deadline__range=(start, end))
 
-        meeting_serializer_data = MeetingSerializer(meetings, many=True)
+        meeting_serializer_data = MeetingGetSerializer(meetings, many=True)
         tasks_serializer_data = GetTaskSerializer(tasks, many=True, context={"request": request})
 
         return Response(data={

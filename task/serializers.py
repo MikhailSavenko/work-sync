@@ -6,13 +6,13 @@ from account.models import Worker
 
 class WorkerNameSerializer(serializers.ModelSerializer):
     """Сериалайзер полей Сотрудника и его имени в Профиле"""
-    worker = serializers.CharField(source="user.get_full_name", read_only=True)
+    full_name = serializers.CharField(source="user.get_full_name", read_only=True)
     role = serializers.CharField(source="get_role_display", read_only=True)
 
     class Meta:
 
         model = Worker
-        fields = ("id", "worker", "role", "team")
+        fields = ("id", "full_name", "role", "team")
 
 
 class GetTaskSerializer(serializers.ModelSerializer):
