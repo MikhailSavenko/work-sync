@@ -62,17 +62,18 @@ class WorkerViewSet(viewsets.GenericViewSet,
             "evaluations_count": evaluations.count()
         })
 
-    @action(detail=False, methods=["get"], url_path=r"calendar/day/(?P<date>\d{4}-\d{2}-\d{2})")
-    def calendar_day(self, request, date):
+    @action(detail=True, methods=["get"], url_path=r"calendar/day/(?P<date>\d{4}-\d{2}-\d{2})")
+    def calendar_day(self, request, date=None, pk=None):
         """
         Эндпоиинт просмотра событий сотрудника за день 
         date - обязательный параметр пути YYYY-MM-DD
         """
-        worker = request.user.worker
+        worker = self.get_object()
 
         parse_date = datetime.strptime(date, "%Y-%m-%d").date()
-        start = datetime.combine(parse_date, time.min)
-        end = datetime.combine(parse_date, time.max)
+
+        start = timezone.make_aware(datetime.combine(parse_date, time.min))
+        end = timezone.make_aware(datetime.combine(parse_date, time.max))
 
         calendar_events = get_calendar_events(worker=worker, start_date=start, end_date=end, request=request)
 
