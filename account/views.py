@@ -5,15 +5,14 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Avg
 
-from datetime import datetime, time
-import calendar
-from django.utils import timezone
+from datetime import datetime
 
 from account.serializers import TeamCreateUpdateSerializer, WorkerGetSerializer, TeamGetSerializer
 from account.models import Team, Worker
 
 from account.services.calendar import get_calendar_events
 from task.models import Evaluation
+from account.utils import get_day_bounds, get_month_bounds
 
 
 class TeamViewSet(viewsets.ModelViewSet):
@@ -41,14 +40,17 @@ class WorkerViewSet(viewsets.GenericViewSet,
 
     @action(detail=True, methods=["get"], url_path=r"evaluation/avg/(?P<start_date>\d{4}-\d{2}-\d{2})/(?P<end_date>\d{4}-\d{2}-\d{2})")
     def average_evaluation(self, request, start_date=None, end_date=None, pk=None):
-        """Средняя оценка сотрудника"""
+        """
+        Средняя оценка сотрудника
+        start_date - начальная дата YYYY-MM-DD
+        end_date - конечная дата YYYY-MM-DD
+        """
         current_worker = self.get_object()
         
         parce_start = datetime.strptime(start_date, "%Y-%m-%d").date()
         parse_end = datetime.strptime(end_date, "%Y-%m-%d").date()
-
-        start = timezone.make_aware(datetime.combine(parce_start, time.min))
-        end = timezone.make_aware(datetime.combine(parse_end, time.max))
+        
+        start, end = get_day_bounds((parce_start, parse_end))
 
         evaluations = Evaluation.objects.filter(to_worker=current_worker, created_at__range=(start, end))
 
@@ -71,8 +73,7 @@ class WorkerViewSet(viewsets.GenericViewSet,
 
         parse_date = datetime.strptime(date, "%Y-%m-%d").date()
 
-        start = timezone.make_aware(datetime.combine(parse_date, time.min))
-        end = timezone.make_aware(datetime.combine(parse_date, time.max))
+        start, end = get_day_bounds(date=parse_date)
 
         calendar_events = get_calendar_events(worker=worker, start_date=start, end_date=end, request=request)
 
@@ -89,12 +90,8 @@ class WorkerViewSet(viewsets.GenericViewSet,
         """
         worker = self.get_object()
         parse_date = datetime.strptime(date, "%Y-%m").date()
-        
-        last_day_month = calendar.monthrange(parse_date.year, parse_date.month)[1]
-        end_date = parse_date.replace(day=last_day_month)
 
-        start = timezone.make_aware(datetime.combine(parse_date, time.min))
-        end = timezone.make_aware(datetime.combine(end_date, time.max))
+        start, end = get_month_bounds(start_date=parse_date)
 
         calendar_events = get_calendar_events(worker=worker, start_date=start, end_date=end, request=request)
 
