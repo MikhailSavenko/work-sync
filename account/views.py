@@ -7,6 +7,7 @@ from django.db.models import Avg
 
 from datetime import datetime, time
 import calendar
+from django.utils import timezone
 
 from account.serializers import TeamCreateUpdateSerializer, WorkerGetSerializer, TeamGetSerializer
 from account.models import Team, Worker
@@ -92,8 +93,8 @@ class WorkerViewSet(viewsets.GenericViewSet,
         last_day_month = calendar.monthrange(parse_date.year, parse_date.month)[1]
         end_date = parse_date.replace(day=last_day_month)
 
-        start = datetime.combine(parse_date, time.min)
-        end = datetime.combine(end_date, time.max)
+        start = timezone.make_aware(datetime.combine(parse_date, time.min))
+        end = timezone.make_aware(datetime.combine(end_date, time.max))
 
         calendar_events = get_calendar_events(worker=worker, start_date=start, end_date=end, request=request)
 
