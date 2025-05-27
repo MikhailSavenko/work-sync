@@ -81,13 +81,13 @@ class WorkerViewSet(viewsets.GenericViewSet,
             **calendar_events
             })
 
-    @action(detail=False, methods=["get"], url_path=r"calendar/month/(?P<date>\d{4}-\d{2})")
-    def calendar_month(self, request, date):
+    @action(detail=True, methods=["get"], url_path=r"calendar/month/(?P<date>\d{4}-\d{2})")
+    def calendar_month(self, request, date=None, pk=None):
         """
         Эндпоиинт просмотра событий сотрудника за месяц 
         date - обязательный параметр пути YYYY-MM
         """
-        worker = request.user.worker
+        worker = self.get_object()
         parse_date = datetime.strptime(date, "%Y-%m").date()
         
         last_day_month = calendar.monthrange(parse_date.year, parse_date.month)[1]
