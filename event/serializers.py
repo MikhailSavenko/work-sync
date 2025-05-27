@@ -22,6 +22,24 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
         model = Meeting
         fields = ("id", "description", "datetime", "creator", "workers")
 
+    def validate(self, data):
+        creator = self.context["request"].user.worker
+        workers = data.get("workers")
+
+        if not workers:
+            raise serializers.ValidationError("Укажите хотя бы одного сотрудника для встречи.")
+        
+        workers = list(workers)
+
+        if creator not in workers:
+            workers.append(creator)
+        
+        if len(set(workers)) < 2:
+            raise serializers.ValidationError("Встреча должна включать минимум двух участников.")
+        
+        data["workers"] = workers
+        return data
+
     def validate_datetime(self, value):
         """Создавать встречи в прошллом нельзя"""
         date_now = timezone.now()
