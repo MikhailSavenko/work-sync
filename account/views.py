@@ -39,23 +39,22 @@ class WorkerViewSet(viewsets.GenericViewSet,
     serializer_class = WorkerGetSerializer
     queryset = Worker.objects.all()
 
-    @action(detail=False, methods=["get"], url_path=r"evaluation/avg/(?P<start_date>\d{4}-\d{2}-\d{2})/(?P<end_date>\d{4}-\d{2}-\d{2})")
-    def average_evaluation(self, request, start_date, end_date):
+    @action(detail=True, methods=["get"], url_path=r"evaluation/avg/(?P<start_date>\d{4}-\d{2}-\d{2})/(?P<end_date>\d{4}-\d{2}-\d{2})")
+    def average_evaluation(self, request, start_date=None, end_date=None, pk=None):
         """Средняя оценка сотрудника"""
-        current_worker = request.user.worker
+        current_worker = self.get_object()
         
         parce_start = datetime.strptime(start_date, "%Y-%m-%d").date()
         parse_end = datetime.strptime(end_date, "%Y-%m-%d").date()
 
-        start = datetime.combine(parce_start, time.min)
-        end = datetime.combine(parse_end, time.max)
+        start = timezone.make_aware(datetime.combine(parce_start, time.min))
+        end = timezone.make_aware(datetime.combine(parse_end, time.max))
 
         evaluations = Evaluation.objects.filter(to_worker=current_worker, created_at__range=(start, end))
 
         avg = evaluations.aggregate(Avg("score"))
 
         return Response(data={
-            "worker_id": current_worker.id,
             "start_date": parce_start,
             "end_date": parse_end,
             "average_score": avg.get("score__avg") if avg is not None else None,
