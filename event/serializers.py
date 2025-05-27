@@ -28,22 +28,22 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
         workers = data.get("workers")
 
         workers = validate_workers_and_include_creator(creator=creator, workers=workers)
-        
+
         data["workers"] = workers
+
+        # Проверка наложения встреч приглашенных участников
+        for worker in workers:
+            if not check_if_datetime_is_free(worker=worker, check_date=data["datetime"]):
+                raise serializers.ValidationError(f"В это время у пользователя {worker.user.email} уже назначена встреча!")
         
         return data
 
     def validate_datetime(self, value):
-        current_worker = self.context["request"].user.worker
+        """Проверка даты и времени. Дату и время в прошлом назначить нельзя"""
         date_now = timezone.now()
-        
-        # Проверка на прошлое
+
         if value < date_now:
-            raise serializers.ValidationError("Дата встречи не может быть в прошлом.")
-        
-        # Проверка наложения встреч
-        if not check_if_datetime_is_free(worker=current_worker, check_date=value):
-            raise serializers.ValidationError("В это время у вас уже назначена встреча!")
+            raise serializers.ValidationError("Дата и время встречи не может быть в прошлом.")
         
         return value
 
