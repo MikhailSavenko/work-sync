@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from event.models import Meeting
 from account.models import Worker
-from event.services.meeting import validate_workers_and_include_creator
+from event.services.meeting import validate_workers_and_include_creator, check_if_datetime_is_free
 from task.serializers import WorkerNameSerializer
 from django.utils import timezone
 
@@ -34,20 +34,16 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
         return data
 
     def validate_datetime(self, value):
-        # Проверка на прошлое
         current_worker = self.context["request"].user.worker
         date_now = timezone.now()
+        
+        # Проверка на прошлое
         if value < date_now:
             raise serializers.ValidationError("Дата встречи не может быть в прошлом.")
         
         # Проверка наложения встреч
-        meetings_datetimes = Meeting.objects.filter(workers=current_worker).values_list("datetime", flat=True)
-        print(f'Meeting for you, dates:  {meetings_datetimes}')
-        print(type(value))
-        print(value)
-        for meeting_datetime in meetings_datetimes:
-            if meeting_datetime == value:
-                raise serializers.ValidationError("В это время у вас уже назначена встреча!")
+        if not check_if_datetime_is_free(worker=current_worker, check_date=value):
+            raise serializers.ValidationError("В это время у вас уже назначена встреча!")
         
         return value
 
