@@ -34,10 +34,21 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
         return data
 
     def validate_datetime(self, value):
-        """Создавать встречи в прошллом нельзя"""
+        # Проверка на прошлое
+        current_worker = self.context["request"].user.worker
         date_now = timezone.now()
         if value < date_now:
             raise serializers.ValidationError("Дата встречи не может быть в прошлом.")
+        
+        # Проверка наложения встреч
+        meetings_datetimes = Meeting.objects.filter(workers=current_worker).values_list("datetime", flat=True)
+        print(f'Meeting for you, dates:  {meetings_datetimes}')
+        print(type(value))
+        print(value)
+        for meeting_datetime in meetings_datetimes:
+            if meeting_datetime == value:
+                raise serializers.ValidationError("В это время у вас уже назначена встреча!")
+        
         return value
 
 

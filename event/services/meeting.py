@@ -1,5 +1,7 @@
 from account.models import Worker
 from rest_framework import serializers
+from datetime import datetime
+from event.models import Meeting
 
 
 def validate_workers_and_include_creator(creator: Worker, workers: list[Worker]) -> list[Worker]:
@@ -26,3 +28,14 @@ def validate_workers_and_include_creator(creator: Worker, workers: list[Worker])
         raise serializers.ValidationError("Встреча должна включать минимум двух участников.")
     
     return workers
+
+
+def check_if_datetime_is_free(worker: Worker, check_date: datetime) -> bool:
+    
+    meetings_datetimes = Meeting.objects.filter(workers=worker).values_list("datetime", flat=True)
+      
+    for meeting_datetime in meetings_datetimes:
+        if meeting_datetime == check_date:
+            return False
+    
+    return True
