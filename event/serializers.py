@@ -18,6 +18,7 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
     """
     creator = serializers.PrimaryKeyRelatedField(read_only=True)
     workers = serializers.PrimaryKeyRelatedField(queryset=Worker.objects.all(), many=True)
+    datetime = serializers.DateTimeField(input_formats=("%Y-%m-%dT%H:%M",))
 
     class Meta:
         model = Meeting
@@ -44,6 +45,8 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
 
         if value < date_now:
             raise serializers.ValidationError("Дата и время встречи не может быть в прошлом.")
+        
+        print(value)
         
         return value
 
