@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from event.models import Meeting
 from account.models import Worker
+from event.services.meeting import validate_workers_and_include_creator
 from task.serializers import WorkerNameSerializer
 from django.utils import timezone
 
@@ -26,18 +27,10 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
         creator = self.context["request"].user.worker
         workers = data.get("workers")
 
-        if not workers:
-            raise serializers.ValidationError("Укажите хотя бы одного сотрудника для встречи.")
-        
-        workers = list(workers)
-
-        if creator not in workers:
-            workers.append(creator)
-        
-        if len(set(workers)) < 2:
-            raise serializers.ValidationError("Встреча должна включать минимум двух участников.")
+        workers = validate_workers_and_include_creator(creator=creator, workers=workers)
         
         data["workers"] = workers
+        
         return data
 
     def validate_datetime(self, value):
