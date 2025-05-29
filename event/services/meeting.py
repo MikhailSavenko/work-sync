@@ -30,7 +30,7 @@ def validate_workers_and_include_creator(creator: Worker, workers: list[Worker])
     return workers
 
 
-def check_if_datetime_is_free(worker: Worker, check_date: datetime) -> bool:
+def check_if_datetime_is_free(worker: Worker, check_date: datetime,  meeting_id: int | None = None) -> bool: #
     """
     Проверяет, свободно ли указанное время для сотрудника, сравнивая с уже назначенными встречами.
 
@@ -41,10 +41,15 @@ def check_if_datetime_is_free(worker: Worker, check_date: datetime) -> bool:
     :returns: True, если время свободно, False в противном случае.
     :rtype: bool
     """
-    meetings_datetimes = Meeting.objects.filter(workers=worker).values_list("datetime", flat=True)
+    meetings = Meeting.objects.filter(workers=worker).values_list("id", "datetime") # "id", 
       
-    for meeting_datetime in meetings_datetimes:
-        if meeting_datetime == check_date:
+    for id_meet, datetime_meet in meetings:
+        # print(datetime_meet)
+        if datetime_meet == check_date:
+            print(type(meeting_id))
+            if meeting_id is not None:
+                meeting_id = int(meeting_id)
+                if meeting_id == id_meet:
+                    return True      
             return False
-    
     return True

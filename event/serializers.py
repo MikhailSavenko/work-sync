@@ -7,7 +7,7 @@ from task.serializers import WorkerNameSerializer
 from django.utils import timezone
 
 
-class MeetingCreateSerializer(serializers.ModelSerializer):
+class MeetingCreateUpdateSerializer(serializers.ModelSerializer):
     """
     Сериалайзер встречи - Создание
 
@@ -31,10 +31,16 @@ class MeetingCreateSerializer(serializers.ModelSerializer):
         workers = validate_workers_and_include_creator(creator=creator, workers=workers)
 
         data["workers"] = workers
-
         # Проверка наложения встреч приглашенных участников
+        meeting_id = None
+        if self.context["request"].method == "PUT":
+            print("АГА")
+            meeting_id = self.context["request"].parser_context.get("kwargs")["pk"]
+        
         for worker in workers:
-            if not check_if_datetime_is_free(worker=worker, check_date=data["datetime"]):
+            print(meeting_id)
+
+            if not check_if_datetime_is_free(worker=worker, check_date=data["datetime"], meeting_id=meeting_id):
                 raise serializers.ValidationError(f"В это время у пользователя {worker.user.email} уже назначена встреча!")
         
         return data

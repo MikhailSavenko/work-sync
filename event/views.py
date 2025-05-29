@@ -1,18 +1,14 @@
 from rest_framework import viewsets, status, mixins
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
 
 from event.models import Meeting
-from event.serializers import MeetingGetSerializer, MeetingCreateSerializer
+from event.serializers import MeetingGetSerializer, MeetingCreateUpdateSerializer
 
 
-class MeetingViewSet(mixins.CreateModelMixin,
-                     mixins.RetrieveModelMixin,
-                     mixins.DestroyModelMixin,
-                     mixins.ListModelMixin,
-                     viewsets.GenericViewSet):
+class MeetingViewSet(viewsets.ModelViewSet):
     """Представление Встречи. Создание/Отмена/Получение/Свои встречи"""
     permission_classes = (IsAuthenticated,)
     queryset = Meeting.objects.all()
@@ -20,8 +16,10 @@ class MeetingViewSet(mixins.CreateModelMixin,
     def get_serializer_class(self):
         if self.action in ("list", "retrieve", "me"):
             return MeetingGetSerializer
+        elif self.action == "update":
+            return MeetingCreateUpdateSerializer
         elif self.action == "create":
-            return MeetingCreateSerializer
+            return MeetingCreateUpdateSerializer
         return super().get_serializer_class()
     
     def perform_create(self, serializer):
