@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from event.models import Meeting
 from account.models import Worker
-from event.services.meeting import validate_workers_and_include_creator, check_if_datetime_is_free
+from event.services.meeting import validate_workers_and_include_creator, is_datetime_available
 from task.serializers import WorkerNameSerializer
 from django.utils import timezone
 
@@ -17,31 +17,35 @@ class MeetingCreateUpdateSerializer(serializers.ModelSerializer):
     description - описание встречи
     """
     creator = serializers.PrimaryKeyRelatedField(read_only=True)
-    workers = serializers.PrimaryKeyRelatedField(queryset=Worker.objects.all(), many=True)
-    datetime = serializers.DateTimeField(input_formats=("%Y-%m-%dT%H:%M",))
+    workers = serializers.PrimaryKeyRelatedField(queryset=Worker.objects.all(), many=True, help_text="Список ID приглашенных сотрудников")
+    datetime = serializers.DateTimeField(input_formats=("%Y-%m-%dT%H:%M",), 
+                                         help_text="Формат: YYYY-MM-DDTHH:MM")
 
     class Meta:
         model = Meeting
         fields = ("id", "description", "datetime", "creator", "workers")
 
     def validate(self, data):
-        creator = self.context["request"].user.worker
+        data = super().validate(data)
+
+        request = self.context["request"]
+        creator = request.user.worker
         workers = data.get("workers")
 
-        workers = validate_workers_and_include_creator(creator=creator, workers=workers)
+        # Валидация участников
+        data["workers"] = validate_workers_and_include_creator(creator=creator, workers=workers)
 
-        data["workers"] = workers
         # Проверка наложения встреч приглашенных участников
         meeting_id = None
         if self.context["request"].method == "PUT":
             print("АГА")
-            meeting_id = self.context["request"].parser_context.get("kwargs")["pk"]
+            meeting_id = self.instance.pk if self.instance else None
         
-        for worker in workers:
+        for worker in data["workers"]:
             print(meeting_id)
 
-            if not check_if_datetime_is_free(worker=worker, check_date=data["datetime"], meeting_id=meeting_id):
-                raise serializers.ValidationError(f"В это время у пользователя {worker.user.email} уже назначена встреча!")
+            if not is_datetime_available(worker=worker, check_date=data["datetime"], meeting_id=meeting_id):
+                raise serializers.ValidationError(f"{worker.user.email} уже имеет встречу в это время")
         
         return data
 
