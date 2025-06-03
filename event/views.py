@@ -3,16 +3,26 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from event.models import Meeting
+from event.schemas import MeetingAutoSchema
 from event.serializers import MeetingGetSerializer, MeetingCreateUpdateSerializer
 
 
 class MeetingViewSet(viewsets.ModelViewSet):
-    """Представление Встречи. Создание/Отмена/Получение/Свои встречи"""
+    """
+    API для работы с встречами.
+    
+    Позволяет:
+    - Создавать новые встречи
+    - Просматривать/редактировать существующие
+    - Отменять встречи
+    - Получать список предстоящих или завершенных встреч текущего пользователя
+    """
     permission_classes = (IsAuthenticated,)
     queryset = Meeting.objects.all()
-
     serializer_class = {
         "list": MeetingGetSerializer,
         "retrieve": MeetingGetSerializer,
@@ -20,6 +30,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
         "update": MeetingCreateUpdateSerializer,
         "create": MeetingCreateUpdateSerializer,
     }
+    swagger_schema = MeetingAutoSchema
 
     def get_serializer_class(self):
         return self.serializer_class.get(self.action, MeetingGetSerializer)
