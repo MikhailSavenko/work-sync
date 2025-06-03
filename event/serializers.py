@@ -45,7 +45,7 @@ class MeetingCreateUpdateSerializer(serializers.ModelSerializer):
             print(meeting_id)
 
             if not is_datetime_available(worker=worker, check_date=data["datetime"], meeting_id=meeting_id):
-                raise serializers.ValidationError(f"{worker.user.email} уже имеет встречу в это время")
+                raise serializers.ValidationError(f"{worker.user.email} уже имеет встречу на дату: {data["datetime"]}")
         
         return data
 

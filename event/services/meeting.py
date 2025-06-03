@@ -41,15 +41,9 @@ def is_datetime_available(worker: Worker, check_date: datetime,  meeting_id: int
     :returns: True, если время свободно, False в противном случае.
     :rtype: bool
     """
-    meetings = Meeting.objects.filter(workers=worker).values_list("id", "datetime") # "id", 
+    queryset = Meeting.objects.filter(workers=worker, datetime=check_date)
+
+    if meeting_id is not None:
+        queryset = queryset.exclude(id=meeting_id)
       
-    for id_meet, datetime_meet in meetings:
-        # print(datetime_meet)
-        if datetime_meet == check_date:
-            print(type(meeting_id))
-            if meeting_id is not None:
-                meeting_id = int(meeting_id)
-                if meeting_id == id_meet:
-                    return True      
-            return False
-    return True
+    return not queryset.exists()

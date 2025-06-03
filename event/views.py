@@ -1,5 +1,5 @@
-from rest_framework import viewsets, status, mixins
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework import viewsets, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
@@ -53,7 +53,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
         
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        
+        # по сути это можно будет убрать, когда я напишу нормлаьные permission
         if instance.creator != request.user.worker:
             return Response({"detail": "Отмена встречи возможна только ее создателем."}, status=status.HTTP_403_FORBIDDEN)
         
