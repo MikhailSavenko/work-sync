@@ -31,7 +31,8 @@ INSTALLED_APPS = [
     'event',
     'rest_framework',
     'djoser',
-    "rest_framework_simplejwt.token_blacklist"
+    'rest_framework_simplejwt.token_blacklist',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
