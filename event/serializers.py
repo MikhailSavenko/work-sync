@@ -50,7 +50,7 @@ class MeetingCreateUpdateSerializer(serializers.ModelSerializer):
         return data
 
     def validate_datetime(self, value):
-        """Проверка даты и времени. Дату и время в прошлом назначить нельзя"""
+        """Проверка что дата не в прошлом"""
         date_now = timezone.now()
 
         if value < date_now:

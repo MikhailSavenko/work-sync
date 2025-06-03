@@ -13,14 +13,16 @@ class MeetingViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = Meeting.objects.all()
 
+    serializer_class = {
+        "list": MeetingGetSerializer,
+        "retrieve": MeetingGetSerializer,
+        "me": MeetingGetSerializer,
+        "update": MeetingCreateUpdateSerializer,
+        "create": MeetingCreateUpdateSerializer,
+    }
+
     def get_serializer_class(self):
-        if self.action in ("list", "retrieve", "me"):
-            return MeetingGetSerializer
-        elif self.action == "update":
-            return MeetingCreateUpdateSerializer
-        elif self.action == "create":
-            return MeetingCreateUpdateSerializer
-        return super().get_serializer_class()
+        return self.serializer_class.get(self.action, MeetingGetSerializer)
     
     def perform_create(self, serializer):
         current_user = self.request.user.worker
