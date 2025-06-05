@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from django.utils import timezone
 
 from event.models import Meeting
-from event.schemas import MeetingAutoSchema
+from event.doc.schemas import MeetingAutoSchema
 from event.serializers import MeetingGetSerializer, MeetingCreateUpdateSerializer
 
 
