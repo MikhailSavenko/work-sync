@@ -3,8 +3,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
 
 from event.models import Meeting
 from event.schemas import MeetingAutoSchema
@@ -21,6 +19,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
     - Отменять встречи
     - Получать список предстоящих или завершенных встреч текущего пользователя
     """
+    http_method_names = ["get", "post", "put", "delete", "options", "head"]
     permission_classes = (IsAuthenticated,)
     queryset = Meeting.objects.all()
     serializer_class = {

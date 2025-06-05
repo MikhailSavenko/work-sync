@@ -25,6 +25,7 @@ class MeetingCreateUpdateSerializer(serializers.ModelSerializer):
         model = Meeting
         fields = ("id", "description", "datetime", "creator", "workers")
 
+
     def validate(self, data):
         data = super().validate(data)
 
