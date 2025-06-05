@@ -37,9 +37,34 @@ class GetTaskSerializer(serializers.ModelSerializer):
         return None
 
 
-class TaskCreateUpdateSerializer(serializers.ModelSerializer):
-    """Сериалайзер для создания и обновления Task"""
+class TaskCreateSerializer(serializers.ModelSerializer):
+    """Сериалайзер для создания Task"""
     status = serializers.ReadOnlyField(source="get_status_display", help_text="OP - открыт |AW - в работе |DN - завершен")
+    deadline = serializers.DateTimeField(input_formats=("%Y-%m-%dT%H:%M",), 
+                                         help_text="Формат: YYYY-MM-DDTHH:MM")
+    
+    class Meta:
+
+        model = Task
+        fields = ("id", "title", "description", "status", "deadline", "executor")
+        extra_kwargs = {
+            "executor": {"help_text": "id исполнителя, может быть назначен позже"},
+            "deadline":  {"help_text": "YYYY-MM-DDTHH:MM"}
+        }
+    
+    def validate_deadline(self, value):
+        """Проверка что дата не в прошлом"""
+        date_now = timezone.now()
+
+        if value < date_now:
+            raise serializers.ValidationError("Дэдлайн не может быть в прошлом.")
+        
+        return value
+
+
+class TaskUpdateSerializer(serializers.ModelSerializer):
+    """Сериалайзер для  обновления Task"""
+    status = serializers.ChoiceField(choices=Task.StatusTask, help_text="OP - открыт |AW - в работе |DN - завершен")
     deadline = serializers.DateTimeField(input_formats=("%Y-%m-%dT%H:%M",), 
                                          help_text="Формат: YYYY-MM-DDTHH:MM")
     

@@ -34,4 +34,14 @@ class TaskAutoSchema(SwaggerAutoSchema):
             operation.description = TASK_TEXTS["update"]["description"]
 
             operation.responses["400"] = OpenApiResponse(TASK_TEXTS["update"]["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_STRING)}, example=TASK_TEXTS["update"]["example"]["400"]))
+        
+        elif operation_keys and operation_keys[-1] == "partial_update":
+            operation.summary = TASK_TEXTS["partial_update"]["summary"]
+            operation.description = TASK_TEXTS["partial_update"]["description"]
+
+            operation.responses["400"] = OpenApiResponse(TASK_TEXTS["partial_update"]["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_STRING)}, example=TASK_TEXTS["update"]["example"]["400"]))
+        
+        elif operation_keys and operation_keys[-1] == "delete":
+            operation.summary = TASK_TEXTS["delete"]["summary"]
+            
         return operation

@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from task.doc.schemas import TaskAutoSchema
 from task.models import Evaluation, Task, Comment
-from task.serializers import TaskCreateUpdateSerializer, GetTaskSerializer, UpdateEvaluation, GetCommentSerializer, UpdateCommentSerializer, CreateCommentSerializer, CreateEvaluation
+from task.serializers import TaskCreateSerializer, TaskUpdateSerializer,  GetTaskSerializer, UpdateEvaluation, GetCommentSerializer, UpdateCommentSerializer, CreateCommentSerializer, CreateEvaluation
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -34,18 +34,18 @@ class TaskViewSet(viewsets.ModelViewSet):
 
         if hasattr(instance, "evaluation"):
             if executor and executor != instance.executor:
-                raise serializers.ValidationError({"task": "Ошибка. Нельзя изменить исполнителя для оцененной и завершенной задачи."})
+                raise serializers.ValidationError({"task_update_executor": "Ошибка. Нельзя изменить исполнителя для оцененной и завершенной задачи."})
             if status and status != instance.status:
-                raise serializers.ValidationError({"task": "Ошибка. Нельзя изменить статус для оцененной и завершенной задачи."})
+                raise serializers.ValidationError({"task_update_status": "Ошибка. Нельзя изменить статус для оцененной и завершенной задачи."})
         serializer.save()
 
     def get_serializer_class(self):
         if self.action == "create":
-            self.serializer_class = TaskCreateUpdateSerializer
+            self.serializer_class = TaskCreateSerializer
         elif self.action in ["retrieve", "list", "me"]:
             self.serializer_class = GetTaskSerializer
         elif self.action in ["update", "partial_update"]:
-            self.serializer_class = TaskCreateUpdateSerializer
+            self.serializer_class = TaskUpdateSerializer
         return self.serializer_class
 
     

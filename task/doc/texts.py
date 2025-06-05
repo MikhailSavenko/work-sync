@@ -65,6 +65,22 @@ TASK_TEXTS = {
             }
         }
     },
+    'partial_update': {
+        'summary': "Обновление отдельных полей задачи",
+        'description': "Позволяет обновить одно поле у задачи",
+        'responses': {
+            '200': "",
+            '400': VALIDATION_ERROR_DESCRIPTION,
+            '403': ""
+        },
+        'example': {  
+            "400": {
+                "deadline": [
+                    "Дэдлайн не может быть в прошлом."
+                ]
+            }
+        }
+    },
     'delete': {
         'summary': "",
         'description': "",
