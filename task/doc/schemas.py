@@ -34,14 +34,19 @@ class TaskAutoSchema(SwaggerAutoSchema):
             operation.description = TASK_TEXTS["update"]["description"]
 
             operation.responses["400"] = OpenApiResponse(TASK_TEXTS["update"]["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_STRING)}, example=TASK_TEXTS["update"]["example"]["400"]))
-        
+            operation.responses["409"] = OpenApiResponse(TASK_TEXTS["update"]["responses"]["409"], Schema(type=TYPE_OBJECT, properties={"task_update_conflict": Schema(type=TYPE_STRING)}, example=TASK_TEXTS["update"]["example"]["409"]["task_update_conflict"]))
+            
         elif operation_keys and operation_keys[-1] == "partial_update":
             operation.summary = TASK_TEXTS["partial_update"]["summary"]
             operation.description = TASK_TEXTS["partial_update"]["description"]
 
             operation.responses["400"] = OpenApiResponse(TASK_TEXTS["partial_update"]["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_STRING)}, example=TASK_TEXTS["update"]["example"]["400"]))
-        
+            operation.responses["409"] = OpenApiResponse(TASK_TEXTS["partial_update"]["responses"]["409"], Schema(type=TYPE_OBJECT, properties={"task_update_conflict": Schema(type=TYPE_STRING)}, example=TASK_TEXTS["partial_update"]["example"]["409"]["task_update_conflict"]))
+
+
         elif operation_keys and operation_keys[-1] == "delete":
             operation.summary = TASK_TEXTS["delete"]["summary"]
-            
+            operation.description = TASK_TEXTS["delete"]["description"]
+            operation.responses["404"] = OpenApiResponse(TASK_TEXTS["read"]["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=TASK_TEXTS["read"]["example"]["404"]))
+
         return operation

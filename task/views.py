@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from task.doc.schemas import TaskAutoSchema
 from task.models import Evaluation, Task, Comment
 from task.serializers import TaskCreateSerializer, TaskUpdateSerializer,  GetTaskSerializer, UpdateEvaluation, GetCommentSerializer, UpdateCommentSerializer, CreateCommentSerializer, CreateEvaluation
-
+from task.exeptions import TaskConflictError
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
@@ -34,9 +34,10 @@ class TaskViewSet(viewsets.ModelViewSet):
 
         if hasattr(instance, "evaluation"):
             if executor and executor != instance.executor:
-                raise serializers.ValidationError({"task_update_executor": "Ошибка. Нельзя изменить исполнителя для оцененной и завершенной задачи."})
+                raise TaskConflictError(detail={"task_update_conflict": "Ошибка. Нельзя изменить исполнителя(executor) для оцененной и завершенной задачи."})
             if status and status != instance.status:
-                raise serializers.ValidationError({"task_update_status": "Ошибка. Нельзя изменить статус для оцененной и завершенной задачи."})
+                print("Тут")
+                raise TaskConflictError(detail={"task_update_conflict": "Ошибка. Нельзя изменить статус(status) для оцененной и завершенной задачи."})
         serializer.save()
 
     def get_serializer_class(self):
