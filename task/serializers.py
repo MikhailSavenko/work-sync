@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.utils import timezone
 
 from task.models import Comment, Evaluation, Task
 from account.models import Worker
@@ -36,33 +37,30 @@ class GetTaskSerializer(serializers.ModelSerializer):
         return None
 
 
-class CreateTaskSerializer(serializers.ModelSerializer):
-    """Сериалайзер для создания Task"""
-    status = serializers.ReadOnlyField(source="get_status_display")
-
+class TaskCreateUpdateSerializer(serializers.ModelSerializer):
+    """Сериалайзер для создания и обновления Task"""
+    status = serializers.ReadOnlyField(source="get_status_display", help_text="OP - открыт |AW - в работе |DN - завершен")
+    deadline = serializers.DateTimeField(input_formats=("%Y-%m-%dT%H:%M",), 
+                                         help_text="Формат: YYYY-MM-DDTHH:MM")
+    
     class Meta:
 
         model = Task
         fields = ("id", "title", "description", "status", "deadline", "executor")
         extra_kwargs = {
-            "executor": {"help_text": "id"},
-            "deadline":  {"help_text": "YYYY-MM-DD"},
-            "status":  {"help_text": "OP|AW|DN"}
+            "executor": {"help_text": "id исполнителя, может быть назначен позже"},
+            "deadline":  {"help_text": "YYYY-MM-DDTHH:MM"}
         }
+    
+    def validate_deadline(self, value):
+        """Проверка что дата не в прошлом"""
+        date_now = timezone.now()
 
-
-class UpdateTaskSerializer(serializers.ModelSerializer):
-    """Сериалайзер для обновления Task"""
-    class Meta:
-
-        model = Task
-        fields = ("id", "title", "description", "deadline", "status", "executor")
-        extra_kwargs = {
-            "executor": {"help_text": "id"},
-            "deadline":  {"help_text": "YYYY-MM-DD"},
-            "status":  {"help_text": "OP|AW|DN"}
-        }
+        if value < date_now:
+            raise serializers.ValidationError("Дэдлайн не может быть в прошлом.")
         
+        return value
+
 
 class GetCommentSerializer(serializers.ModelSerializer):
     """Получить коммент сериалайзер"""

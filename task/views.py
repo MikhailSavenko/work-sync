@@ -4,13 +4,15 @@ from rest_framework import mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from task.doc.schemas import TaskAutoSchema
 from task.models import Evaluation, Task, Comment
-from task.serializers import CreateTaskSerializer, GetTaskSerializer, UpdateEvaluation, UpdateTaskSerializer, GetCommentSerializer, UpdateCommentSerializer, CreateCommentSerializer, CreateEvaluation
+from task.serializers import TaskCreateUpdateSerializer, GetTaskSerializer, UpdateEvaluation, GetCommentSerializer, UpdateCommentSerializer, CreateCommentSerializer, CreateEvaluation
 
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     permission_classes = (IsAuthenticated,)
+    swagger_schema = TaskAutoSchema
 
     @action(detail=False, methods=["get"], url_path="me")
     def me(self, request):
@@ -39,11 +41,11 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action == "create":
-            self.serializer_class = CreateTaskSerializer
+            self.serializer_class = TaskCreateUpdateSerializer
         elif self.action in ["retrieve", "list", "me"]:
             self.serializer_class = GetTaskSerializer
         elif self.action in ["update", "partial_update"]:
-            self.serializer_class = UpdateTaskSerializer
+            self.serializer_class = TaskCreateUpdateSerializer
         return self.serializer_class
 
     

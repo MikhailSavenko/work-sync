@@ -25,7 +25,6 @@ class MeetingCreateUpdateSerializer(serializers.ModelSerializer):
         model = Meeting
         fields = ("id", "description", "datetime", "creator", "workers")
 
-
     def validate(self, data):
         data = super().validate(data)
 
@@ -39,7 +38,6 @@ class MeetingCreateUpdateSerializer(serializers.ModelSerializer):
         # Проверка наложения встреч приглашенных участников
         meeting_id = None
         if self.context["request"].method == "PUT":
-            print("АГА")
             meeting_id = self.instance.pk if self.instance else None
         
         for worker in data["workers"]:
@@ -56,8 +54,6 @@ class MeetingCreateUpdateSerializer(serializers.ModelSerializer):
 
         if value < date_now:
             raise serializers.ValidationError("Дата и время встречи не может быть в прошлом.")
-        
-        print(value)
         
         return value
 
