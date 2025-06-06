@@ -69,16 +69,26 @@ class CommentViewSet(viewsets.ModelViewSet):
         "create": CreateCommentSerializer,
     }
 
-    def perform_create(self, serializer):
-        task_pk = self.kwargs.get("task_pk")
-
-        task_pk = is_int_or_valid_error(num_check=task_pk)
-        
-        task = get_object_or_404(Task, pk=task_pk)
-        serializer.save(creator=self.request.user.worker, task=task)
-
     def get_serializer_class(self):
         return self.serializer_class.get(self.action, GetCommentSerializer)
+
+    def perform_create(self, serializer):
+        task_pk = self.kwargs.get("task_pk")
+        task_pk = is_int_or_valid_error(num_check=task_pk)
+
+        task = get_object_or_404(Task, pk=task_pk)
+
+        serializer.save(creator=self.request.user.worker, task=task)
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        task_pk = self.kwargs.get("task_pk")
+        task_pk = is_int_or_valid_error(num_check=task_pk)
+        get_object_or_404(Task, pk=task_pk)
+
+        comments = queryset.filter(task=task_pk)
+        return comments
 
 
 class EvaluationViewSet(mixins.CreateModelMixin,
