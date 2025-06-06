@@ -100,7 +100,7 @@ class CreateCommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ("id", "task", "text", "created_at", "updated_at")
+        fields = ("id", "text", "created_at", "updated_at")
 
 
 class UpdateCommentSerializer(serializers.ModelSerializer):

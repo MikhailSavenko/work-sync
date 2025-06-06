@@ -9,6 +9,8 @@ from task.models import Evaluation, Task, Comment
 from task.serializers import TaskCreateSerializer, TaskUpdateSerializer,  GetTaskSerializer, UpdateEvaluation, GetCommentSerializer, UpdateCommentSerializer, CreateCommentSerializer, CreateEvaluation
 from task.exeptions import TaskConflictError
 
+from django.shortcuts import get_object_or_404
+
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
@@ -53,26 +55,23 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     
 class CommentViewSet(viewsets.ModelViewSet):
+    http_method_names = ("get", "post", "patch", "delete", "options", "head")
     queryset = Comment.objects.all()
-    permission_classes = [IsAuthenticated]
-
-    def create(self, request, *args, **kwargs):
-        request.data["task"] = kwargs.get("task_pk")
-        return super().create(request, *args, **kwargs)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = {
+        "list": GetCommentSerializer,
+        "retrieve": GetCommentSerializer,
+        "partial_update": UpdateCommentSerializer,
+        "create": CreateCommentSerializer,
+    }
 
     def perform_create(self, serializer):
-        serializer.save(creator=self.request.user.worker)
+        task_pk = self.kwargs.get("task_pk")
+        task = get_object_or_404(Task, pk=task_pk)
+        serializer.save(creator=self.request.user.worker, task=task)
 
     def get_serializer_class(self):
-        if self.action == "create":
-            self.serializer_class = CreateCommentSerializer
-        elif self.action == "retrieve":
-            self.serializer_class = GetCommentSerializer
-        elif self.action == "list":
-            self.serializer_class = GetCommentSerializer
-        elif self.action == "partial_update":
-            self.serializer_class = UpdateCommentSerializer
-        return self.serializer_class
+        return self.serializer_class.get(self.action, GetCommentSerializer)
 
 
 class EvaluationViewSet(mixins.CreateModelMixin,
