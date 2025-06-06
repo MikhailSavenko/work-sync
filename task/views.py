@@ -9,10 +9,22 @@ from task.models import Evaluation, Task, Comment
 from task.serializers import TaskCreateSerializer, TaskUpdateSerializer,  GetTaskSerializer, UpdateEvaluation, GetCommentSerializer, UpdateCommentSerializer, CreateCommentSerializer, CreateEvaluation
 from task.exeptions import TaskConflictError
 
+
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     permission_classes = (IsAuthenticated,)
     swagger_schema = TaskAutoSchema
+    serializer_class = {
+        "list": GetTaskSerializer,
+        "retrieve": GetTaskSerializer,
+        "me": GetTaskSerializer,
+        "update": TaskUpdateSerializer,
+        "partial_update": TaskUpdateSerializer,
+        "create": TaskCreateSerializer,
+    }
+
+    def get_serializer_class(self):
+        return self.serializer_class.get(self.action, GetTaskSerializer)
 
     @action(detail=False, methods=["get"], url_path="me")
     def me(self, request):
@@ -36,18 +48,8 @@ class TaskViewSet(viewsets.ModelViewSet):
             if executor and executor != instance.executor:
                 raise TaskConflictError(detail={"task_update_conflict": "Ошибка. Нельзя изменить исполнителя(executor) для оцененной и завершенной задачи."})
             if status and status != instance.status:
-                print("Тут")
                 raise TaskConflictError(detail={"task_update_conflict": "Ошибка. Нельзя изменить статус(status) для оцененной и завершенной задачи."})
         serializer.save()
-
-    def get_serializer_class(self):
-        if self.action == "create":
-            self.serializer_class = TaskCreateSerializer
-        elif self.action in ["retrieve", "list", "me"]:
-            self.serializer_class = GetTaskSerializer
-        elif self.action in ["update", "partial_update"]:
-            self.serializer_class = TaskUpdateSerializer
-        return self.serializer_class
 
     
 class CommentViewSet(viewsets.ModelViewSet):
