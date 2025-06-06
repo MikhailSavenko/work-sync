@@ -148,16 +148,21 @@ COMMENT_TEXTS = {
             }
         }
     },
-    'retrieve': {
+    'read': {
+        "tags": ["Comments"],
         'summary': "Получить комментарий",
         'description': "Получить конкретный комментарий по ID",
         'responses': {
             '200': "",
-            '404': ""
+            '400': VALIDATION_ERROR_DESCRIPTION,
+            '404': NOT_FOUND
         },
         'example': {
             "404": {
-                "detail": ""
+                "detail": "No Task/Comment matches the given query."
+            },
+            "400": {
+                "detail": "Передан неверный формат. Ожидаем число."
             }
         }
     },
@@ -184,7 +189,7 @@ COMMENT_TEXTS = {
             }
         }
     },
-    'destroy': {
+    'delete': {
         'summary': "Удалить комментарий",
         'description': "Удалить комментарий",
         'responses': {

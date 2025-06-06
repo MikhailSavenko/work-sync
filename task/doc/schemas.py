@@ -77,4 +77,15 @@ class CommentAutoSchema(SwaggerAutoSchema):
             
             operation.responses["404"] = OpenApiResponse(comment_text_create["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=comment_text_create["example"]["404"]))
             operation.responses["400"] = OpenApiResponse(comment_text_create["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"field_name": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=comment_text_create["example"]["400"]))
+
+        if operation_keys and operation_keys[-1] == "read":
+            comment_text_read = COMMENT_TEXTS["read"]
+            
+            operation.tags = comment_text_read["tags"]
+            operation.summary = comment_text_read["summary"]
+            operation.description = comment_text_read["description"]
+
+            operation.responses["404"] = OpenApiResponse(comment_text_read["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=comment_text_read["example"]["404"]))
+            operation.responses["400"] = OpenApiResponse(comment_text_read["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=comment_text_read["example"]["400"]))
+
         return operation
