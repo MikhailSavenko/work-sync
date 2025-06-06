@@ -97,10 +97,11 @@ class GetCommentSerializer(serializers.ModelSerializer):
 
 class CreateCommentSerializer(serializers.ModelSerializer):
     """Создать комменты сериалайзер"""
-
+    task = serializers.PrimaryKeyRelatedField(read_only=True)
+    
     class Meta:
         model = Comment
-        fields = ("id", "text", "created_at", "updated_at")
+        fields = ("id", "text", "task", "created_at", "updated_at")
 
 
 class UpdateCommentSerializer(serializers.ModelSerializer):
