@@ -12,6 +12,8 @@ from task.exeptions import TaskConflictError
 
 from django.shortcuts import get_object_or_404
 
+from task.utils import is_int_or_valid_error
+
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
@@ -69,10 +71,8 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         task_pk = self.kwargs.get("task_pk")
-        try:
-            task_pk = int(task_pk)
-        except (ValueError, TypeError):
-            raise ValidationError({"detail": "Неверный формат task_pk в URI. Ожидаем число"})
+
+        task_pk = is_int_or_valid_error(num_check=task_pk)
         
         task = get_object_or_404(Task, pk=task_pk)
         serializer.save(creator=self.request.user.worker, task=task)
