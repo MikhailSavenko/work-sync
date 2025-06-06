@@ -1,6 +1,6 @@
 VALIDATION_ERROR_DESCRIPTION = "Ошибки валидации"
 CONFLICT_DATA = "Конфликт данных"
-TASK_NOT_FOUND = "Задача не найдена"
+NOT_FOUND = "Объект не найден"
 TASK_TEXTS = {
     'me': {
         'summary': "Просмотр своих задач",
@@ -27,7 +27,7 @@ TASK_TEXTS = {
         'description': "Показывает одну задачу",
         'responses': {
             '200': "",
-            '404': TASK_NOT_FOUND
+            '404': NOT_FOUND
         },
         'example': {
             "404": {
@@ -96,7 +96,7 @@ TASK_TEXTS = {
         'responses': {
             '204': "",
             '403': "",
-            "404": TASK_NOT_FOUND
+            "404": NOT_FOUND
         },
         'example': {
             "403": {
@@ -104,6 +104,100 @@ TASK_TEXTS = {
             },
             "404": {
                 "detail": "No Task matches the given query"
+            }
+        }
+    }
+}
+
+
+COMMENT_TEXTS = {
+    'list': {
+        "tags": ["Comments"],
+        'summary': "Список комментариев к задаче",
+        'description': "Получить все комментарии для определенной задачи",
+        'responses': {
+            '400': VALIDATION_ERROR_DESCRIPTION,
+            '404': NOT_FOUND
+        },
+        'example': {
+            "404": {
+                "detail": "No Task matches the given query."
+            },
+            "400": {
+                "detail": "Неверный формат task_pk в URI. Ожидаем число."
+            }
+        }
+    },
+    'create': {
+        "tags": ["Comments"],
+        'summary': "Создать комментарий",
+        'description': "Добавить новый комментарий к задаче",
+        'responses': {
+            '201': "",
+            '400': VALIDATION_ERROR_DESCRIPTION,
+            '404': NOT_FOUND
+        },
+        'example': {  
+            "400": {
+                "text": [
+                    "This field is required."
+                ]
+            },
+            "404": {
+                "detail": "No Task matches the given query."
+            }
+        }
+    },
+    'retrieve': {
+        'summary': "Получить комментарий",
+        'description': "Получить конкретный комментарий по ID",
+        'responses': {
+            '200': "",
+            '404': ""
+        },
+        'example': {
+            "404": {
+                "detail": ""
+            }
+        }
+    },
+    'partial_update': {
+        'summary': "Обновить комментарий",
+        'description': "Частично обновить комментарий",
+        'responses': {
+            '200': "",
+            '400': "",
+            '403': "",
+            '404': ""
+        },
+        'example': {  
+            "400": {
+                "text": [
+                    ""
+                ]
+            },
+            "403": {
+                "detail": ""
+            },
+            "404": {
+                "detail": ""
+            }
+        }
+    },
+    'destroy': {
+        'summary': "Удалить комментарий",
+        'description': "Удалить комментарий",
+        'responses': {
+            '204': "",
+            '403': "",
+            '404': ""
+        },
+        'example': {
+            "403": {
+                "detail": ""
+            },
+            "404": {
+                "detail": ""
             }
         }
     }

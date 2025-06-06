@@ -3,8 +3,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 
-from task.doc.schemas import TaskAutoSchema
+from task.doc.schemas import TaskAutoSchema, CommentAutoSchema
 from task.models import Evaluation, Task, Comment
 from task.serializers import TaskCreateSerializer, TaskUpdateSerializer,  GetTaskSerializer, UpdateEvaluation, GetCommentSerializer, UpdateCommentSerializer, CreateCommentSerializer, CreateEvaluation
 from task.exeptions import TaskConflictError
@@ -58,6 +59,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     http_method_names = ("get", "post", "patch", "delete", "options", "head")
     queryset = Comment.objects.all()
     permission_classes = (IsAuthenticated,)
+    swagger_schema = CommentAutoSchema
     serializer_class = {
         "list": GetCommentSerializer,
         "retrieve": GetCommentSerializer,
@@ -67,6 +69,11 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         task_pk = self.kwargs.get("task_pk")
+        try:
+            task_pk = int(task_pk)
+        except (ValueError, TypeError):
+            raise ValidationError({"detail": "Неверный формат task_pk в URI. Ожидаем число"})
+        
         task = get_object_or_404(Task, pk=task_pk)
         serializer.save(creator=self.request.user.worker, task=task)
 
