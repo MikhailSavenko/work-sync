@@ -107,3 +107,13 @@ class CommentAutoSchema(SwaggerAutoSchema):
             operation.responses["404"] = OpenApiResponse(comment_text_delete["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=comment_text_delete["example"]["404"]))
             
         return operation
+    
+class EvaluationAutoSchema(SwaggerAutoSchema):
+
+    def get_operation(self, operation_keys=None):
+        operation = super().get_operation(operation_keys)
+
+
+        if operation_keys and operation_keys[-1] == "create":
+            pass
+        return 

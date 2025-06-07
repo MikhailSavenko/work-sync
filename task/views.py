@@ -96,7 +96,7 @@ class EvaluationViewSet(mixins.CreateModelMixin,
                         mixins.DestroyModelMixin,
                         viewsets.GenericViewSet):
     queryset = Evaluation.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
     
     def create(self, request, *args, **kwargs):
         request.data["task"] = kwargs.get("task_pk")

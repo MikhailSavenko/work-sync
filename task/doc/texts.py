@@ -212,3 +212,130 @@ COMMENT_TEXTS = {
         }
     }
 }
+
+
+
+EVALUATION_TEXTS = {
+    'list': {
+        "tags": ["Evaluations"],
+        'summary': "Список оценок",
+        'description': "Получить все оценки по задачам",
+        'responses': {
+            '200': "",
+            '400': VALIDATION_ERROR_DESCRIPTION,
+            '404': NOT_FOUND
+        },
+        'example': {
+            "400": {
+                "detail": "Invalid query parameters"
+            },
+            "404": {
+                "detail": "No evaluations found"
+            }
+        }
+    },
+    'create': {
+        "tags": ["Evaluations"],
+        'summary': "Создать оценку",
+        'description': "Добавить новую оценку для задачи",
+        'responses': {
+            '201': "",
+            '400': VALIDATION_ERROR_DESCRIPTION,
+            '403': "",
+            '404': NOT_FOUND
+        },
+        'example': {
+            "400": {
+                "score": [
+                    "Ensure this value is between 1 and 5."
+                ]
+            },
+            "403": {
+                "detail": "Only task creator can evaluate"
+            },
+            "404": {
+                "detail": "Task not found"
+            }
+        }
+    },
+    'read': {
+        "tags": ["Evaluations"],
+        'summary': "Получить оценку",
+        'description': "Получить конкретную оценку по ID",
+        'responses': {
+            '200': "",
+            '404': NOT_FOUND
+        },
+        'example': {
+            "404": {
+                "detail": "Evaluation not found"
+            }
+        }
+    },
+    'update': {
+        "tags": ["Evaluations"],
+        'summary': "Обновить оценку",
+        'description': "Полностью обновить оценку",
+        'responses': {
+            '200': "",
+            '400': VALIDATION_ERROR_DESCRIPTION,
+            '403': "",
+            '404': NOT_FOUND
+        },
+        'example': {
+            "400": {
+                "score": [
+                    "Ensure this value is between 1 and 5."
+                ]
+            },
+            "403": {
+                "detail": "Only task creator can modify evaluation"
+            },
+            "404": {
+                "detail": "Evaluation not found"
+            }
+        }
+    },
+    'partial_update': {
+        "tags": ["Evaluations"],
+        'summary': "Частично обновить оценку",
+        'description': "Обновить отдельные поля оценки",
+        'responses': {
+            '200': "",
+            '400': VALIDATION_ERROR_DESCRIPTION,
+            '403': "",
+            '404': NOT_FOUND
+        },
+        'example': {
+            "400": {
+                "score": [
+                    "Ensure this value is between 1 and 5."
+                ]
+            },
+            "403": {
+                "detail": "Only task creator can modify evaluation"
+            },
+            "404": {
+                "detail": "Evaluation not found"
+            }
+        }
+    },
+    'delete': {
+        "tags": ["Evaluations"],
+        'summary': "Удалить оценку",
+        'description': "Удалить оценку задачи",
+        'responses': {
+            '204': "",
+            '403': "",
+            '404': NOT_FOUND
+        },
+        'example': {
+            "403": {
+                "detail": "Only task creator can delete evaluation"
+            },
+            "404": {
+                "detail": "Evaluation not found"
+            }
+        }
+    }
+}
