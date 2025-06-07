@@ -1,6 +1,9 @@
 VALIDATION_ERROR_DESCRIPTION = "Ошибки валидации"
 CONFLICT_DATA = "Конфликт данных"
 NOT_FOUND = "Объект не найден"
+
+NO_TASK_COMM_TEXT = "No Task/Comment matches the given query."
+
 TASK_TEXTS = {
     'me': {
         'summary': "Просмотр своих задач",
@@ -159,7 +162,7 @@ COMMENT_TEXTS = {
         },
         'example': {
             "404": {
-                "detail": "No Task/Comment matches the given query."
+                "detail": NO_TASK_COMM_TEXT
             },
             "400": {
                 "detail": "Передан неверный формат. Ожидаем число."
@@ -167,13 +170,14 @@ COMMENT_TEXTS = {
         }
     },
     'partial_update': {
+        "tags": ["Comments"],
         'summary': "Обновить комментарий",
         'description': "Частично обновить комментарий",
         'responses': {
             '200': "",
             '400': "",
             '403': "",
-            '404': ""
+            '404': NOT_FOUND
         },
         'example': {  
             "400": {
@@ -185,24 +189,25 @@ COMMENT_TEXTS = {
                 "detail": ""
             },
             "404": {
-                "detail": ""
+                "detail": NO_TASK_COMM_TEXT
             }
         }
     },
     'delete': {
+        "tags": ["Comments"],
         'summary': "Удалить комментарий",
         'description': "Удалить комментарий",
         'responses': {
             '204': "",
             '403': "",
-            '404': ""
+            '404': NOT_FOUND
         },
         'example': {
             "403": {
                 "detail": ""
             },
             "404": {
-                "detail": ""
+                "detail": NO_TASK_COMM_TEXT
             }
         }
     }

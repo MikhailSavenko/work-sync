@@ -88,4 +88,22 @@ class CommentAutoSchema(SwaggerAutoSchema):
             operation.responses["404"] = OpenApiResponse(comment_text_read["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=comment_text_read["example"]["404"]))
             operation.responses["400"] = OpenApiResponse(comment_text_read["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=comment_text_read["example"]["400"]))
 
+        if operation_keys and operation_keys[-1] == "partial_update":
+            comment_text_partial_upd = COMMENT_TEXTS["partial_update"]
+
+            operation.tags = comment_text_partial_upd["tags"]
+            operation.summary = comment_text_partial_upd["summary"]
+            operation.description = comment_text_partial_upd["description"]
+
+            operation.responses["404"] = OpenApiResponse(comment_text_partial_upd["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=comment_text_partial_upd["example"]["404"]))
+
+        if operation_keys and operation_keys[-1] == "delete":
+            comment_text_delete = COMMENT_TEXTS["delete"]
+
+            operation.tags = comment_text_delete["tags"]
+            operation.summary = comment_text_delete["summary"]
+            operation.description = comment_text_delete["description"]
+
+            operation.responses["404"] = OpenApiResponse(comment_text_delete["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=comment_text_delete["example"]["404"]))
+            
         return operation
