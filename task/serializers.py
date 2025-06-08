@@ -120,6 +120,7 @@ class CreateEvaluation(serializers.ModelSerializer):
     to_worker - кому оценка, id берем из Task.executor
     from_worker - кто выставляет, берем из request.user.worker
     """
+    task = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Evaluation

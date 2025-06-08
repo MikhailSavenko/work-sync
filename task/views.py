@@ -8,7 +8,7 @@ from rest_framework.exceptions import ValidationError
 from task.doc.schemas import TaskAutoSchema, CommentAutoSchema
 from task.models import Evaluation, Task, Comment
 from task.serializers import TaskCreateSerializer, TaskUpdateSerializer,  GetTaskSerializer, UpdateEvaluation, GetCommentSerializer, UpdateCommentSerializer, CreateCommentSerializer, CreateEvaluation
-from task.exeptions import TaskConflictError
+from task.exeptions import EvaluationConflictError, TaskConflictError
 
 from django.shortcuts import get_object_or_404
 
@@ -97,24 +97,26 @@ class EvaluationViewSet(mixins.CreateModelMixin,
                         viewsets.GenericViewSet):
     queryset = Evaluation.objects.all()
     permission_classes = (IsAuthenticated,)
+    serializer_class = {
+        "create": CreateEvaluation,
+        "partial_update": UpdateEvaluation
+    }
     
-    def create(self, request, *args, **kwargs):
-        request.data["task"] = kwargs.get("task_pk")
-        return super().create(request, *args, **kwargs)
+    def get_serializer_class(self):
+        return self.serializer_class.get(self.action)
     
     def perform_create(self, serializer):
-        task = serializer.validated_data.get("task")
+        task_pk = self.kwargs.get("task_pk")
+        task_pk = is_int_or_valid_error(num_check=task_pk)
+        
+        task = get_object_or_404(Task, pk=task_pk)
+
         from_worker = self.request.user.worker
         if not task.executor:
-            raise serializers.ValidationError({"evaluation": "Задача, за которую выставляется оценка, не имеет назначенного исполнителя."})
+            raise EvaluationConflictError({"evaluation_create_conflict": "Задача, за которую выставляется оценка, не имеет назначенного исполнителя."})
         elif task.status != Task.StatusTask.DONE:
-            raise serializers.ValidationError({"evaluation": "Задача, за которую выставляется оценка, должна быть в статусе выполнена."})
-        serializer.save(to_worker=task.executor, from_worker=from_worker)
+            raise EvaluationConflictError({"evaluation_create_conflict": "Задача, за которую выставляется оценка, должна быть в статусе выполнена."})
+        serializer.save(to_worker=task.executor, from_worker=from_worker, task=task)
 
-    def get_serializer_class(self):
-        if self.action == "create":
-            self.serializer_class = CreateEvaluation
-        elif self.action == "partial_update":
-            self.serializer_class = UpdateEvaluation
-        return self.serializer_class
+    
     
