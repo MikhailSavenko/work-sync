@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
-from task.doc.schemas import TaskAutoSchema, CommentAutoSchema
+from task.doc.schemas import EvaluationAutoSchema, TaskAutoSchema, CommentAutoSchema
 from task.models import Evaluation, Task, Comment
 from task.serializers import TaskCreateSerializer, TaskUpdateSerializer,  GetTaskSerializer, UpdateEvaluation, GetCommentSerializer, UpdateCommentSerializer, CreateCommentSerializer, CreateEvaluation
 from task.exeptions import EvaluationConflictError, TaskConflictError
@@ -95,8 +95,10 @@ class EvaluationViewSet(mixins.CreateModelMixin,
                         mixins.UpdateModelMixin,
                         mixins.DestroyModelMixin,
                         viewsets.GenericViewSet):
+    http_method_names = ("get", "post", "patch", "delete", "options", "head")
     queryset = Evaluation.objects.all()
     permission_classes = (IsAuthenticated,)
+    swagger_schema = EvaluationAutoSchema
     serializer_class = {
         "create": CreateEvaluation,
         "partial_update": UpdateEvaluation
@@ -117,6 +119,16 @@ class EvaluationViewSet(mixins.CreateModelMixin,
         elif task.status != Task.StatusTask.DONE:
             raise EvaluationConflictError({"evaluation_create_conflict": "Задача, за которую выставляется оценка, должна быть в статусе выполнена."})
         serializer.save(to_worker=task.executor, from_worker=from_worker, task=task)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        task_pk = self.kwargs.get("task_pk")
+        task_pk = is_int_or_valid_error(num_check=task_pk)
+        get_object_or_404(Task, pk=task_pk)
+
+        evaluation = queryset.filter(task=task_pk)
+        return evaluation
 
     
     

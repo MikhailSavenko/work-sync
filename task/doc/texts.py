@@ -3,6 +3,7 @@ CONFLICT_DATA = "Конфликт данных"
 NOT_FOUND = "Объект не найден"
 
 NO_TASK_COMM_TEXT = "No Task/Comment matches the given query."
+NO_TASK = "No Task matches the given query."
 
 TASK_TEXTS = {
     'me': {
@@ -34,7 +35,7 @@ TASK_TEXTS = {
         },
         'example': {
             "404": {
-                "detail": "No Task matches the given query"
+                "detail": NO_TASK
             }
         }
     },
@@ -106,7 +107,7 @@ TASK_TEXTS = {
                 "detail": ""
             },
             "404": {
-                "detail": "No Task matches the given query"
+                "detail": NO_TASK
             }
         }
     }
@@ -124,7 +125,7 @@ COMMENT_TEXTS = {
         },
         'example': {
             "404": {
-                "detail": "No Task matches the given query."
+                "detail": NO_TASK
             },
             "400": {
                 "detail": "Неверный формат task_pk в URI. Ожидаем число."
@@ -147,7 +148,7 @@ COMMENT_TEXTS = {
                 ]
             },
             "404": {
-                "detail": "No Task matches the given query."
+                "detail": NO_TASK
             }
         }
     },
@@ -216,24 +217,6 @@ COMMENT_TEXTS = {
 
 
 EVALUATION_TEXTS = {
-    'list': {
-        "tags": ["Evaluations"],
-        'summary': "Список оценок",
-        'description': "Получить все оценки по задачам",
-        'responses': {
-            '200': "",
-            '400': VALIDATION_ERROR_DESCRIPTION,
-            '404': NOT_FOUND
-        },
-        'example': {
-            "400": {
-                "detail": "Invalid query parameters"
-            },
-            "404": {
-                "detail": "No evaluations found"
-            }
-        }
-    },
     'create': {
         "tags": ["Evaluations"],
         'summary': "Создать оценку",
@@ -251,48 +234,10 @@ EVALUATION_TEXTS = {
                 ]
             },
             "403": {
-                "detail": "Only task creator can evaluate"
+                "detail": ""
             },
             "404": {
-                "detail": "Task not found"
-            }
-        }
-    },
-    'read': {
-        "tags": ["Evaluations"],
-        'summary': "Получить оценку",
-        'description': "Получить конкретную оценку по ID",
-        'responses': {
-            '200': "",
-            '404': NOT_FOUND
-        },
-        'example': {
-            "404": {
-                "detail": "Evaluation not found"
-            }
-        }
-    },
-    'update': {
-        "tags": ["Evaluations"],
-        'summary': "Обновить оценку",
-        'description': "Полностью обновить оценку",
-        'responses': {
-            '200': "",
-            '400': VALIDATION_ERROR_DESCRIPTION,
-            '403': "",
-            '404': NOT_FOUND
-        },
-        'example': {
-            "400": {
-                "score": [
-                    "Ensure this value is between 1 and 5."
-                ]
-            },
-            "403": {
-                "detail": "Only task creator can modify evaluation"
-            },
-            "404": {
-                "detail": "Evaluation not found"
+                "detail": NO_TASK
             }
         }
     },
@@ -313,7 +258,7 @@ EVALUATION_TEXTS = {
                 ]
             },
             "403": {
-                "detail": "Only task creator can modify evaluation"
+                "detail": ""
             },
             "404": {
                 "detail": "Evaluation not found"

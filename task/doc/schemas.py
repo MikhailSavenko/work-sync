@@ -1,7 +1,7 @@
 from drf_yasg.openapi import Parameter, IN_QUERY, TYPE_STRING, Response as OpenApiResponse, Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.inspectors.view import SwaggerAutoSchema
 
-from task.doc.texts import TASK_TEXTS, COMMENT_TEXTS
+from task.doc.texts import TASK_TEXTS, COMMENT_TEXTS, EVALUATION_TEXTS
 
 
 class TaskAutoSchema(SwaggerAutoSchema):
@@ -108,12 +108,27 @@ class CommentAutoSchema(SwaggerAutoSchema):
             
         return operation
     
+
 class EvaluationAutoSchema(SwaggerAutoSchema):
 
     def get_operation(self, operation_keys=None):
         operation = super().get_operation(operation_keys)
 
-
         if operation_keys and operation_keys[-1] == "create":
-            pass
-        return 
+            evaluation_text_create = EVALUATION_TEXTS["create"]
+
+            operation.tags = evaluation_text_create["tags"]
+            operation.summary = evaluation_text_create["summary"]
+            operation.description = evaluation_text_create["description"]
+
+
+            operation.responses["404"] = OpenApiResponse(evaluation_text_create["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=evaluation_text_create["example"]["404"]))
+            operation.responses["400"] = OpenApiResponse(evaluation_text_create["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=evaluation_text_create["example"]["400"]))
+
+        if operation_keys and operation_keys[-1] == "partial_update":
+            evaluation_text_patial_upd = EVALUATION_TEXTS["partial_update"]
+
+            operation.tags = evaluation_text_patial_upd["tags"]
+            operation.summary = evaluation_text_patial_upd["summary"]
+            operation.description = evaluation_text_patial_upd["description"]
+        return operation
