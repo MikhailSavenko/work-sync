@@ -30,7 +30,7 @@ def validate_workers_and_include_creator(creator: Worker, workers: list[Worker])
     return workers
 
 
-def is_datetime_available(worker: Worker, check_date: datetime,  meeting_id: int | None = None) -> bool: #
+def is_datetime_available(worker: Worker, check_date: datetime,  meeting_id: int | None = None) -> bool:
     """
     Проверяет, свободно ли указанное время для сотрудника, сравнивая с уже назначенными встречами.
 

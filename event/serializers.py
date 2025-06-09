@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from event.exceptions import MeetingConflictError
 from event.models import Meeting
 from account.models import Worker
 from event.services.meeting import validate_workers_and_include_creator, is_datetime_available
@@ -42,9 +43,9 @@ class MeetingCreateUpdateSerializer(serializers.ModelSerializer):
         
         for worker in data["workers"]:
             print(meeting_id)
-
+            print("Тут")
             if not is_datetime_available(worker=worker, check_date=data["datetime"], meeting_id=meeting_id):
-                raise serializers.ValidationError(f"{worker.user.email} уже имеет встречу на дату: {data["datetime"]}")
+                raise MeetingConflictError(f"{worker.user.email} уже имеет встречу на дату: {data["datetime"]}")
         
         return data
 

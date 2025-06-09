@@ -8,7 +8,6 @@ class TaskConflictError(APIException):
     default_detail = "Конфликт при обновлении задачи"
 
 
-
 class EvaluationConflictError(APIException):
     status_code = status.HTTP_409_CONFLICT
     default_code = "evaluation_conflict"

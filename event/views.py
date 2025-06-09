@@ -42,19 +42,20 @@ class MeetingViewSet(viewsets.ModelViewSet):
     def me(self, request):
         user_worker = request.user.worker
         done_param = request.query_params.get("done", "0")
-        print(done_param)
         
         if done_param not in ("0", "1"):
             return Response(
-                {"error": "Парамтер 'done' может быть 0 или 1"},
+                {"detail": "Парамтер 'done' может быть 0 или 1"},
                 status=status.HTTP_400_BAD_REQUEST
                 )
         
+        queryset = super().get_queryset()
+
         if done_param == "1":
-            meetings = Meeting.objects.filter(workers=user_worker)
+            meetings = queryset.filter(workers=user_worker)
         elif done_param == "0":
             now = timezone.now()
-            meetings = Meeting.objects.filter(workers=user_worker, datetime__gt=now)
+            meetings = queryset.filter(workers=user_worker, datetime__gt=now)
         
         serializer = self.get_serializer_class()
         serializer = serializer(meetings, many=True)
