@@ -3,7 +3,7 @@ from rest_framework import mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from django.db.models import Avg
+from django.db.models import Avg, Prefetch
 
 from datetime import datetime
 
@@ -16,19 +16,18 @@ from account.utils import get_day_bounds, get_month_bounds
 
 
 class TeamViewSet(viewsets.ModelViewSet):
-    """Представление для Team"""
-    queryset = Team.objects.select_related("user", "team").all()
+    queryset = Team.objects.prefetch_related(Prefetch("workers", queryset=Worker.objects.select_related("user")))
 
+    serializer_class = {
+        "update": TeamCreateUpdateSerializer,
+        "create": TeamCreateUpdateSerializer,
+        "list": TeamGetSerializer,
+        "retrieve": TeamGetSerializer,
+    }
     # будет доступен admin_team
 
     def get_serializer_class(self):
-        if self.action == "update":
-            self.serializer_class = TeamCreateUpdateSerializer
-        elif self.action == "retrieve":
-            self.serializer_class = TeamGetSerializer
-        elif self.action == "list":
-            self.serializer_class = TeamGetSerializer
-        return self.serializer_class
+        return self.serializer_class.get(self.action, TeamGetSerializer)
 
 
 class WorkerViewSet(viewsets.GenericViewSet,

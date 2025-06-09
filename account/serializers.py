@@ -40,9 +40,22 @@ class TeamCreateUpdateSerializer(serializers.ModelSerializer):
         fields = ("id", "title", "description", "workers")
 
 
+class TeamWorkerGetSerializer(serializers.ModelSerializer):
+    """Сериалайзер cотрудника для вложения в TeamGetSerializer"""
+    user_id = serializers.IntegerField(source="user.id")
+    first_name = serializers.CharField(source="user.first_name")
+    last_name = serializers.CharField(source="user.last_name")
+    email = serializers.CharField(source="user.email")
+    role = serializers.CharField(source='get_role_display', read_only=True)
+
+    class Meta:
+        model = Worker
+        fields = ("id", "role", "email", "user_id", "first_name", "last_name")
+
+
 class TeamGetSerializer(serializers.ModelSerializer):
     """Сериалайзер для просмотра Тeam"""
-    workers = WorkerGetSerializer(many=True)
+    workers = TeamWorkerGetSerializer(many=True)
 
     class Meta:
         model = Team
