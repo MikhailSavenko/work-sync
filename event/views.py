@@ -19,7 +19,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
     - Отменять встречи
     - Получать список предстоящих или завершенных встреч текущего пользователя
     """
-    http_method_names = ["get", "post", "put", "delete", "options", "head"]
+    http_method_names = ("get", "post", "put", "delete", "options", "head")
     permission_classes = (IsAuthenticated,)
     queryset = Meeting.objects.all()
     serializer_class = {

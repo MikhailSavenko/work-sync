@@ -7,15 +7,18 @@ from django.db.models import Avg, Prefetch
 
 from datetime import datetime
 
+from account.exceptions import TeamConflictError
 from account.serializers import TeamCreateUpdateSerializer, WorkerGetSerializer, TeamGetSerializer
 from account.models import Team, Worker
 
 from account.services.calendar import get_calendar_events
+from account.services.team import get_worker_with_team
 from task.models import Evaluation
 from account.utils import get_day_bounds, get_month_bounds
 
 
 class TeamViewSet(viewsets.ModelViewSet):
+    http_method_names = ("get", "post", "put", "delete", "options", "head")
     queryset = Team.objects.prefetch_related(Prefetch("workers", queryset=Worker.objects.select_related("user")))
 
     serializer_class = {
@@ -29,7 +32,13 @@ class TeamViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         return self.serializer_class.get(self.action, TeamGetSerializer)
 
-
+    def perform_create(self, serializer):
+        workers_added = serializer.validated_data.get("workers")
+        check_conflict_team = get_worker_with_team(workers_added)
+        if check_conflict_team:
+            raise TeamConflictError({"detail": f"Конфликт. Сотрудники {[worker.user.email for worker in check_conflict_team]}, добавляемые в команду, уже состоят в других командах."})
+        return super().perform_create(serializer)
+    
 class WorkerViewSet(viewsets.GenericViewSet,
                     mixins.RetrieveModelMixin,
                     mixins.ListModelMixin):
