@@ -51,19 +51,26 @@ class MeetingAutoSchema(SwaggerAutoSchema):
             operation.summary = meeting_text_create["summary"]
             operation.description = meeting_text_create["description"]
             
-            operation.responses["400"] = OpenApiResponse(meeting_text_create["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=meeting_text_create["example"]["400"]))
+            operation.responses["400"] = OpenApiResponse(meeting_text_create["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field_or_non_field_errors": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=meeting_text_create["example"]["400"]))
             operation.responses["409"] = OpenApiResponse(meeting_text_create["responses"]["409"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING, description=meeting_text_create["responses"]["409"])}, example=meeting_text_create["example"]["409"]))
         
         elif operation_keys and operation_keys[-1] == "update":
-            operation.summary = MEETING_TEXTS["update"]["summary"]
-            operation.description = MEETING_TEXTS["update"]["description"]
-            operation.request_body = self.get_request_body_schema(MeetingCreateUpdateSerializer())
+            meeting_text_update = MEETING_TEXTS["update"]
             
-            # operation.responses["400"] = OpenApiResponse(MEETING_TEXTS["update"]["responses"]["400"], self.VALIDATION_ERROR_SCHEMA)
-        
-        elif operation_keys and operation_keys[-1] == "delete":
-            operation.summary = MEETING_TEXTS["delete"]["summary"]
-            operation.description = MEETING_TEXTS["delete"]["description"]
+            operation.tags = meeting_text_update["tags"]
+            operation.summary = meeting_text_update["summary"]
+            operation.description = meeting_text_update["description"]
+          
+            operation.responses["400"] = OpenApiResponse(meeting_text_update["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field_or_non_field_errors": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=meeting_text_update["example"]["400"]))
+            operation.responses["409"] = OpenApiResponse(meeting_text_update["responses"]["409"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING, description=meeting_text_update["responses"]["409"])}, example=meeting_text_update["example"]["409"]))
 
-            operation.responses["403"] = OpenApiResponse(FORBIDDEN_DESCRIPTION, schema=Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING, description=MEETING_TEXTS["delete"]["responses"]["403"])}, example=MEETING_TEXTS["delete"]["example"]["403"]))
+        elif operation_keys and operation_keys[-1] == "delete":
+            meeting_text_delete = MEETING_TEXTS["delete"]
+
+            operation.tags = meeting_text_delete["tags"]
+            operation.summary = meeting_text_delete["summary"]
+            operation.description = meeting_text_delete["description"]
+
+            operation.responses["403"] = OpenApiResponse(meeting_text_delete["responses"]["403"], schema=Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING, description=meeting_text_delete["responses"]["403"])}, example=meeting_text_delete["example"]["403"]))
+            operation.responses["404"] = OpenApiResponse(meeting_text_delete["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING, description=meeting_text_delete["responses"]["404"])}, example=meeting_text_delete["example"]["404"]))
         return operation

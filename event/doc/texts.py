@@ -4,6 +4,7 @@ NOT_FOUND_DESCRIPTION = "Объект не найден"
 FORBIDDEN_DESCRIPTION = "Доступ запрещен"
 CONFLICT_DATA = "Конфликт данных"
 TAGS_MEETINGS = ["Meetings"]
+NO_MEETINGS = "No Meeting matches the given query"
 
 # Тексты для MeetingAutoSchema
 MEETING_TEXTS = {
@@ -40,11 +41,11 @@ MEETING_TEXTS = {
         'description': "Детальная информация о конкретной встрече",
         'responses': {
             '200': "Встреча",
-            '404': "Встреча не найдена"
+            '404': NOT_FOUND_DESCRIPTION
         },
         'example' : {
             "404": {
-            "detail": "No Meeting matches the given query"
+            "detail": NO_MEETINGS
         }
         }
 
@@ -73,9 +74,17 @@ MEETING_TEXTS = {
         'summary': "Изменение встречи",
         'description': "Позволяет изменить существующую встречу",
         'responses': {
-            '200': "Встреча обновлена",
             '400': VALIDATION_ERROR_DESCRIPTION,
-            '403': FORBIDDEN_DESCRIPTION
+            '403': FORBIDDEN_DESCRIPTION,
+            "409": CONFLICT_DATA
+        },
+        'example': {
+            "400": {
+                "non_field_errors": ["Встреча должна включать минимум двух участников."]
+            },
+            "409": {
+                "detail": "mike@gmail.com уже имеет встречу на дату: 2025-07-05 13:31:00+00:00"
+            }
         }
     },
     'delete': {
@@ -83,25 +92,12 @@ MEETING_TEXTS = {
         'summary': "Отмена встречи",
         'description': "Позволяет удалить существующую встречу",
         'responses': {
-            '204': "Встреча отменена",
-            '403': "Отмена встречи возможна только ее создателем"
+            "404": NOT_FOUND_DESCRIPTION,
+            '403': FORBIDDEN_DESCRIPTION
         },
         'example': {
-            "403": {"detail": "Отмена встречи возможна только ее создателем."}
+            "403": {"detail": "Отмена встречи возможна только ее создателем."},
+            "404": {"detail": NO_MEETINGS}
         }
 }
-}
-
-# Примеры ошибок
-# ERROR_EXAMPLES = {
-#     'validation': {
-#         "non_field_errors": ["Сообщение об ошибке"]
-#     }
-# }
-
-
-{
-    "description": [
-        "Not a valid string."
-    ]
 }
