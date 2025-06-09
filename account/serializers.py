@@ -34,10 +34,11 @@ class UserSerializer(serializers.ModelSerializer):
 class TeamCreateUpdateSerializer(serializers.ModelSerializer):
     """Сериалайзер для создания/обновления Тeam"""
     workers = serializers.PrimaryKeyRelatedField(queryset=Worker.objects.all(), many=True)
+    creator = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Team
-        fields = ("id", "title", "description", "workers")
+        fields = ("id", "title", "creator", "description", "workers", "created_at", "updated_at")
 
 
 class TeamWorkerGetSerializer(serializers.ModelSerializer):

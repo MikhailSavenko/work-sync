@@ -68,7 +68,7 @@ class MeetingGetSerializer(serializers.ModelSerializer):
     workers: list - список id приглашенных сотрудников
     description - описание встречи
     """
-    creator = serializers.PrimaryKeyRelatedField(read_only=True)
+    creator = serializers.PrimaryKeyRelatedField(read_only=True) # избыточно
     workers = WorkerNameSerializer(many=True)
 
     class Meta:

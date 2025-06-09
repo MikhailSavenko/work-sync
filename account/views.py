@@ -19,6 +19,7 @@ from account.utils import get_day_bounds, get_month_bounds
 
 class TeamViewSet(viewsets.ModelViewSet):
     http_method_names = ("get", "post", "put", "delete", "options", "head")
+    permission_classes = (IsAuthenticated,)
     queryset = Team.objects.prefetch_related(Prefetch("workers", queryset=Worker.objects.select_related("user")))
 
     serializer_class = {
@@ -33,10 +34,14 @@ class TeamViewSet(viewsets.ModelViewSet):
         return self.serializer_class.get(self.action, TeamGetSerializer)
 
     def perform_create(self, serializer):
+        current_worker = self.request.user.worker
+
         workers_added = serializer.validated_data.get("workers")
         check_conflict_team = get_worker_with_team(workers_added)
         if check_conflict_team:
             raise TeamConflictError({"detail": f"Конфликт. Сотрудники {[worker.user.email for worker in check_conflict_team]}, добавляемые в команду, уже состоят в других командах."})
+        
+        serializer.save(creator=current_worker)
         return super().perform_create(serializer)
     
 class WorkerViewSet(viewsets.GenericViewSet,
