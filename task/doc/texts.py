@@ -1,8 +1,9 @@
-VALIDATION_ERROR_DESCRIPTION = "Ошибки валидации"
+VALIDATION_ERROR_DESCRIPTION = "Ошибка валидации"
 CONFLICT_DATA = "Конфликт данных"
 NOT_FOUND = "Объект не найден"
 
 NO_TASK_COMM_TEXT = "No Task/Comment matches the given query."
+NO_TASK_EVAL_TEXT = "No Task/Evaluation matches the given query."
 NO_TASK = "No Task matches the given query."
 
 TASK_TEXTS = {
@@ -261,7 +262,7 @@ EVALUATION_TEXTS = {
                 "detail": ""
             },
             "404": {
-                "detail": "Evaluation not found"
+                "detail": NO_TASK_EVAL_TEXT
             }
         }
     },
@@ -279,7 +280,7 @@ EVALUATION_TEXTS = {
                 "detail": "Only task creator can delete evaluation"
             },
             "404": {
-                "detail": "Evaluation not found"
+                "detail": NO_TASK_EVAL_TEXT
             }
         }
     }

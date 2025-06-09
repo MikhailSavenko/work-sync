@@ -121,7 +121,6 @@ class EvaluationAutoSchema(SwaggerAutoSchema):
             operation.summary = evaluation_text_create["summary"]
             operation.description = evaluation_text_create["description"]
 
-
             operation.responses["404"] = OpenApiResponse(evaluation_text_create["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=evaluation_text_create["example"]["404"]))
             operation.responses["400"] = OpenApiResponse(evaluation_text_create["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=evaluation_text_create["example"]["400"]))
 
@@ -131,4 +130,16 @@ class EvaluationAutoSchema(SwaggerAutoSchema):
             operation.tags = evaluation_text_patial_upd["tags"]
             operation.summary = evaluation_text_patial_upd["summary"]
             operation.description = evaluation_text_patial_upd["description"]
+
+            operation.responses["404"] = OpenApiResponse(evaluation_text_patial_upd["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=evaluation_text_patial_upd["example"]["404"]))
+            operation.responses["400"] = OpenApiResponse(evaluation_text_patial_upd["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=evaluation_text_patial_upd["example"]["400"]))
+        
+        if operation_keys and operation_keys[-1] == "delete":
+            evaluation_text_delete = EVALUATION_TEXTS["delete"]
+
+            operation.tags = evaluation_text_delete["tags"]
+            operation.summary = evaluation_text_delete["summary"]
+            operation.description = evaluation_text_delete["description"]
+
+            operation.responses["404"] = OpenApiResponse(evaluation_text_delete["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=evaluation_text_delete["example"]["404"]))
         return operation
