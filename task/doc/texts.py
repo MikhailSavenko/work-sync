@@ -8,6 +8,7 @@ NO_TASK = "No Task matches the given query."
 
 TASK_TEXTS = {
     'me': {
+        "tags": ["Tasks"],
         'summary': "Просмотр своих задач",
         'description': "Поздволяет посмотреть задачи текущего сотрудника",
         'responses': {
@@ -21,6 +22,7 @@ TASK_TEXTS = {
         }
     },
     'list': {
+        "tags": ["Tasks"],
         'summary': "Список всех задач",
         'description': "Список всех задач",
         'responses': {
@@ -28,6 +30,7 @@ TASK_TEXTS = {
         }
     },
     'read': {
+        "tags": ["Tasks"],
         'summary': "Просмотр определенной задачи",
         'description': "Показывает одну задачу",
         'responses': {
@@ -41,6 +44,7 @@ TASK_TEXTS = {
         }
     },
     'create': {
+        "tags": ["Tasks"],
         'summary': "Создание задачи",
         'description': "Позволяет создать новую задачу.",
         'responses': {
@@ -56,6 +60,7 @@ TASK_TEXTS = {
         }
     },
     'update': {
+        "tags": ["Tasks"],
         'summary': "Обновление задачи",
         'description': "Позволяет обновить задачу полностью",
         'responses': {
@@ -76,6 +81,7 @@ TASK_TEXTS = {
         }
     },
     'partial_update': {
+        "tags": ["Tasks"],
         'summary': "Обновление отдельных полей задачи",
         'description': "Позволяет обновить одно поле у задачи",
         'responses': {
@@ -96,6 +102,7 @@ TASK_TEXTS = {
         }
     },
     'delete': {
+        "tags": ["Tasks"],
         'summary': "Удалить задачу",
         'description': "Позволяет удалить задачу",
         'responses': {
@@ -129,7 +136,7 @@ COMMENT_TEXTS = {
                 "detail": NO_TASK
             },
             "400": {
-                "detail": "Неверный формат task_pk в URI. Ожидаем число."
+                "detail": "Передан неверный формат. Ожидаем число."
             }
         }
     },
