@@ -27,6 +27,7 @@ class Worker(models.Model):
     Связи:
         executed_tasks (Reverse relation): Список задач(Task) пользователя-исполнителя
         created_tasks (Reverse relation): Список задач(Task) пользователя-создателя
+        created_teams (Reverse relation): Список команд(Team) пользователя-создателя
         received_evaluations (Reverse relation): Полученные оценки(Evaluation)
         given_evaluations (Reverse relation): Поставленные оценки(Evaluation)
         comments (Reverse relation): Оставленные комментарии к задачам
@@ -50,9 +51,17 @@ class Team(models.Model):
     Атрибуты:
         title (CharField): Название команды.
         description (CharField): Описание команды.
+        creator: сотрудник, создавший команду.
+        created_at: дата и время создания команды.
+        updated_at: дата и время последнего изменения команды.
 
     Связи:
         workers (Reverse relation): Список связанных объектов Worker, привязанных к данной команде.
+        
     """
     title = models.CharField(max_length=255, verbose_name="Название команды")
     description = models.TextField(verbose_name="Описание команды")
+
+    creator = models.ForeignKey(Worker, verbose_name="Создатель", on_delete=models.PROTECT, related_name="created_teams")
+    created_at = models.DateTimeField(verbose_name="Даты и время создания", auto_now_add=True)
+    updated_at = models.DateTimeField(verbose_name="Даты и время обновления", auto_now=True)

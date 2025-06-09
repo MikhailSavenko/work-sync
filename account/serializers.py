@@ -59,4 +59,4 @@ class TeamGetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Team
-        fields = ("id", "title", "description", "workers")
+        fields = ("id", "title", "creator", "description", "workers", "created_at", "updated_at")
