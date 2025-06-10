@@ -37,13 +37,28 @@ class TeamViewSet(viewsets.ModelViewSet):
         current_worker = self.request.user.worker
 
         workers_added = serializer.validated_data.get("workers")
-        check_conflict_team = get_worker_with_team(workers_added)
-        if check_conflict_team:
-            raise TeamConflictError({"detail": f"Конфликт. Сотрудники {[worker.user.email for worker in check_conflict_team]}, добавляемые в команду, уже состоят в других командах."})
-        
+        self._check_team_conflict(workers_added)
+
         serializer.save(creator=current_worker)
         return super().perform_create(serializer)
     
+    def perform_update(self, serializer):
+        workers_added = serializer.validated_data.get("workers")
+        self._check_team_conflict(workers_added)
+        return super().perform_update(serializer)
+    
+    def _check_team_conflict(self, workers: list[Worker]):
+        """Проверяет конфликты команд для списка сотрудников"""
+        if not workers:
+            return
+
+        check_conflict_team = get_worker_with_team(workers)
+        if check_conflict_team:
+            emails = [worker.user.email for worker in check_conflict_team]
+            raise TeamConflictError({
+                "detail": f"Конфликт. Сотрудники {emails}, добавляемые в команду, уже состоят в других командах."
+            })
+        
 class WorkerViewSet(viewsets.GenericViewSet,
                     mixins.RetrieveModelMixin,
                     mixins.ListModelMixin):
