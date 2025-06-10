@@ -7,6 +7,7 @@ from django.db.models import Avg, Prefetch
 
 from datetime import datetime
 
+from account.doc.schemas import TeamAutoSchema
 from account.exceptions import TeamConflictError
 from account.serializers import TeamCreateUpdateSerializer, WorkerGetSerializer, TeamGetSerializer
 from account.models import Team, Worker
@@ -21,13 +22,13 @@ class TeamViewSet(viewsets.ModelViewSet):
     http_method_names = ("get", "post", "put", "delete", "options", "head")
     permission_classes = (IsAuthenticated,)
     queryset = Team.objects.prefetch_related(Prefetch("workers", queryset=Worker.objects.select_related("user")))
-
     serializer_class = {
         "update": TeamCreateUpdateSerializer,
         "create": TeamCreateUpdateSerializer,
         "list": TeamGetSerializer,
         "retrieve": TeamGetSerializer,
     }
+    swagger_schema = TeamAutoSchema
     # будет доступен admin_team
 
     def get_serializer_class(self):

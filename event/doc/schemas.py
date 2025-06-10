@@ -1,8 +1,7 @@
 from drf_yasg.openapi import Parameter, IN_QUERY, TYPE_STRING, Response as OpenApiResponse, Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.inspectors.view import SwaggerAutoSchema
 
-from event.doc.texts import FORBIDDEN_DESCRIPTION, MEETING_TEXTS, VALIDATION_ERROR_DESCRIPTION
-from event.serializers import MeetingCreateUpdateSerializer, MeetingGetSerializer
+from event.doc.texts import MEETING_TEXTS
 
 
 class MeetingAutoSchema(SwaggerAutoSchema):
