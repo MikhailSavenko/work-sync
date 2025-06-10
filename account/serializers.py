@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from account.models import Worker, User, Team
+from task.serializers import GetTaskSerializer
+from event.serializers import MeetingGetSerializer
 
 
 class TeamShortSerializer(serializers.ModelSerializer):
@@ -7,6 +9,14 @@ class TeamShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
         fields = ("id", "title")
+
+
+class WorkerCalendarResponseSerializer(serializers.Serializer):
+    """Serializer для календаря"""
+    date = serializers.DateField()
+    meetings = MeetingGetSerializer(many=True)
+    tasks = GetTaskSerializer(many=True)
+    table = serializers.ListField(child=serializers.CharField())
 
 
 class WorkerGetSerializer(serializers.ModelSerializer):

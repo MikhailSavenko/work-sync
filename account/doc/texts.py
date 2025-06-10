@@ -111,21 +111,18 @@ WORKER_TEXTS = {
         }
 
     },
-    'create': {
+    'calendar_day': {
         "tags": TAGS_WORKER,
-        'summary': "Создание новой команды",
-        'description': "Позволяет создать новую команду с указанными параметрами. Возвращает созданный объект команды.",
+        'summary': "События сотрудника на день",
+        'description': "Позволяет просмотра событий сотрудника за определенный день",
         'responses': {
-            '201': "",
-            '400': VALIDATION_ERROR_DESCRIPTION,
-            "409": CONFLICT_DATA
+            "200": "События сотрудника",
+            '404': NOT_FOUND_DESCRIPTION,
         },
         'example': {
-            "400": {
-                "title": ["Not a valid string."]
-            },
-            "409": {
-                "detail": "Конфликт. Сотрудники ['mi47sav4@gmail.com'], добавляемые в команду, уже состоят в других командах"
+            
+            "404": {
+                "detail": NO_WORKER
             }
         }
         

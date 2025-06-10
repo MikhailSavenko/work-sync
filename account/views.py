@@ -9,7 +9,7 @@ from datetime import datetime
 
 from account.doc.schemas import TeamAutoSchema, WorkerAutoSchema
 from account.exceptions import TeamConflictError
-from account.serializers import TeamCreateUpdateSerializer, WorkerGetSerializer, TeamGetSerializer, WorkerUpdateSerializer
+from account.serializers import TeamCreateUpdateSerializer, WorkerCalendarResponseSerializer, WorkerGetSerializer, TeamGetSerializer, WorkerUpdateSerializer
 from account.models import Team, Worker
 
 from account.services.calendar import get_calendar_events
@@ -72,9 +72,11 @@ class WorkerViewSet(viewsets.GenericViewSet,
     serializer_class = {
         "list": WorkerGetSerializer,
         "retrieve": WorkerGetSerializer,
-        "partial_update": WorkerUpdateSerializer
+        "partial_update": WorkerUpdateSerializer,
+        "calendar_day": WorkerCalendarResponseSerializer
     }
     swagger_schema = WorkerAutoSchema
+    
     def get_serializer_class(self):
         return self.serializer_class.get(self.action, WorkerGetSerializer)
     
@@ -115,12 +117,12 @@ class WorkerViewSet(viewsets.GenericViewSet,
 
         start, end = get_day_bounds(date=parse_date)
 
-        calendar_events = get_calendar_events(worker=worker, start_date=start, end_date=end, request=request)
-
-        return Response(data={
-            "date": parse_date,
-            **calendar_events
-            })
+        calendar_events = get_calendar_events(worker=worker, start_date=start, end_date=end)
+        
+        data = {"date": parse_date, **calendar_events}
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data, context={"request": request})
+        return Response(serializer.data)
 
     @action(detail=True, methods=["get"], url_path=r"calendar/month/(?P<date>\d{4}-\d{2})")
     def calendar_month(self, request, date=None, pk=None):

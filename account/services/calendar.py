@@ -1,24 +1,19 @@
 from event.models import Meeting
 from task.models import Task
-from event.serializers import MeetingGetSerializer
-from task.serializers import GetTaskSerializer
 from account.models import Worker
 
 from tabulate import tabulate
 
 
-def get_calendar_events(worker: Worker, start_date, end_date, request):
+def get_calendar_events(worker: Worker, start_date, end_date):
     meetings = Meeting.objects.prefetch_related("workers").filter(workers=worker, datetime__range=(start_date, end_date))
     tasks = Task.objects.select_related("executor").filter(executor=worker, deadline__range=(start_date, end_date))
-
-    meeting_serializer_data = MeetingGetSerializer(meetings, many=True)
-    tasks_serializer_data = GetTaskSerializer(tasks, many=True, context={"request": request})
     
     table = format_calendar_text_table(meetings, tasks)
 
     return {
-        "meetings": meeting_serializer_data.data,
-        "tasks": tasks_serializer_data.data,
+        "meetings": meetings,
+        "tasks": tasks,
         "table": table.splitlines()
     }
 
@@ -31,6 +26,5 @@ def format_calendar_text_table(meetings, tasks):
 
     for task in tasks:
         table.append(["Задача", task.deadline.strftime("%d.%m.%Y %H:%M"), task.title, task.executor.user.email])
-    print("В ТАБУЛЭЙТ")
 
     return tabulate(table, headers=["Тип", "Дата и время", "Описание", "Участники"], tablefmt="grid")
