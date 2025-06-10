@@ -28,6 +28,9 @@ class WorkerUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Worker
         fields = ("role",)
+        extra_kwargs = {
+            "role": {"help_text": "NM - Пользователь |MG - Менеджер |AT - Админ"}
+        }
 
 
 class UserSerializer(serializers.ModelSerializer):

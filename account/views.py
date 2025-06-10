@@ -7,7 +7,7 @@ from django.db.models import Avg, Prefetch
 
 from datetime import datetime
 
-from account.doc.schemas import TeamAutoSchema
+from account.doc.schemas import TeamAutoSchema, WorkerAutoSchema
 from account.exceptions import TeamConflictError
 from account.serializers import TeamCreateUpdateSerializer, WorkerGetSerializer, TeamGetSerializer, WorkerUpdateSerializer
 from account.models import Team, Worker
@@ -74,7 +74,7 @@ class WorkerViewSet(viewsets.GenericViewSet,
         "retrieve": WorkerGetSerializer,
         "partial_update": WorkerUpdateSerializer
     }
-
+    swagger_schema = WorkerAutoSchema
     def get_serializer_class(self):
         return self.serializer_class.get(self.action, WorkerGetSerializer)
     
