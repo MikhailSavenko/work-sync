@@ -1,8 +1,21 @@
 from event.models import Meeting
-from task.models import Task
+from task.models import Evaluation, Task
 from account.models import Worker
 
+from django.db.models import Avg
+
 from tabulate import tabulate
+import datetime
+
+
+def get_evaluations_avg(worker: Worker, start: datetime, end: datetime) -> dict:
+    evaluations = Evaluation.objects.filter(to_worker=worker, created_at__range=(start, end))
+    avg = evaluations.aggregate(Avg("score"))
+    data = {
+        "average_score": avg.get("score__avg") if avg is not None else None,
+        "evaluations_count": evaluations.count()
+    }
+    return data
 
 
 def get_calendar_events(worker: Worker, start_date, end_date):

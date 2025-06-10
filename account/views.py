@@ -3,7 +3,7 @@ from rest_framework import mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from django.db.models import Avg, Prefetch
+from django.db.models import Prefetch
 
 from datetime import datetime
 
@@ -12,9 +12,8 @@ from account.exceptions import TeamConflictError
 from account.serializers import TeamCreateUpdateSerializer, WorkerEvaluationResponseSerializer, WorkerCalendarResponseSerializer, WorkerGetSerializer, TeamGetSerializer, WorkerUpdateSerializer
 from account.models import Team, Worker
 
-from account.services.calendar import get_calendar_events
+from account.services.worker import get_calendar_events, get_evaluations_avg
 from account.services.team import get_worker_with_team
-from task.models import Evaluation
 from account.utils import get_day_bounds, get_month_bounds
 
 
@@ -96,16 +95,9 @@ class WorkerViewSet(viewsets.GenericViewSet,
         
         start, end = get_day_bounds((parce_start, parse_end))
 
-        evaluations = Evaluation.objects.filter(to_worker=current_worker, created_at__range=(start, end))
+        evaluation_avg = get_evaluations_avg(worker=current_worker, start=start, end=end)
 
-        avg = evaluations.aggregate(Avg("score"))
-        
-        data = {
-            "start_date": parce_start,
-            "end_date": parse_end,
-            "average_score": avg.get("score__avg") if avg is not None else None,
-            "evaluations_count": evaluations.count()
-        }
+        data = {"start_date": parce_start, "end_date": parse_end, **evaluation_avg}
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(data)
 
