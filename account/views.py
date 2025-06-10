@@ -65,7 +65,7 @@ class WorkerViewSet(viewsets.GenericViewSet,
                     mixins.RetrieveModelMixin,
                     mixins.ListModelMixin,
                     mixins.UpdateModelMixin):
-    http_method_names = ("get", "patch", "delete", "options", "head")
+    http_method_names = ("get", "patch", "options", "head")
     # permission_classes = (IsAuthenticated,)
     serializer_class = WorkerGetSerializer
     queryset = Worker.objects.all()

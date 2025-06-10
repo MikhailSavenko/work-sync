@@ -114,9 +114,9 @@ WORKER_TEXTS = {
     'calendar_day': {
         "tags": TAGS_WORKER,
         'summary': "События сотрудника на день",
-        'description': "Позволяет просмотра событий сотрудника за определенный день",
+        'description': "Показывает события сотрудника за определенный день",
         'responses': {
-            "200": "События сотрудника",
+            "200": "",
             '404': NOT_FOUND_DESCRIPTION,
         },
         'example': {
@@ -130,9 +130,25 @@ WORKER_TEXTS = {
     'calendar_month': {
         "tags": TAGS_WORKER,
         'summary': "События сотрудника на месяц",
-        'description': "Позволяет просмотра событий сотрудника за определенный месяц. События показывают за введенный полный месяц.",
+        'description': "Показывает события сотрудника за определенный месяц. События показывают за введенный полный месяц.",
         'responses': {
-            "200": "События сотрудника",
+            "200": "",
+            '404': NOT_FOUND_DESCRIPTION,
+        },
+        'example': {
+            
+            "404": {
+                "detail": NO_WORKER
+            }
+        }
+        
+    },
+    'average_evaluation': {
+        "tags": TAGS_WORKER,
+        'summary': "Средняя оценка сотрудника",
+        'description': "Показывает среднюю оценка сотрудника за введенный период",
+        'responses': {
+            "200": "",
             '404': NOT_FOUND_DESCRIPTION,
         },
         'example': {
@@ -157,18 +173,5 @@ WORKER_TEXTS = {
                 "status": ["\"NfM\" is not a valid choice."]
             }
         }
-    },
-    'delete': {
-        "tags": TAGS_WORKER,
-        'summary': "Удаление команды",
-        'description': "Позволяет удалить существующую команду",
-        'responses': {
-            "404": NOT_FOUND_DESCRIPTION,
-            '403': FORBIDDEN_DESCRIPTION
-        },
-        'example': {
-            "403": {"detail": "Удаление команды возможна только ее создателем."},
-            "404": {"detail": NO_TEAMS}
-        }
-}
+    }
 }

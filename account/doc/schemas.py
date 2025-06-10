@@ -124,4 +124,33 @@ class WorkerAutoSchema(SwaggerAutoSchema):
                 )
             )
             operation.responses["404"] = OpenApiResponse(worker_text_calendar_month["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING, description=worker_text_calendar_month["responses"]["404"])}, example=worker_text_calendar_month["example"]["404"]))
+        
+        elif operation_keys and operation_keys[-1] == "average_evaluation":
+            worker_text_average_evaluation = WORKER_TEXTS["average_evaluation"]
+
+            operation.tags = worker_text_average_evaluation["tags"]
+            operation.summary = worker_text_average_evaluation["summary"]
+            operation.description = worker_text_average_evaluation["description"]
+
+            operation.parameters.append(
+                Parameter(
+                    "start_date",
+                    IN_PATH,
+                    type=TYPE_STRING,
+                    format="date",
+                    description="Дата в формате ГГГГ-ММ-ДД",
+                    example="2025-05-01"
+                )
+            )
+            operation.parameters.append(
+                Parameter(
+                    "end_date",
+                    IN_PATH,
+                    type=TYPE_STRING,
+                    format="date",
+                    description="Дата в формате ГГГГ-ММ-ДД",
+                    example="2025-06-01"
+                )
+            )
+            operation.responses["404"] = OpenApiResponse(worker_text_average_evaluation["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING, description=worker_text_average_evaluation["responses"]["404"])}, example=worker_text_average_evaluation["example"]["404"]))
         return operation
