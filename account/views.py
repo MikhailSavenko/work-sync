@@ -9,7 +9,7 @@ from datetime import datetime
 
 from account.doc.schemas import TeamAutoSchema, WorkerAutoSchema
 from account.exceptions import TeamConflictError
-from account.serializers import TeamCreateUpdateSerializer, WorkerCalendarResponseSerializer, WorkerGetSerializer, TeamGetSerializer, WorkerUpdateSerializer
+from account.serializers import TeamCreateUpdateSerializer, WorkerEvaluationResponseSerializer, WorkerCalendarResponseSerializer, WorkerGetSerializer, TeamGetSerializer, WorkerUpdateSerializer
 from account.models import Team, Worker
 
 from account.services.calendar import get_calendar_events
@@ -74,7 +74,8 @@ class WorkerViewSet(viewsets.GenericViewSet,
         "retrieve": WorkerGetSerializer,
         "partial_update": WorkerUpdateSerializer,
         "calendar_day": WorkerCalendarResponseSerializer,
-        "calendar_month": WorkerCalendarResponseSerializer
+        "calendar_month": WorkerCalendarResponseSerializer,
+        "average_evaluation": WorkerEvaluationResponseSerializer
     }
     swagger_schema = WorkerAutoSchema
     
@@ -98,13 +99,17 @@ class WorkerViewSet(viewsets.GenericViewSet,
         evaluations = Evaluation.objects.filter(to_worker=current_worker, created_at__range=(start, end))
 
         avg = evaluations.aggregate(Avg("score"))
-
-        return Response(data={
+        
+        data = {
             "start_date": parce_start,
             "end_date": parse_end,
             "average_score": avg.get("score__avg") if avg is not None else None,
             "evaluations_count": evaluations.count()
-        })
+        }
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data)
+
+        return Response(serializer.data)
 
     @action(detail=True, methods=["get"], url_path=r"calendar/day/(?P<date>\d{4}-\d{2}-\d{2})")
     def calendar_day(self, request, date=None, pk=None):

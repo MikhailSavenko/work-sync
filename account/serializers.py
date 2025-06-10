@@ -4,19 +4,27 @@ from task.serializers import GetTaskSerializer
 from event.serializers import MeetingGetSerializer
 
 
+class WorkerCalendarResponseSerializer(serializers.Serializer):
+    """Serializer для календаря событий"""
+    date = serializers.DateField()
+    meetings = MeetingGetSerializer(many=True)
+    tasks = GetTaskSerializer(many=True)
+    table = serializers.ListField(child=serializers.CharField())
+
+
+class WorkerEvaluationResponseSerializer(serializers.Serializer):
+    """Serializer для просмотра средней оценки сотрудника за период"""
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+    average_score = serializers.FloatField(help_text="Средняя оценка сотрудника за период")
+    evaluations_count = serializers.IntegerField(help_text="Количество оценок")
+
+
 class TeamShortSerializer(serializers.ModelSerializer):
     """Вложенный сериалайзер для Worker.team"""
     class Meta:
         model = Team
         fields = ("id", "title")
-
-
-class WorkerCalendarResponseSerializer(serializers.Serializer):
-    """Serializer для календаря"""
-    date = serializers.DateField()
-    meetings = MeetingGetSerializer(many=True)
-    tasks = GetTaskSerializer(many=True)
-    table = serializers.ListField(child=serializers.CharField())
 
 
 class WorkerGetSerializer(serializers.ModelSerializer):
