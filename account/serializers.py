@@ -23,6 +23,13 @@ class WorkerGetSerializer(serializers.ModelSerializer):
         fields = ("id", "team", "role", "user_id", "first_name", "last_name", "email")
 
 
+class WorkerUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Worker
+        fields = ("role",)
+
+
 class UserSerializer(serializers.ModelSerializer):
     """Сериалайзер для users/me(put) и users/register(post)"""
 

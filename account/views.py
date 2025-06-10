@@ -9,7 +9,7 @@ from datetime import datetime
 
 from account.doc.schemas import TeamAutoSchema
 from account.exceptions import TeamConflictError
-from account.serializers import TeamCreateUpdateSerializer, WorkerGetSerializer, TeamGetSerializer
+from account.serializers import TeamCreateUpdateSerializer, WorkerGetSerializer, TeamGetSerializer, WorkerUpdateSerializer
 from account.models import Team, Worker
 
 from account.services.calendar import get_calendar_events
@@ -63,10 +63,20 @@ class TeamViewSet(viewsets.ModelViewSet):
 
 class WorkerViewSet(viewsets.GenericViewSet,
                     mixins.RetrieveModelMixin,
-                    mixins.ListModelMixin):
-    permission_classes = (IsAuthenticated,)
+                    mixins.ListModelMixin,
+                    mixins.UpdateModelMixin):
+    http_method_names = ("get", "patch", "delete", "options", "head")
+    # permission_classes = (IsAuthenticated,)
     serializer_class = WorkerGetSerializer
     queryset = Worker.objects.all()
+    serializer_class = {
+        "list": WorkerGetSerializer,
+        "retrieve": WorkerGetSerializer,
+        "partial_update": WorkerUpdateSerializer
+    }
+
+    def get_serializer_class(self):
+        return self.serializer_class.get(self.action, WorkerGetSerializer)
     
     @action(detail=True, methods=["get"], url_path=r"evaluation/avg/(?P<start_date>\d{4}-\d{2}-\d{2})/(?P<end_date>\d{4}-\d{2}-\d{2})")
     def average_evaluation(self, request, start_date=None, end_date=None, pk=None):
