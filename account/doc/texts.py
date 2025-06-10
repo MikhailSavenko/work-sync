@@ -127,6 +127,22 @@ WORKER_TEXTS = {
         }
         
     },
+    'calendar_month': {
+        "tags": TAGS_WORKER,
+        'summary': "События сотрудника на месяц",
+        'description': "Позволяет просмотра событий сотрудника за определенный месяц. События показывают за введенный полный месяц.",
+        'responses': {
+            "200": "События сотрудника",
+            '404': NOT_FOUND_DESCRIPTION,
+        },
+        'example': {
+            
+            "404": {
+                "detail": NO_WORKER
+            }
+        }
+        
+    },
     'partial_update': {
         "tags": TAGS_WORKER,
         'summary': "Изменение роли сотрудника",

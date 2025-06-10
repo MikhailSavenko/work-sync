@@ -3,6 +3,7 @@ from drf_yasg.inspectors.view import SwaggerAutoSchema
 
 from account.doc.texts import TEAM_TEXTS, WORKER_TEXTS
 
+
 class TeamAutoSchema(SwaggerAutoSchema):
 
     def get_operation(self, operation_keys=None):
@@ -104,4 +105,23 @@ class WorkerAutoSchema(SwaggerAutoSchema):
                 )
             )
             operation.responses["404"] = OpenApiResponse(worker_text_calendar_day["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING, description=worker_text_calendar_day["responses"]["404"])}, example=worker_text_calendar_day["example"]["404"]))
+
+        elif operation_keys and operation_keys[-1] == "calendar_month":
+            worker_text_calendar_month = WORKER_TEXTS["calendar_month"]
+
+            operation.tags = worker_text_calendar_month["tags"]
+            operation.summary = worker_text_calendar_month["summary"]
+            operation.description = worker_text_calendar_month["description"]
+
+            operation.parameters.append(
+                Parameter(
+                    "date",
+                    IN_PATH,
+                    type=TYPE_STRING,
+                    format="date",
+                    description="Дата в формате ГГГГ-ММ",
+                    example="2025-06"
+                )
+            )
+            operation.responses["404"] = OpenApiResponse(worker_text_calendar_month["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING, description=worker_text_calendar_month["responses"]["404"])}, example=worker_text_calendar_month["example"]["404"]))
         return operation

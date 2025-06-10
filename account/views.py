@@ -73,7 +73,8 @@ class WorkerViewSet(viewsets.GenericViewSet,
         "list": WorkerGetSerializer,
         "retrieve": WorkerGetSerializer,
         "partial_update": WorkerUpdateSerializer,
-        "calendar_day": WorkerCalendarResponseSerializer
+        "calendar_day": WorkerCalendarResponseSerializer,
+        "calendar_month": WorkerCalendarResponseSerializer
     }
     swagger_schema = WorkerAutoSchema
     
@@ -135,10 +136,10 @@ class WorkerViewSet(viewsets.GenericViewSet,
 
         start, end = get_month_bounds(start_date=parse_date)
 
-        calendar_events = get_calendar_events(worker=worker, start_date=start, end_date=end, request=request)
+        calendar_events = get_calendar_events(worker=worker, start_date=start, end_date=end)
 
-        return Response(data={
-            "date": parse_date,
-            **calendar_events
-            })
+        data = {"date": parse_date, **calendar_events}
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data, context={"request": request})
+        return Response(serializer.data)
     
