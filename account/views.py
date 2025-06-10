@@ -60,13 +60,14 @@ class TeamViewSet(viewsets.ModelViewSet):
                 "detail": f"Конфликт. Сотрудники {emails}, добавляемые в команду, уже состоят в других командах."
             })
         
+
 class WorkerViewSet(viewsets.GenericViewSet,
                     mixins.RetrieveModelMixin,
                     mixins.ListModelMixin):
     permission_classes = (IsAuthenticated,)
     serializer_class = WorkerGetSerializer
     queryset = Worker.objects.all()
-
+    
     @action(detail=True, methods=["get"], url_path=r"evaluation/avg/(?P<start_date>\d{4}-\d{2}-\d{2})/(?P<end_date>\d{4}-\d{2}-\d{2})")
     def average_evaluation(self, request, start_date=None, end_date=None, pk=None):
         """
