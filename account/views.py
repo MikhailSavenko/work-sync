@@ -3,11 +3,13 @@ from rest_framework import mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.views import TokenObtainPairView as TokenObtainPairViewBase
+
 from django.db.models import Prefetch
 
 from datetime import datetime
 
-from account.doc.schemas import TeamAutoSchema, WorkerAutoSchema
+from account.doc.schemas import TeamAutoSchema, WorkerAutoSchema, TokenObtainAutoSchema
 from account.exceptions import TeamConflictError
 from account.serializers import TeamCreateUpdateSerializer, WorkerEvaluationResponseSerializer, WorkerCalendarResponseSerializer, WorkerGetSerializer, TeamGetSerializer, WorkerUpdateSerializer
 from account.models import Team, Worker
@@ -139,4 +141,7 @@ class WorkerViewSet(viewsets.GenericViewSet,
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(data, context={"request": request})
         return Response(serializer.data)
-    
+
+
+class TokenObtainPairView(TokenObtainPairViewBase):
+    swagger_schema = TokenObtainAutoSchema

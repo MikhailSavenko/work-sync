@@ -1,7 +1,7 @@
 from drf_yasg.openapi import Parameter, TYPE_STRING, IN_PATH, Response as OpenApiResponse, Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.inspectors.view import SwaggerAutoSchema
 
-from account.doc.texts import TEAM_TEXTS, WORKER_TEXTS
+from account.doc.texts import TEAM_TEXTS, WORKER_TEXTS, TOKEN_OBTAIN_TEXTS
 
 
 class TeamAutoSchema(SwaggerAutoSchema):
@@ -153,4 +153,23 @@ class WorkerAutoSchema(SwaggerAutoSchema):
                 )
             )
             operation.responses["404"] = OpenApiResponse(worker_text_average_evaluation["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING, description=worker_text_average_evaluation["responses"]["404"])}, example=worker_text_average_evaluation["example"]["404"]))
+        return operation
+    
+
+class TokenObtainAutoSchema(SwaggerAutoSchema):
+    def get_operation(self, operation_keys=None):
+        operation = super().get_operation(operation_keys)
+        print(operation_keys)
+        if operation_keys and operation_keys[-1] == "create":
+            if "201" in operation.responses:
+                del operation.responses["201"]
+
+            token_obtain_create = TOKEN_OBTAIN_TEXTS["create"]
+
+            operation.tags = token_obtain_create["tags"]
+            operation.summary = token_obtain_create["summary"]
+            operation.description = token_obtain_create["description"]
+
+            operation.responses["200"] = OpenApiResponse(token_obtain_create["responses"]["200"], Schema(type=TYPE_OBJECT, properties={"access": Schema(type=TYPE_STRING), "refresh": Schema(type=TYPE_STRING)}, example=token_obtain_create["example"]["200"]))
+            operation.responses["401"] = OpenApiResponse(token_obtain_create["responses"]["401"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=token_obtain_create["example"]["401"]))
         return operation

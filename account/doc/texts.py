@@ -9,6 +9,9 @@ NO_TEAMS = "No Team matches the given query"
 TAGS_WORKER = ["Workers"]
 NO_WORKER = "No Worker matches the given query"
 
+TAGS_AUTH = ["Auth"]
+UNAUTHORIZED_REQUEST_LOGIN = "No active account found with the given credentials"
+
 TEAM_TEXTS = {
     'list': {
         "tags": TAGS_TEAMS,
@@ -84,7 +87,6 @@ TEAM_TEXTS = {
         }
 }
 }
-
 
 
 WORKER_TEXTS = {
@@ -171,6 +173,28 @@ WORKER_TEXTS = {
         'example': {
             "400": {
                 "status": ["\"NfM\" is not a valid choice."]
+            }
+        }
+    }
+}
+
+
+TOKEN_OBTAIN_TEXTS = {
+    'create': {
+        "tags": TAGS_AUTH,
+        'summary': "Аутентификация",
+        'description': "Получение токенов по введенным данным",
+        'responses': {
+            '200': "Успешная авторизация",
+            '401': "Неверные данные"
+        },
+        'example' : {
+            "401": {
+            "detail": UNAUTHORIZED_REQUEST_LOGIN
+        },
+            "200": {
+                "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1MDE3Mjc0NywiaWF0IjoxNzQ5NTY3OTQ3LCJqdGkiOiIyYTVjZTJlODllMjI0M2E2YmNiMjg1OTg0MjQwYTRmZiIsInVzZXJfaWQiOjh9.7Rqk9H07m4OHmnUdU6B0n09bXzj8tF6w_GD04mRc7QU",
+                "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1MDE3Mjc0NywiaWF0IjoxNzQ5NTY3OTQ3LCJqdGkiOiIyYTVjZTJlODllMjI0M2E2YmNiMjg1OTg0MjQwYTRmZiIsInVzZXJfaWQiOjh9.7Rqk9H07m4OHmnUdU6B0n09bXzj8tF6w_GD04mRc7QU"
             }
         }
     }
