@@ -42,11 +42,12 @@ class TaskCreateSerializer(serializers.ModelSerializer):
     status = serializers.ReadOnlyField(source="get_status_display", help_text="OP - открыт |AW - в работе |DN - завершен")
     deadline = serializers.DateTimeField(input_formats=("%Y-%m-%dT%H:%M",), 
                                          help_text="Формат: YYYY-MM-DDTHH:MM")
+    creator = serializers.PrimaryKeyRelatedField(read_only=True)
     
     class Meta:
 
         model = Task
-        fields = ("id", "title", "description", "status", "deadline", "executor")
+        fields = ("id", "title", "description", "status", "deadline", "executor", "creator")
         extra_kwargs = {
             "executor": {"help_text": "id исполнителя, может быть назначен позже"},
             "deadline":  {"help_text": "YYYY-MM-DDTHH:MM"}
@@ -67,11 +68,12 @@ class TaskUpdateSerializer(serializers.ModelSerializer):
     status = serializers.ChoiceField(choices=Task.StatusTask, help_text="OP - открыт |AW - в работе |DN - завершен")
     deadline = serializers.DateTimeField(input_formats=("%Y-%m-%dT%H:%M",), 
                                          help_text="Формат: YYYY-MM-DDTHH:MM")
+    creator = serializers.PrimaryKeyRelatedField(read_only=True)
     
     class Meta:
 
         model = Task
-        fields = ("id", "title", "description", "status", "deadline", "executor")
+        fields = ("id", "title", "description", "status", "deadline", "executor", "creator")
         extra_kwargs = {
             "executor": {"help_text": "id исполнителя, может быть назначен позже"},
             "deadline":  {"help_text": "YYYY-MM-DDTHH:MM"}
