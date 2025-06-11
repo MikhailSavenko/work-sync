@@ -8,9 +8,9 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="Snippets API",
+      title="Work sync API",
       default_version='v1',
-      description="Test description",
+      description="API для синхронизации работы внутри компании",
       contact=openapi.Contact(email="mi47sav@gmail.com"),
    ),
    public=True,
