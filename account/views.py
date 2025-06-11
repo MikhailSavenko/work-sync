@@ -3,13 +3,13 @@ from rest_framework import mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.views import TokenObtainPairView as TokenObtainPairViewBase, TokenBlacklistView as TokenBlacklistViewBase
+from rest_framework_simplejwt.views import TokenObtainPairView as TokenObtainPairViewBase, TokenBlacklistView as TokenBlacklistViewBase, TokenRefreshView as TokenRefreshViewBase
 
 from django.db.models import Prefetch
 
 from datetime import datetime
 
-from account.doc.schemas import TeamAutoSchema, WorkerAutoSchema, TokenObtainAutoSchema, TokenBlacklistAutoSchema
+from account.doc.schemas import TeamAutoSchema, WorkerAutoSchema, TokenObtainAutoSchema, TokenBlacklistAutoSchema, TokenRefreshAutoSchema
 from account.exceptions import TeamConflictError
 from account.serializers import TeamCreateUpdateSerializer, WorkerEvaluationResponseSerializer, WorkerCalendarResponseSerializer, WorkerGetSerializer, TeamGetSerializer, WorkerUpdateSerializer
 from account.models import Team, Worker
@@ -149,3 +149,7 @@ class TokenObtainPairView(TokenObtainPairViewBase):
 
 class TokenBlacklistView(TokenBlacklistViewBase):
     swagger_schema = TokenBlacklistAutoSchema
+
+
+class TokenRefreshView(TokenRefreshViewBase):
+    swagger_schema = TokenRefreshAutoSchema

@@ -1,7 +1,7 @@
 from drf_yasg.openapi import Parameter, TYPE_STRING, IN_PATH, Response as OpenApiResponse, Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.inspectors.view import SwaggerAutoSchema
 
-from account.doc.texts import TEAM_TEXTS, WORKER_TEXTS, TOKEN_OBTAIN_TEXTS, TOKEN_BLACKLIST_TEXTS
+from account.doc.texts import TEAM_TEXTS, WORKER_TEXTS, TOKEN_OBTAIN_TEXTS, TOKEN_BLACKLIST_TEXTS, TOKEN_REFRESH_TEXTS
 
 
 class TeamAutoSchema(SwaggerAutoSchema):
@@ -190,4 +190,22 @@ class TokenBlacklistAutoSchema(SwaggerAutoSchema):
             operation.description = token_blacklist_create["description"]
               
             operation.responses["401"] = OpenApiResponse(token_blacklist_create["responses"]["401"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING), "code": Schema(type=TYPE_STRING)}, example=token_blacklist_create["example"]["401"]))
+        return operation
+
+
+class TokenRefreshAutoSchema(SwaggerAutoSchema):
+    def get_operation(self, operation_keys=None):
+        operation = super().get_operation(operation_keys)
+        print(operation_keys)
+        if operation_keys and operation_keys[-1] == "create":
+            if "201" in operation.responses:
+                del operation.responses["201"]
+
+            token_refresh_create = TOKEN_REFRESH_TEXTS["create"]
+
+            operation.tags = token_refresh_create["tags"]
+            operation.summary = token_refresh_create["summary"]
+            operation.description = token_refresh_create["description"]
+            operation.responses["200"] = OpenApiResponse(token_refresh_create["responses"]["200"], Schema(type=TYPE_OBJECT, properties={"access": Schema(type=TYPE_STRING), "refresh": Schema(type=TYPE_STRING)}, example=token_refresh_create["example"]["200"]))
+            operation.responses["401"] = OpenApiResponse(token_refresh_create["responses"]["401"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING), "code": Schema(type=TYPE_STRING)}, example=token_refresh_create["example"]["401"]))
         return operation
