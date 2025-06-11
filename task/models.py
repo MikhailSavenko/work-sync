@@ -35,7 +35,7 @@ class Task(models.Model):
     deadline = models.DateTimeField(verbose_name="Крайний срок")
     status = models.CharField(max_length=2, choices=StatusTask, default=StatusTask.OPEN, verbose_name="Статус задачи")
     executor = models.ForeignKey(Worker, verbose_name="Исполнитель", on_delete=models.SET_NULL, null=True, blank=True, related_name="executed_tasks")
-    creator = models.ForeignKey(Worker, verbose_name="Создатель", on_delete=models.PROTECT, related_name="created_tasks")
+    creator = models.ForeignKey(Worker, verbose_name="Создатель", on_delete=models.SET_NULL, null=True, blank=True, related_name="created_tasks")
     created_at = models.DateTimeField(verbose_name="Даты и время создания", auto_now_add=True)
     updated_at = models.DateTimeField(verbose_name="Даты и время обновления", auto_now=True)
 
@@ -73,6 +73,6 @@ class Comment(models.Model):
     """
     task = models.ForeignKey(Task, verbose_name="Комментируемая задача", on_delete=models.CASCADE, related_name="comments")
     text = models.TextField(verbose_name="Текст комментария")
-    creator = models.ForeignKey(Worker, verbose_name="Автор комментария", on_delete=models.DO_NOTHING, related_name="comments")
+    creator = models.ForeignKey(Worker, verbose_name="Автор комментария", on_delete=models.SET_NULL, null=True, blank=True, related_name="comments")
     created_at = models.DateTimeField(verbose_name="Даты и время создания", auto_now_add=True)
     updated_at = models.DateTimeField(verbose_name="Даты и время обновления", auto_now=True)

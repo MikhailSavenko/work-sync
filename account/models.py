@@ -62,6 +62,6 @@ class Team(models.Model):
     title = models.CharField(max_length=255, verbose_name="Название команды")
     description = models.TextField(verbose_name="Описание команды")
 
-    creator = models.ForeignKey(Worker, verbose_name="Создатель", on_delete=models.PROTECT, related_name="created_teams")
+    creator = models.ForeignKey(Worker, verbose_name="Создатель", on_delete=models.SET_NULL, null=True, blank=True, related_name="created_teams")
     created_at = models.DateTimeField(verbose_name="Даты и время создания", auto_now_add=True)
     updated_at = models.DateTimeField(verbose_name="Даты и время обновления", auto_now=True)
