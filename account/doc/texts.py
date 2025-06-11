@@ -11,6 +11,7 @@ NO_WORKER = "No Worker matches the given query"
 
 TAGS_AUTH = ["Auth"]
 UNAUTHORIZED_REQUEST_LOGIN = "No active account found with the given credentials"
+UNAUTHORIZED_REQUEST = "Несанкционированный запрос"
 
 TEAM_TEXTS = {
     'list': {
@@ -185,8 +186,8 @@ TOKEN_OBTAIN_TEXTS = {
         'summary': "Аутентификация",
         'description': "Получение токенов по введенным данным",
         'responses': {
-            '200': "Успешная авторизация",
-            '401': "Неверные данные"
+            '200': "Успешная аутентификация",
+            '401': UNAUTHORIZED_REQUEST
         },
         'example' : {
             "401": {
@@ -195,6 +196,24 @@ TOKEN_OBTAIN_TEXTS = {
             "200": {
                 "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1MDE3Mjc0NywiaWF0IjoxNzQ5NTY3OTQ3LCJqdGkiOiIyYTVjZTJlODllMjI0M2E2YmNiMjg1OTg0MjQwYTRmZiIsInVzZXJfaWQiOjh9.7Rqk9H07m4OHmnUdU6B0n09bXzj8tF6w_GD04mRc7QU",
                 "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1MDE3Mjc0NywiaWF0IjoxNzQ5NTY3OTQ3LCJqdGkiOiIyYTVjZTJlODllMjI0M2E2YmNiMjg1OTg0MjQwYTRmZiIsInVzZXJfaWQiOjh9.7Rqk9H07m4OHmnUdU6B0n09bXzj8tF6w_GD04mRc7QU"
+            }
+        }
+    }
+}
+
+TOKEN_BLACKLIST_TEXTS = {
+    'create': {
+        "tags": TAGS_AUTH,
+        'summary': "Аннулирование токена обновления",
+        'description': "Добавляет предоставленный токен обновления в черный список, делая его недействительным для дальнейшего использования.",
+        'responses': {
+            '200': "Успешное аннулирование токена",
+            '401': UNAUTHORIZED_REQUEST
+        },
+        'example' : {
+            "401": {
+                "detail": "Token is blacklisted",
+                "code": "token_not_valid"
             }
         }
     }
