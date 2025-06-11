@@ -249,11 +249,11 @@ class UserAutoSchema(SwaggerAutoSchema):
                 operation.responses["400"] = OpenApiResponse(user_me_update["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=user_me_update["example"]["400"]))
             
             elif action == "delete":
-                user_me_update = USER_REGISTER_TEXTS["me_delete"]
+                user_me_delete = USER_REGISTER_TEXTS["me_delete"]
 
-                operation.tags = user_me_update["tags"]
-                operation.summary = user_me_update["summary"]
-                operation.description = user_me_update["description"]
+                operation.tags = user_me_delete["tags"]
+                operation.summary = user_me_delete["summary"]
+                operation.description = user_me_delete["description"]
                 
                 scheme_current_password = Schema(type=TYPE_OBJECT, properties={"current_password": Schema(type=TYPE_STRING)})
                 operation.parameters.append(
@@ -264,4 +264,8 @@ class UserAutoSchema(SwaggerAutoSchema):
                         schema=scheme_current_password
                     )
                 )
+                operation.responses["204"] = OpenApiResponse(user_me_delete["responses"]["204"])
+                operation.responses["401"] = OpenApiResponse(user_me_delete["responses"]["401"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING), "code": Schema(type=TYPE_STRING)}, example=user_me_delete["example"]["401"])) 
+                operation.responses["400"] = OpenApiResponse(user_me_delete["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=user_me_delete["example"]["400"]))
+                
         return operation

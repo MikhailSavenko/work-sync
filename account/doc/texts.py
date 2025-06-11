@@ -13,6 +13,8 @@ TAGS_AUTH = ["Auth"]
 UNAUTHORIZED_REQUEST_LOGIN = "No active account found with the given credentials"
 UNAUTHORIZED_REQUEST = "Несанкционированный запрос"
 
+UNAUTHORIZED_401_REQUEST_DEFAULT = "Authentication credentials were not provided."
+
 TEAM_TEXTS = {
     'list': {
         "tags": TAGS_TEAMS,
@@ -201,6 +203,7 @@ TOKEN_OBTAIN_TEXTS = {
     }
 }
 
+
 TOKEN_BLACKLIST_TEXTS = {
     'create': {
         "tags": TAGS_AUTH,
@@ -218,6 +221,7 @@ TOKEN_BLACKLIST_TEXTS = {
         }
     }
 }
+
 
 TOKEN_REFRESH_TEXTS = {
     'create': {
@@ -278,7 +282,7 @@ USER_REGISTER_TEXTS = {
             '201': "Успешная регистрация",
             "400": VALIDATION_ERROR_DESCRIPTION
         },
-        'example' : {
+        'example': {
             "201": {
                 "email": "user@example.com",
                 "id": 0
@@ -310,15 +314,17 @@ USER_REGISTER_TEXTS = {
         'summary': "Удаление аккаунта",
         'description': "Позволяет удалить аккаунт. Удаляет User, а такде Worker сущности.",
         'responses': {
-            "400": ""
+            "204": "Успешное удаление",
+            "400": VALIDATION_ERROR_DESCRIPTION,
+            "401": UNAUTHORIZED_REQUEST,
         },
-        'example' : {
+        'example': {
+            "401": {
+                "detail": UNAUTHORIZED_401_REQUEST_DEFAULT
+            },
             "400": {
-                "email": [
-                    "This field is required."
-                ]
-            }               
+                "current_password": ["Invalid password."]
+            }    
         }
-    },
-    
+    }
 }
