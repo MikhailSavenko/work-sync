@@ -107,13 +107,16 @@ class EvaluationViewSet(mixins.CreateModelMixin,
         return self.serializer_class.get(self.action)
     
     def perform_create(self, serializer):
+        from_worker = self.request.user.worker
+
         task_pk = self.kwargs.get("task_pk")
         task_pk = is_int_or_valid_error(num_check=task_pk)
         
         task = get_object_or_404(Task, pk=task_pk)
 
-        from_worker = self.request.user.worker
-        if not task.executor:
+        if hasattr(task, "evaluation"):
+            raise EvaluationConflictError({"evaluation_create_conflict": "Задача, за которую выставляется оценка, уже имеет оценку"})
+        elif not task.executor:
             raise EvaluationConflictError({"evaluation_create_conflict": "Задача, за которую выставляется оценка, не имеет назначенного исполнителя."})
         elif task.status != Task.StatusTask.DONE:
             raise EvaluationConflictError({"evaluation_create_conflict": "Задача, за которую выставляется оценка, должна быть в статусе выполнена."})

@@ -223,7 +223,6 @@ COMMENT_TEXTS = {
 }
 
 
-
 EVALUATION_TEXTS = {
     'create': {
         "tags": ["Evaluations"],
@@ -232,7 +231,7 @@ EVALUATION_TEXTS = {
         'responses': {
             '201': "",
             '400': VALIDATION_ERROR_DESCRIPTION,
-            '403': "",
+            '409': CONFLICT_DATA,
             '404': NOT_FOUND
         },
         'example': {
@@ -240,6 +239,9 @@ EVALUATION_TEXTS = {
                 "score": [
                     "Ensure this value is between 1 and 5."
                 ]
+            },
+            "409": {
+                "evaluation_create_conflict": "Задача, за которую выставляется оценка, уже имеет оценку"
             },
             "403": {
                 "detail": ""

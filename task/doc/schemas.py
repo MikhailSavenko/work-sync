@@ -140,6 +140,7 @@ class EvaluationAutoSchema(SwaggerAutoSchema):
             operation.summary = evaluation_text_create["summary"]
             operation.description = evaluation_text_create["description"]
 
+            operation.responses["409"] = OpenApiResponse(evaluation_text_create["responses"]["409"], Schema(type=TYPE_OBJECT, properties={"evaluation_create_conflict": Schema(type=TYPE_STRING)}, example=evaluation_text_create["example"]["409"]))
             operation.responses["404"] = OpenApiResponse(evaluation_text_create["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=evaluation_text_create["example"]["404"]))
             operation.responses["400"] = OpenApiResponse(evaluation_text_create["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=evaluation_text_create["example"]["400"]))
 
