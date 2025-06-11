@@ -305,5 +305,20 @@ USER_REGISTER_TEXTS = {
             }               
         }
     },
+    'me_delete': {
+        "tags": TAGS_AUTH,
+        'summary': "Удаление аккаунта",
+        'description': "Позволяет удалить аккаунт. Удаляет User, а такде Worker сущности.",
+        'responses': {
+            "400": ""
+        },
+        'example' : {
+            "400": {
+                "email": [
+                    "This field is required."
+                ]
+            }               
+        }
+    },
     
 }

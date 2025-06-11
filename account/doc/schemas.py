@@ -248,4 +248,12 @@ class UserAutoSchema(SwaggerAutoSchema):
                 operation.description = user_me_update["description"]
                 
                 operation.responses["400"] = OpenApiResponse(user_me_update["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=user_me_update["example"]["400"]))
+            
+            elif action == "delete":
+                user_me_update = USER_REGISTER_TEXTS["me_delete"]
+
+                operation.tags = user_me_update["tags"]
+                operation.summary = user_me_update["summary"]
+                operation.description = user_me_update["description"]
+                
         return operation
