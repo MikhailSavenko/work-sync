@@ -5,11 +5,13 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView as TokenObtainPairViewBase, TokenBlacklistView as TokenBlacklistViewBase, TokenRefreshView as TokenRefreshViewBase, TokenVerifyView as TokenVerifyViewBase
 
+from djoser.views import UserViewSet as UserViewSetBase
+
 from django.db.models import Prefetch
 
 from datetime import datetime
 
-from account.doc.schemas import TeamAutoSchema, WorkerAutoSchema, TokenObtainAutoSchema, TokenBlacklistAutoSchema, TokenRefreshAutoSchema, TokenVerifyAutoSchema
+from account.doc.schemas import TeamAutoSchema, WorkerAutoSchema, UserAutoSchema, TokenObtainAutoSchema, TokenBlacklistAutoSchema, TokenRefreshAutoSchema, TokenVerifyAutoSchema
 from account.exceptions import TeamConflictError
 from account.serializers import TeamCreateUpdateSerializer, WorkerEvaluationResponseSerializer, WorkerCalendarResponseSerializer, WorkerGetSerializer, TeamGetSerializer, WorkerUpdateSerializer
 from account.models import Team, Worker
@@ -157,3 +159,7 @@ class TokenRefreshView(TokenRefreshViewBase):
 
 class TokenVerifyView(TokenVerifyViewBase):
     swagger_schema = TokenVerifyAutoSchema
+
+
+class UserViewSet(UserViewSetBase):
+    swagger_schema = UserAutoSchema

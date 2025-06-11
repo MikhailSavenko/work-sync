@@ -1,7 +1,7 @@
-from drf_yasg.openapi import Parameter, TYPE_STRING, IN_PATH, Response as OpenApiResponse, Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
+from drf_yasg.openapi import Parameter, TYPE_STRING, IN_PATH, Response as OpenApiResponse, Schema, TYPE_OBJECT, TYPE_ARRAY, TYPE_INTEGER
 from drf_yasg.inspectors.view import SwaggerAutoSchema
 
-from account.doc.texts import TEAM_TEXTS, WORKER_TEXTS, TOKEN_OBTAIN_TEXTS, TOKEN_BLACKLIST_TEXTS, TOKEN_REFRESH_TEXTS, TOKEN_VERIFY_TEXTS
+from account.doc.texts import TEAM_TEXTS, WORKER_TEXTS, TOKEN_OBTAIN_TEXTS, TOKEN_BLACKLIST_TEXTS, TOKEN_REFRESH_TEXTS, TOKEN_VERIFY_TEXTS, USER_REGISTER_TEXTS
 
 
 class TeamAutoSchema(SwaggerAutoSchema):
@@ -61,7 +61,6 @@ class WorkerAutoSchema(SwaggerAutoSchema):
 
     def get_operation(self, operation_keys=None):
         operation = super().get_operation(operation_keys)
-        print(operation_keys)
         if operation_keys and operation_keys[-1] == "list":
             worker_text_list = WORKER_TEXTS["list"]
 
@@ -159,7 +158,6 @@ class WorkerAutoSchema(SwaggerAutoSchema):
 class TokenObtainAutoSchema(SwaggerAutoSchema):
     def get_operation(self, operation_keys=None):
         operation = super().get_operation(operation_keys)
-        print(operation_keys)
         if operation_keys and operation_keys[-1] == "create":
             if "201" in operation.responses:
                 del operation.responses["201"]
@@ -178,7 +176,6 @@ class TokenObtainAutoSchema(SwaggerAutoSchema):
 class TokenBlacklistAutoSchema(SwaggerAutoSchema):
     def get_operation(self, operation_keys=None):
         operation = super().get_operation(operation_keys)
-        print(operation_keys)
         if operation_keys and operation_keys[-1] == "create":
             if "201" in operation.responses:
                 del operation.responses["201"]
@@ -196,7 +193,6 @@ class TokenBlacklistAutoSchema(SwaggerAutoSchema):
 class TokenRefreshAutoSchema(SwaggerAutoSchema):
     def get_operation(self, operation_keys=None):
         operation = super().get_operation(operation_keys)
-        print(operation_keys)
         if operation_keys and operation_keys[-1] == "create":
             if "201" in operation.responses:
                 del operation.responses["201"]
@@ -209,12 +205,11 @@ class TokenRefreshAutoSchema(SwaggerAutoSchema):
             operation.responses["200"] = OpenApiResponse(token_refresh_create["responses"]["200"], Schema(type=TYPE_OBJECT, properties={"access": Schema(type=TYPE_STRING), "refresh": Schema(type=TYPE_STRING)}, example=token_refresh_create["example"]["200"]))
             operation.responses["401"] = OpenApiResponse(token_refresh_create["responses"]["401"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING), "code": Schema(type=TYPE_STRING)}, example=token_refresh_create["example"]["401"]))
         return operation
-
+    
 
 class TokenVerifyAutoSchema(SwaggerAutoSchema):
     def get_operation(self, operation_keys=None):
         operation = super().get_operation(operation_keys)
-        print(operation_keys)
         if operation_keys and operation_keys[-1] == "create":
             if "201" in operation.responses:
                 del operation.responses["201"]
@@ -227,4 +222,20 @@ class TokenVerifyAutoSchema(SwaggerAutoSchema):
             operation.responses["200"] = OpenApiResponse(token_verify_create["responses"]["200"], Schema(type=TYPE_OBJECT, properties={}, example=token_verify_create["example"]["200"]))
             operation.responses["401"] = OpenApiResponse(token_verify_create["responses"]["401"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING), "code": Schema(type=TYPE_STRING)}, example=token_verify_create["example"]["401"]))
             operation.responses["400"] = OpenApiResponse(token_verify_create["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"non_field_errors": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=token_verify_create["example"]["400"]))
+        return operation
+    
+
+class UserAutoSchema(SwaggerAutoSchema):
+    def get_operation(self, operation_keys=None):
+        operation = super().get_operation(operation_keys)
+        print(operation_keys)
+        if operation_keys and operation_keys[-1] == "create":
+            user_register_create = USER_REGISTER_TEXTS["create"]
+
+            operation.tags = user_register_create["tags"]
+            operation.summary = user_register_create["summary"]
+            operation.description = user_register_create["description"]
+            operation.responses["201"] = OpenApiResponse(user_register_create["responses"]["201"], Schema(type=TYPE_OBJECT, properties={"email": Schema(type=TYPE_STRING), "id": Schema(type=TYPE_INTEGER)}, example=user_register_create["example"]["201"]))
+           
+            operation.responses["400"] = OpenApiResponse(user_register_create["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=user_register_create["example"]["400"]))
         return operation

@@ -267,3 +267,27 @@ TOKEN_VERIFY_TEXTS = {
         }
     }
 }
+
+
+USER_REGISTER_TEXTS = {
+    'create': {
+        "tags": TAGS_AUTH,
+        'summary': "Регистрация",
+        'description': "Создание аккаунта на площадке. Создаем модель User, а также Worker создается автоматически и имеет связь с User OneToOne.",
+        'responses': {
+            '201': "Успешная регистрация",
+            "400": VALIDATION_ERROR_DESCRIPTION
+        },
+        'example' : {
+            "201": {
+                "email": "user@example.com",
+                "id": 0
+            },
+            "400": {
+                "email": [
+                    "Enter a valid email address."
+                ]
+            }               
+        }
+    }
+}
