@@ -1,4 +1,4 @@
-from drf_yasg.openapi import Parameter, TYPE_STRING, IN_PATH, Response as OpenApiResponse, Schema, TYPE_OBJECT, TYPE_ARRAY, TYPE_INTEGER
+from drf_yasg.openapi import Parameter, TYPE_STRING, IN_PATH, IN_BODY, Response as OpenApiResponse, Schema, TYPE_OBJECT, TYPE_ARRAY, TYPE_INTEGER
 from drf_yasg.inspectors.view import SwaggerAutoSchema
 
 from account.doc.texts import TEAM_TEXTS, WORKER_TEXTS, TOKEN_OBTAIN_TEXTS, TOKEN_BLACKLIST_TEXTS, TOKEN_REFRESH_TEXTS, TOKEN_VERIFY_TEXTS, USER_REGISTER_TEXTS
@@ -92,7 +92,6 @@ class WorkerAutoSchema(SwaggerAutoSchema):
             operation.tags = worker_text_calendar_day["tags"]
             operation.summary = worker_text_calendar_day["summary"]
             operation.description = worker_text_calendar_day["description"]
-            print(operation.parameters)
             operation.parameters.append(
                 Parameter(
                     "date", # Название параметра, как в url_path
@@ -256,4 +255,13 @@ class UserAutoSchema(SwaggerAutoSchema):
                 operation.summary = user_me_update["summary"]
                 operation.description = user_me_update["description"]
                 
+                scheme_current_password = Schema(type=TYPE_OBJECT, properties={"current_password": Schema(type=TYPE_STRING)})
+                operation.parameters.append(
+                    Parameter(
+                        "data",
+                        IN_BODY,
+                        required=True,
+                        schema=scheme_current_password
+                    )
+                )
         return operation

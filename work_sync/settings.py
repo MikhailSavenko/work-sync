@@ -141,7 +141,7 @@ DJOSER = {
         'current_user': 'account.serializers.UserSerializer',
         'user': 'account.serializers.UserSerializer',
     },
-    "TOKEN_MODEL": None,
+    "TOKEN_MODEL": None
     }
 
 
