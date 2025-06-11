@@ -289,5 +289,21 @@ USER_REGISTER_TEXTS = {
                 ]
             }               
         }
-    }
+    },
+    'me_update': {
+        "tags": TAGS_AUTH,
+        'summary': "Обновление данных аккаунта",
+        'description': "Позволяет обновить данные вашего аккаунта",
+        'responses': {
+            "400": VALIDATION_ERROR_DESCRIPTION
+        },
+        'example' : {
+            "400": {
+                "email": [
+                    "This field is required."
+                ]
+            }               
+        }
+    },
+    
 }

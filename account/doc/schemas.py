@@ -235,7 +235,17 @@ class UserAutoSchema(SwaggerAutoSchema):
             operation.tags = user_register_create["tags"]
             operation.summary = user_register_create["summary"]
             operation.description = user_register_create["description"]
-            operation.responses["201"] = OpenApiResponse(user_register_create["responses"]["201"], Schema(type=TYPE_OBJECT, properties={"email": Schema(type=TYPE_STRING), "id": Schema(type=TYPE_INTEGER)}, example=user_register_create["example"]["201"]))
-           
+            operation.responses["201"] = OpenApiResponse(user_register_create["responses"]["201"], Schema(type=TYPE_OBJECT, properties={"email": Schema(type=TYPE_STRING), "id": Schema(type=TYPE_INTEGER)}, example=user_register_create["example"]["201"]))     
             operation.responses["400"] = OpenApiResponse(user_register_create["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=user_register_create["example"]["400"]))
+        
+        elif operation_keys and operation_keys[-2] == "me":
+            action = operation_keys[-1]
+            if action == "update":
+                user_me_update = USER_REGISTER_TEXTS["me_update"]
+
+                operation.tags = user_me_update["tags"]
+                operation.summary = user_me_update["summary"]
+                operation.description = user_me_update["description"]
+                
+                operation.responses["400"] = OpenApiResponse(user_me_update["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=user_me_update["example"]["400"]))
         return operation
