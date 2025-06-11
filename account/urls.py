@@ -1,9 +1,8 @@
 from django.urls import path, include
-from rest_framework_simplejwt.views import TokenVerifyView
 from djoser.views import UserViewSet
 from rest_framework.routers import DefaultRouter
 
-from account.views import TeamViewSet, WorkerViewSet, TokenObtainPairView, TokenBlacklistView, TokenRefreshView
+from account.views import TeamViewSet, WorkerViewSet, TokenObtainPairView, TokenBlacklistView, TokenRefreshView, TokenVerifyView
 
 
 router = DefaultRouter()
