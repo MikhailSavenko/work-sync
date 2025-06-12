@@ -18,7 +18,7 @@ from account.models import Team, Worker
 from account.services.worker import get_calendar_events, get_evaluations_avg
 from account.services.team import get_worker_with_team
 from account.utils import get_day_bounds, get_month_bounds
-from account.permissions import IsAdminTeamOrReadOnly
+from account.permissions import IsAdminTeamOrReadOnly, IsAdminTeam
 
 
 class TeamViewSet(viewsets.ModelViewSet):
@@ -68,8 +68,7 @@ class WorkerViewSet(viewsets.GenericViewSet,
                     mixins.ListModelMixin,
                     mixins.UpdateModelMixin):
     http_method_names = ("get", "patch", "options", "head")
-    # permission_classes = (IsAuthenticated,)
-    serializer_class = WorkerGetSerializer
+    permission_classes = [IsAdminTeam]
     queryset = Worker.objects.all()
     serializer_class = {
         "list": WorkerGetSerializer,

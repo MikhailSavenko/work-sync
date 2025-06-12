@@ -3,14 +3,7 @@ from drf_yasg.inspectors.view import SwaggerAutoSchema
 
 from account.doc.texts import TEAM_TEXTS, WORKER_TEXTS, TOKEN_OBTAIN_TEXTS, TOKEN_BLACKLIST_TEXTS, TOKEN_REFRESH_TEXTS, TOKEN_VERIFY_TEXTS, USER_REGISTER_TEXTS
 
-
-def get_response_open_api_scheme_with_detail_string_and_example(text: dict, status_code) -> OpenApiResponse:
-    response = OpenApiResponse(text["responses"][str(status_code)], 
-                               Schema(type=TYPE_OBJECT, 
-                                      properties={"detail": Schema(type=TYPE_STRING, 
-                                                                   description=text["responses"][str(status_code)])}, 
-                                                                   example=text["example"][str(status_code)]))
-    return response
+from doc_common.schemes import get_response_open_api_scheme_with_detail_string_and_example
 
 
 class TeamAutoSchema(SwaggerAutoSchema):
@@ -94,7 +87,8 @@ class WorkerAutoSchema(SwaggerAutoSchema):
             operation.tags = worker_text_partial_upd["tags"]
             operation.summary = worker_text_partial_upd["summary"]
             operation.description = worker_text_partial_upd["description"]
-          
+
+            operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(text=worker_text_partial_upd, status_code=403)
             operation.responses["400"] = OpenApiResponse(worker_text_partial_upd["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=worker_text_partial_upd["example"]["400"]))
 
         elif operation_keys and operation_keys[-1] == "calendar_day":

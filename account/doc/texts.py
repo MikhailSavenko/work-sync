@@ -13,8 +13,6 @@ TAGS_AUTH = ["Auth"]
 UNAUTHORIZED_REQUEST_LOGIN = "No active account found with the given credentials"
 UNAUTHORIZED_REQUEST = "Несанкционированный запрос"
 
-UNAUTHORIZED_401_REQUEST_DEFAULT = "Authentication credentials were not provided."
-
 FORBIDDEN_403_RUSSIAN = "У вас недостаточно прав для выполнения этого действия."
 
 TEAM_TEXTS = {
@@ -184,6 +182,9 @@ WORKER_TEXTS = {
         'example': {
             "400": {
                 "status": ["\"NfM\" is not a valid choice."]
+            },
+            "403": {
+                "detail": FORBIDDEN_403_RUSSIAN
             }
         }
     }
@@ -328,7 +329,8 @@ USER_REGISTER_TEXTS = {
         },
         'example': {
             "401": {
-                "detail": UNAUTHORIZED_401_REQUEST_DEFAULT
+                "detail": "Given token not valid for any token type",
+                "code": "token_not_valid"
             },
             "400": {
                 "current_password": ["Invalid password."]
