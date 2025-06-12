@@ -2,7 +2,6 @@ from rest_framework import viewsets
 from rest_framework import mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView as TokenObtainPairViewBase, TokenBlacklistView as TokenBlacklistViewBase, TokenRefreshView as TokenRefreshViewBase, TokenVerifyView as TokenVerifyViewBase
 
 from djoser.views import UserViewSet as UserViewSetBase
@@ -19,11 +18,12 @@ from account.models import Team, Worker
 from account.services.worker import get_calendar_events, get_evaluations_avg
 from account.services.team import get_worker_with_team
 from account.utils import get_day_bounds, get_month_bounds
+from account.permissions import IsAdminTeamOrReadOnly
 
 
 class TeamViewSet(viewsets.ModelViewSet):
     http_method_names = ("get", "post", "put", "delete", "options", "head")
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsAdminTeamOrReadOnly]
     queryset = Team.objects.prefetch_related(Prefetch("workers", queryset=Worker.objects.select_related("user")))
     serializer_class = {
         "update": TeamCreateUpdateSerializer,
@@ -32,7 +32,6 @@ class TeamViewSet(viewsets.ModelViewSet):
         "retrieve": TeamGetSerializer,
     }
     swagger_schema = TeamAutoSchema
-    # будет доступен admin_team
 
     def get_serializer_class(self):
         return self.serializer_class.get(self.action, TeamGetSerializer)

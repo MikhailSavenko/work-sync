@@ -15,6 +15,8 @@ UNAUTHORIZED_REQUEST = "Несанкционированный запрос"
 
 UNAUTHORIZED_401_REQUEST_DEFAULT = "Authentication credentials were not provided."
 
+FORBIDDEN_403_RUSSIAN = "У вас недостаточно прав для выполнения этого действия."
+
 TEAM_TEXTS = {
     'list': {
         "tags": TAGS_TEAMS,
@@ -44,7 +46,7 @@ TEAM_TEXTS = {
         'summary': "Создание новой команды",
         'description': "Позволяет создать новую команду с указанными параметрами. Возвращает созданный объект команды.",
         'responses': {
-            '201': "",
+            '403': FORBIDDEN_DESCRIPTION,
             '400': VALIDATION_ERROR_DESCRIPTION,
             "409": CONFLICT_DATA
         },
@@ -54,6 +56,9 @@ TEAM_TEXTS = {
             },
             "409": {
                 "detail": "Конфликт. Сотрудники ['mi47sav4@gmail.com'], добавляемые в команду, уже состоят в других командах"
+            },
+            "403": {
+                "detail": FORBIDDEN_403_RUSSIAN
             }
         }
         
@@ -73,6 +78,9 @@ TEAM_TEXTS = {
             },
             "409": {
                 "detail": "Конфликт. Сотрудники ['mi47sav4@gmail.com'], добавляемые в команду, уже состоят в других командах"
+            },
+            "403": {
+                "detail": FORBIDDEN_403_RUSSIAN
             }
         }
     },
@@ -85,7 +93,7 @@ TEAM_TEXTS = {
             '403': FORBIDDEN_DESCRIPTION
         },
         'example': {
-            "403": {"detail": "Удаление команды возможна только ее создателем."},
+            "403": FORBIDDEN_403_RUSSIAN,
             "404": {"detail": NO_TEAMS}
         }
 }

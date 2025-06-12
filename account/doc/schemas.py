@@ -4,6 +4,15 @@ from drf_yasg.inspectors.view import SwaggerAutoSchema
 from account.doc.texts import TEAM_TEXTS, WORKER_TEXTS, TOKEN_OBTAIN_TEXTS, TOKEN_BLACKLIST_TEXTS, TOKEN_REFRESH_TEXTS, TOKEN_VERIFY_TEXTS, USER_REGISTER_TEXTS
 
 
+def get_response_open_api_scheme_with_detail_string_and_example(text: dict, status_code) -> OpenApiResponse:
+    response = OpenApiResponse(text["responses"][str(status_code)], 
+                               Schema(type=TYPE_OBJECT, 
+                                      properties={"detail": Schema(type=TYPE_STRING, 
+                                                                   description=text["responses"][str(status_code)])}, 
+                                                                   example=text["example"][str(status_code)]))
+    return response
+
+
 class TeamAutoSchema(SwaggerAutoSchema):
 
     def get_operation(self, operation_keys=None):
@@ -32,6 +41,7 @@ class TeamAutoSchema(SwaggerAutoSchema):
             operation.summary = team_text_create["summary"]
             operation.description = team_text_create["description"]
             
+            operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(text=team_text_create, status_code=403)
             operation.responses["400"] = OpenApiResponse(team_text_create["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=team_text_create["example"]["400"]))
             operation.responses["409"] = OpenApiResponse(team_text_create["responses"]["409"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING, description=team_text_create["responses"]["409"])}, example=team_text_create["example"]["409"]))
         
@@ -41,7 +51,8 @@ class TeamAutoSchema(SwaggerAutoSchema):
             operation.tags = team_text_update["tags"]
             operation.summary = team_text_update["summary"]
             operation.description = team_text_update["description"]
-          
+
+            operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(text=team_text_update, status_code=403)
             operation.responses["400"] = OpenApiResponse(team_text_update["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=team_text_update["example"]["400"]))
             operation.responses["409"] = OpenApiResponse(team_text_update["responses"]["409"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING, description=team_text_update["responses"]["409"])}, example=team_text_update["example"]["409"]))
 
@@ -52,7 +63,7 @@ class TeamAutoSchema(SwaggerAutoSchema):
             operation.summary = team_text_delete["summary"]
             operation.description = team_text_delete["description"]
 
-            operation.responses["403"] = OpenApiResponse(team_text_delete["responses"]["403"], schema=Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING, description=team_text_delete["responses"]["403"])}, example=team_text_delete["example"]["403"]))
+            operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(text=team_text_delete, status_code=403)
             operation.responses["404"] = OpenApiResponse(team_text_delete["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING, description=team_text_delete["responses"]["404"])}, example=team_text_delete["example"]["404"]))
         return operation
 
