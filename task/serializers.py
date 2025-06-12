@@ -31,7 +31,7 @@ class GetTaskSerializer(serializers.ModelSerializer):
     def get_evaluation(self, obj: Task):
         current_worker = self.context.get("request").user.worker
         # Покажем оценку менеджеру кто назначил задачу и самому исполнителю
-        if (hasattr(obj, "evaluation") and obj.executor and obj.executor == current_worker) or (hasattr(obj, "evaluation") and obj.creator == current_worker):
+        if (hasattr(obj, "evaluation") and obj.executor and obj.executor == current_worker) or (hasattr(obj, "evaluation") and obj.creator and obj.creator == current_worker):
             evalu_serializer = EvaluationSerializer(obj.evaluation)
             return evalu_serializer.data
         return None
