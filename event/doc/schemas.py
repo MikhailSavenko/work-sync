@@ -1,6 +1,7 @@
 from drf_yasg.openapi import Parameter, IN_QUERY, TYPE_STRING, Response as OpenApiResponse, Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.inspectors.view import SwaggerAutoSchema
 
+from common.schemes import get_response_open_api_scheme_with_detail_string_and_example
 from event.doc.texts import MEETING_TEXTS
 
 
@@ -59,7 +60,8 @@ class MeetingAutoSchema(SwaggerAutoSchema):
             operation.tags = meeting_text_update["tags"]
             operation.summary = meeting_text_update["summary"]
             operation.description = meeting_text_update["description"]
-          
+
+            operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(text=meeting_text_update, status_code=403)
             operation.responses["400"] = OpenApiResponse(meeting_text_update["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field_or_non_field_errors": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=meeting_text_update["example"]["400"]))
             operation.responses["409"] = OpenApiResponse(meeting_text_update["responses"]["409"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING, description=meeting_text_update["responses"]["409"])}, example=meeting_text_update["example"]["409"]))
 
@@ -70,6 +72,6 @@ class MeetingAutoSchema(SwaggerAutoSchema):
             operation.summary = meeting_text_delete["summary"]
             operation.description = meeting_text_delete["description"]
 
-            operation.responses["403"] = OpenApiResponse(meeting_text_delete["responses"]["403"], schema=Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING, description=meeting_text_delete["responses"]["403"])}, example=meeting_text_delete["example"]["403"]))
+            operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(text=meeting_text_delete, status_code=403)
             operation.responses["404"] = OpenApiResponse(meeting_text_delete["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING, description=meeting_text_delete["responses"]["404"])}, example=meeting_text_delete["example"]["404"]))
         return operation

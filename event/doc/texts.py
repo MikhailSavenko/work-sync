@@ -1,4 +1,6 @@
 # Общие тексты
+from common.permissions import MESSAGE_403
+
 VALIDATION_ERROR_DESCRIPTION = "Ошибка валидации"
 NOT_FOUND_DESCRIPTION = "Объект не найден"
 FORBIDDEN_DESCRIPTION = "Доступ запрещен"
@@ -84,7 +86,8 @@ MEETING_TEXTS = {
             },
             "409": {
                 "detail": "mike@gmail.com уже имеет встречу на дату: 2025-07-05 13:31:00+00:00"
-            }
+            },
+            '403': {"detail": MESSAGE_403},
         }
     },
     'delete': {
@@ -96,7 +99,7 @@ MEETING_TEXTS = {
             '403': FORBIDDEN_DESCRIPTION
         },
         'example': {
-            "403": {"detail": "Отмена встречи возможна только ее создателем."},
+            "403": {"detail": MESSAGE_403},
             "404": {"detail": NO_MEETINGS}
         }
 }
