@@ -3,7 +3,7 @@ from drf_yasg.inspectors.view import SwaggerAutoSchema
 
 from account.doc.texts import TEAM_TEXTS, WORKER_TEXTS, TOKEN_OBTAIN_TEXTS, TOKEN_BLACKLIST_TEXTS, TOKEN_REFRESH_TEXTS, TOKEN_VERIFY_TEXTS, USER_REGISTER_TEXTS
 
-from doc_common.schemes import get_response_open_api_scheme_with_detail_string_and_example
+from common.schemes import get_response_open_api_scheme_with_detail_string_and_example
 
 
 class TeamAutoSchema(SwaggerAutoSchema):
@@ -232,7 +232,6 @@ class TokenVerifyAutoSchema(SwaggerAutoSchema):
 class UserAutoSchema(SwaggerAutoSchema):
     def get_operation(self, operation_keys=None):
         operation = super().get_operation(operation_keys)
-        print(operation_keys)
         if operation_keys and operation_keys[-1] == "create":
             user_register_create = USER_REGISTER_TEXTS["create"]
 

@@ -18,12 +18,12 @@ from account.models import Team, Worker
 from account.services.worker import get_calendar_events, get_evaluations_avg
 from account.services.team import get_worker_with_team
 from account.utils import get_day_bounds, get_month_bounds
-from account.permissions import IsAdminTeamOrReadOnly, IsAdminTeam
+from account.permissions import IsAdminTeamOwnerOrReadOnly, IsAdminTeamOrReadOnly
 
 
 class TeamViewSet(viewsets.ModelViewSet):
     http_method_names = ("get", "post", "put", "delete", "options", "head")
-    permission_classes = [IsAdminTeamOrReadOnly]
+    permission_classes = [IsAdminTeamOwnerOrReadOnly]
     queryset = Team.objects.prefetch_related(Prefetch("workers", queryset=Worker.objects.select_related("user")))
     serializer_class = {
         "update": TeamCreateUpdateSerializer,
@@ -68,7 +68,7 @@ class WorkerViewSet(viewsets.GenericViewSet,
                     mixins.ListModelMixin,
                     mixins.UpdateModelMixin):
     http_method_names = ("get", "patch", "options", "head")
-    permission_classes = [IsAdminTeam]
+    permission_classes = [IsAdminTeamOrReadOnly]
     queryset = Worker.objects.all()
     serializer_class = {
         "list": WorkerGetSerializer,

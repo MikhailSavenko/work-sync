@@ -1,10 +1,10 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 from account.models import Worker
+from common.permissions import MESSAGE_403
 
-MESSAGE_403 = "У вас недостаточно прав для выполнения этого действия."
 
-class IsAdminTeamOrReadOnly(BasePermission):
+class IsAdminTeamOwnerOrReadOnly(BasePermission):
     message = MESSAGE_403
 
     def has_permission(self, request, view):
@@ -23,7 +23,7 @@ class IsAdminTeamOrReadOnly(BasePermission):
         return obj.creator == request.user.worker
 
 
-class IsAdminTeam(BasePermission):
+class IsAdminTeamOrReadOnly(BasePermission):
     message = MESSAGE_403
 
     def has_permission(self, request, view):
