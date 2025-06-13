@@ -42,8 +42,6 @@ class MeetingCreateUpdateSerializer(serializers.ModelSerializer):
             meeting_id = self.instance.pk if self.instance else None
         
         for worker in data["workers"]:
-            print(meeting_id)
-            print("Тут")
             if not is_datetime_available(worker=worker, check_date=data["datetime"], meeting_id=meeting_id):
                 raise MeetingConflictError(f"{worker.user.email} уже имеет встречу на дату: {data["datetime"]}")
         

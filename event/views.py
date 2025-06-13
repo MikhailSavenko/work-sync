@@ -61,13 +61,3 @@ class MeetingViewSet(viewsets.ModelViewSet):
         serializer = serializer(meetings, many=True)
 
         return Response(serializer.data)
-        
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        # по сути это можно будет убрать, когда я напишу нормлаьные permission
-        if instance.creator != request.user.worker:
-            return Response({"detail": "Отмена встречи возможна только ее создателем."}, status=status.HTTP_403_FORBIDDEN)
-        
-        self.perform_destroy(instance)
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
