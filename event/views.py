@@ -7,6 +7,7 @@ from django.utils import timezone
 from event.models import Meeting
 from event.doc.schemas import MeetingAutoSchema
 from event.serializers import MeetingGetSerializer, MeetingCreateUpdateSerializer
+from event.permissions import IsOwnerOrReadOnly
 
 
 class MeetingViewSet(viewsets.ModelViewSet):
@@ -20,7 +21,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
     - Получать список предстоящих или завершенных встреч текущего пользователя
     """
     http_method_names = ("get", "post", "put", "delete", "options", "head")
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsOwnerOrReadOnly]
     queryset = Meeting.objects.all()
     serializer_class = {
         "list": MeetingGetSerializer,

@@ -9,11 +9,15 @@ class WorkerNameSerializer(serializers.ModelSerializer):
     """Сериалайзер полей Сотрудника и его имени в Профиле"""
     full_name = serializers.CharField(source="user.get_full_name", read_only=True)
     role = serializers.CharField(source="get_role_display", read_only=True)
+    team = serializers.SerializerMethodField()
 
     class Meta:
 
         model = Worker
         fields = ("id", "full_name", "role", "team")
+    
+    def get_team(self, obj):
+        return obj.team.title if obj.team else "Без команды"
 
 
 class GetTaskSerializer(serializers.ModelSerializer):
