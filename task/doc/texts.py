@@ -1,3 +1,5 @@
+from common.permissions import MESSAGE_403, MESSAGE_403_DESCRIPTION
+
 VALIDATION_ERROR_DESCRIPTION = "Ошибка валидации"
 CONFLICT_DATA = "Конфликт данных"
 NOT_FOUND = "Объект не найден"
@@ -48,7 +50,7 @@ TASK_TEXTS = {
         'summary': "Создание задачи",
         'description': "Позволяет создать новую задачу.",
         'responses': {
-            '201': "",
+            '403': MESSAGE_403_DESCRIPTION,
             '400': VALIDATION_ERROR_DESCRIPTION
         },
         'example': {  
@@ -56,7 +58,8 @@ TASK_TEXTS = {
                 "deadline": [
                     "Дэдлайн не может быть в прошлом."
                 ]
-            }
+            },
+            "403": {"detail": MESSAGE_403}
         }
     },
     'update': {
@@ -64,7 +67,7 @@ TASK_TEXTS = {
         'summary': "Обновление задачи",
         'description': "Позволяет обновить задачу полностью",
         'responses': {
-            '200': "",
+            '403': MESSAGE_403_DESCRIPTION,
             '400': VALIDATION_ERROR_DESCRIPTION,
             '409': CONFLICT_DATA
         },
@@ -77,7 +80,8 @@ TASK_TEXTS = {
             "409": {
                 "task_update_conflict": {"task_update_conflict": "Ошибка. Нельзя изменить статус для оцененной и завершенной задачи."},
 
-            }
+            },
+            "403": {"detail": MESSAGE_403}
         }
     },
     'partial_update': {
@@ -85,7 +89,7 @@ TASK_TEXTS = {
         'summary': "Обновление отдельных полей задачи",
         'description': "Позволяет обновить одно поле у задачи",
         'responses': {
-            '200': "",
+            '403': MESSAGE_403_DESCRIPTION,
             '400': VALIDATION_ERROR_DESCRIPTION,
             '409': CONFLICT_DATA
         },
@@ -98,7 +102,8 @@ TASK_TEXTS = {
             "409": {
                 "task_update_conflict": {"task_update_conflict": "Ошибка. Нельзя изменить исполнителя для оцененной и завершенной задачи."},
 
-            }
+            },
+            "403": {"detail": MESSAGE_403}
         }
     },
     'delete': {
@@ -107,12 +112,12 @@ TASK_TEXTS = {
         'description': "Позволяет удалить задачу",
         'responses': {
             '204': "",
-            '403': "",
+            '403': MESSAGE_403_DESCRIPTION,
             "404": NOT_FOUND
         },
         'example': {
             "403": {
-                "detail": ""
+                "detail": MESSAGE_403
             },
             "404": {
                 "detail": NO_TASK

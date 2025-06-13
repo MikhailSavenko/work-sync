@@ -6,6 +6,7 @@ from rest_framework.response import Response
 
 from task.doc.schemas import EvaluationAutoSchema, TaskAutoSchema, CommentAutoSchema
 from task.models import Evaluation, Task, Comment
+from task.permissions import IsCreatorAdminManagerOrReadOnly
 from task.serializers import TaskCreateSerializer, TaskUpdateSerializer,  GetTaskSerializer, UpdateEvaluation, GetCommentSerializer, UpdateCommentSerializer, CreateCommentSerializer, CreateEvaluation
 from task.exeptions import EvaluationConflictError, TaskConflictError
 
@@ -16,7 +17,7 @@ from task.utils import is_int_or_valid_error
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsCreatorAdminManagerOrReadOnly]
     swagger_schema = TaskAutoSchema
     serializer_class = {
         "list": GetTaskSerializer,

@@ -1,6 +1,7 @@
 from drf_yasg.openapi import TYPE_STRING, Response as OpenApiResponse, Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.inspectors.view import SwaggerAutoSchema
 
+from common.schemes import get_response_open_api_scheme_with_detail_string_and_example
 from task.doc.texts import TASK_TEXTS, COMMENT_TEXTS, EVALUATION_TEXTS
 
 
@@ -22,7 +23,8 @@ class TaskAutoSchema(SwaggerAutoSchema):
             operation.tags = task_text_create["tags"]
             operation.summary = task_text_create["summary"]
             operation.description = task_text_create["description"]
-
+            
+            operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(text=task_text_create, status_code=403)
             operation.responses["400"] = OpenApiResponse(task_text_create["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_STRING)}, example=task_text_create["example"]["400"]))
         
         elif operation_keys and operation_keys[-1] == "me":
@@ -48,6 +50,7 @@ class TaskAutoSchema(SwaggerAutoSchema):
             operation.summary = task_text_update["summary"]
             operation.description = task_text_update["description"]
 
+            operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(text=task_text_update, status_code=403)
             operation.responses["400"] = OpenApiResponse(task_text_update["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_STRING)}, example=task_text_update["example"]["400"]))
             operation.responses["409"] = OpenApiResponse(task_text_update["responses"]["409"], Schema(type=TYPE_OBJECT, properties={"task_update_conflict": Schema(type=TYPE_STRING)}, example=task_text_update["example"]["409"]["task_update_conflict"]))
             
@@ -58,6 +61,7 @@ class TaskAutoSchema(SwaggerAutoSchema):
             operation.summary = task_text_partial_upd["summary"]
             operation.description = task_text_partial_upd["description"]
 
+            operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(text=task_text_partial_upd, status_code=403)
             operation.responses["400"] = OpenApiResponse(task_text_partial_upd["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_STRING)}, example=task_text_partial_upd["example"]["400"]))
             operation.responses["409"] = OpenApiResponse(task_text_partial_upd["responses"]["409"], Schema(type=TYPE_OBJECT, properties={"task_update_conflict": Schema(type=TYPE_STRING)}, example=task_text_partial_upd["example"]["409"]["task_update_conflict"]))
 
@@ -67,6 +71,8 @@ class TaskAutoSchema(SwaggerAutoSchema):
             operation.tags = task_text_delete["tags"]
             operation.summary = task_text_delete["summary"]
             operation.description = task_text_delete["description"]
+
+            operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(text=task_text_delete, status_code=403)
             operation.responses["404"] = OpenApiResponse(task_text_delete["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=task_text_delete["example"]["404"]))
 
         return operation
