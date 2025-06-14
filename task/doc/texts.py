@@ -150,7 +150,7 @@ COMMENT_TEXTS = {
         'summary': "Создать комментарий",
         'description': "Добавить новый комментарий к задаче",
         'responses': {
-            '201': "",
+            '403': MESSAGE_403_DESCRIPTION,
             '400': VALIDATION_ERROR_DESCRIPTION,
             '404': NOT_FOUND
         },
@@ -162,6 +162,9 @@ COMMENT_TEXTS = {
             },
             "404": {
                 "detail": NO_TASK
+            },
+            "403": {
+                "detail": MESSAGE_403
             }
         }
     },
@@ -190,7 +193,7 @@ COMMENT_TEXTS = {
         'responses': {
             '200': "",
             '400': "",
-            '403': "",
+            '403': MESSAGE_403_DESCRIPTION,
             '404': NOT_FOUND
         },
         'example': {  
@@ -200,7 +203,7 @@ COMMENT_TEXTS = {
                 ]
             },
             "403": {
-                "detail": ""
+                "detail": MESSAGE_403
             },
             "404": {
                 "detail": NO_TASK_COMM_TEXT
@@ -213,12 +216,12 @@ COMMENT_TEXTS = {
         'description': "Удалить комментарий",
         'responses': {
             '204': "",
-            '403': "",
+            '403': MESSAGE_403_DESCRIPTION,
             '404': NOT_FOUND
         },
         'example': {
             "403": {
-                "detail": ""
+                "detail": MESSAGE_403
             },
             "404": {
                 "detail": NO_TASK_COMM_TEXT
@@ -234,7 +237,7 @@ EVALUATION_TEXTS = {
         'summary': "Создать оценку",
         'description': "Добавить новую оценку для задачи",
         'responses': {
-            '201': "",
+            '403': MESSAGE_403_DESCRIPTION,
             '400': VALIDATION_ERROR_DESCRIPTION,
             '409': CONFLICT_DATA,
             '404': NOT_FOUND
@@ -249,7 +252,7 @@ EVALUATION_TEXTS = {
                 "evaluation_create_conflict": "Задача, за которую выставляется оценка, уже имеет оценку"
             },
             "403": {
-                "detail": ""
+                "detail": MESSAGE_403
             },
             "404": {
                 "detail": NO_TASK
@@ -263,7 +266,7 @@ EVALUATION_TEXTS = {
         'responses': {
             '200': "",
             '400': VALIDATION_ERROR_DESCRIPTION,
-            '403': "",
+            '403': MESSAGE_403_DESCRIPTION,
             '404': NOT_FOUND
         },
         'example': {
@@ -273,7 +276,7 @@ EVALUATION_TEXTS = {
                 ]
             },
             "403": {
-                "detail": ""
+                "detail": MESSAGE_403
             },
             "404": {
                 "detail": NO_TASK_EVAL_TEXT
@@ -286,12 +289,12 @@ EVALUATION_TEXTS = {
         'description': "Удалить оценку задачи",
         'responses': {
             '204': "",
-            '403': "",
+            '403': MESSAGE_403_DESCRIPTION,
             '404': NOT_FOUND
         },
         'example': {
             "403": {
-                "detail": "Only task creator can delete evaluation"
+                "detail": MESSAGE_403
             },
             "404": {
                 "detail": NO_TASK_EVAL_TEXT

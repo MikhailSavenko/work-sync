@@ -120,6 +120,7 @@ class CommentAutoSchema(SwaggerAutoSchema):
             operation.summary = comment_text_partial_upd["summary"]
             operation.description = comment_text_partial_upd["description"]
 
+            operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(text=comment_text_partial_upd, status_code=403)
             operation.responses["404"] = OpenApiResponse(comment_text_partial_upd["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=comment_text_partial_upd["example"]["404"]))
 
         elif operation_keys and operation_keys[-1] == "delete":
@@ -128,7 +129,8 @@ class CommentAutoSchema(SwaggerAutoSchema):
             operation.tags = comment_text_delete["tags"]
             operation.summary = comment_text_delete["summary"]
             operation.description = comment_text_delete["description"]
-
+            
+            operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(text=comment_text_delete, status_code=403)
             operation.responses["404"] = OpenApiResponse(comment_text_delete["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=comment_text_delete["example"]["404"]))
             
         return operation
@@ -145,7 +147,8 @@ class EvaluationAutoSchema(SwaggerAutoSchema):
             operation.tags = evaluation_text_create["tags"]
             operation.summary = evaluation_text_create["summary"]
             operation.description = evaluation_text_create["description"]
-
+            
+            operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(text=evaluation_text_create, status_code=403)
             operation.responses["409"] = OpenApiResponse(evaluation_text_create["responses"]["409"], Schema(type=TYPE_OBJECT, properties={"evaluation_create_conflict": Schema(type=TYPE_STRING)}, example=evaluation_text_create["example"]["409"]))
             operation.responses["404"] = OpenApiResponse(evaluation_text_create["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=evaluation_text_create["example"]["404"]))
             operation.responses["400"] = OpenApiResponse(evaluation_text_create["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=evaluation_text_create["example"]["400"]))
@@ -157,6 +160,7 @@ class EvaluationAutoSchema(SwaggerAutoSchema):
             operation.summary = evaluation_text_patial_upd["summary"]
             operation.description = evaluation_text_patial_upd["description"]
 
+            operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(text=evaluation_text_patial_upd, status_code=403)
             operation.responses["404"] = OpenApiResponse(evaluation_text_patial_upd["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=evaluation_text_patial_upd["example"]["404"]))
             operation.responses["400"] = OpenApiResponse(evaluation_text_patial_upd["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=evaluation_text_patial_upd["example"]["400"]))
         
@@ -167,5 +171,6 @@ class EvaluationAutoSchema(SwaggerAutoSchema):
             operation.summary = evaluation_text_delete["summary"]
             operation.description = evaluation_text_delete["description"]
 
+            operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(text=evaluation_text_delete, status_code=403)
             operation.responses["404"] = OpenApiResponse(evaluation_text_delete["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=evaluation_text_delete["example"]["404"]))
         return operation

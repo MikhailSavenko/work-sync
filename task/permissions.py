@@ -41,3 +41,16 @@ class IsCreatorOrReadOnly(BasePermission):
             return True
 
         return obj.creator == request.user.worker
+
+
+class IsCreatorAdminManager(BasePermission):
+    message = MESSAGE_403
+
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        
+        return request.user.worker.role in [Worker.Role.ADMIN_TEAM, Worker.Role.MANAGER]
+    
+    def has_object_permission(self, request, view, obj):
+        return obj.from_worker == request.user.worker

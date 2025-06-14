@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from task.doc.schemas import EvaluationAutoSchema, TaskAutoSchema, CommentAutoSchema
 from task.models import Evaluation, Task, Comment
-from task.permissions import IsCreatorAdminManagerOrReadOnly, IsCreatorOrReadOnly
+from task.permissions import IsCreatorAdminManager, IsCreatorAdminManagerOrReadOnly, IsCreatorOrReadOnly
 from task.serializers import TaskCreateSerializer, TaskUpdateSerializer,  GetTaskSerializer, UpdateEvaluation, GetCommentSerializer, UpdateCommentSerializer, CreateCommentSerializer, CreateEvaluation
 from task.exeptions import EvaluationConflictError, TaskConflictError
 
@@ -95,9 +95,9 @@ class EvaluationViewSet(mixins.CreateModelMixin,
                         mixins.UpdateModelMixin,
                         mixins.DestroyModelMixin,
                         viewsets.GenericViewSet):
-    http_method_names = ("get", "post", "patch", "delete", "options", "head")
+    http_method_names = ("post", "patch", "delete", "options", "head")
     queryset = Evaluation.objects.all()
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsCreatorAdminManager]
     swagger_schema = EvaluationAutoSchema
     serializer_class = {
         "create": CreateEvaluation,
