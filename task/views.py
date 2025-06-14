@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from task.doc.schemas import EvaluationAutoSchema, TaskAutoSchema, CommentAutoSchema
 from task.models import Evaluation, Task, Comment
-from task.permissions import IsCreatorAdminManagerOrReadOnly
+from task.permissions import IsCreatorAdminManagerOrReadOnly, IsCreatorOrReadOnly
 from task.serializers import TaskCreateSerializer, TaskUpdateSerializer,  GetTaskSerializer, UpdateEvaluation, GetCommentSerializer, UpdateCommentSerializer, CreateCommentSerializer, CreateEvaluation
 from task.exeptions import EvaluationConflictError, TaskConflictError
 
@@ -60,7 +60,7 @@ class TaskViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     http_method_names = ("get", "post", "patch", "delete", "options", "head")
     queryset = Comment.objects.all()
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsCreatorOrReadOnly]
     swagger_schema = CommentAutoSchema
     serializer_class = {
         "list": GetCommentSerializer,
