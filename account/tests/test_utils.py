@@ -4,7 +4,7 @@ from datetime import datetime, time
 from django.utils import timezone
 
 
-from account.utils import get_day_bounds
+from account.utils import get_day_bounds, get_month_bounds
 
 
 class GetDayBoundsTestCase(TestCase):
@@ -58,4 +58,28 @@ class GetDayBoundsTestCase(TestCase):
         self.assertEqual(end_db.time(), time.max)
     
 
+class GetMonthBoundsTestCase(TestCase):
 
+    LAST_MAY_DAY = 31
+    DATE_MONTH = "2025-05"
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.parse_date = datetime.strptime(cls.DATE_MONTH, "%Y-%m").date()
+
+    def test_type_error_if_not_datetime(self):
+        with self.assertRaises(TypeError):
+            get_day_bounds(date=self.DATE_MONTH)
+    
+    def test_valid_value_input(self):
+        start_dt, end_dt = get_month_bounds(start_date=self.parse_date)
+
+        end_end_date = self.parse_date.replace(day=self.LAST_MAY_DAY)
+        self.assertIsInstance(start_dt, datetime)
+        self.assertIsInstance(end_dt, datetime)
+        self.assertTrue(timezone.is_aware(start_dt))
+        self.assertTrue(timezone.is_aware(end_dt))
+        self.assertEqual(start_dt.date(), self.parse_date)
+        self.assertEqual(end_dt.date(), end_end_date)
+        self.assertEqual(start_dt.time(), time.min)
+        self.assertEqual(end_dt.time(), time.max)
