@@ -16,7 +16,7 @@ from account.serializers import TeamCreateUpdateSerializer, WorkerEvaluationResp
 from account.models import Team, Worker
 
 from account.services.worker import get_calendar_events, get_evaluations_avg
-from account.services.team import get_worker_with_team
+from account.services.team import get_worker_with_team, is_your_team
 from account.utils import get_day_bounds, get_month_bounds
 from account.permissions import IsAdminTeamOwnerOrReadOnly, IsAdminTeamOrReadOnly
 
@@ -46,21 +46,37 @@ class TeamViewSet(viewsets.ModelViewSet):
         return super().perform_create(serializer)
     
     def perform_update(self, serializer):
+        team_pk = self.kwargs.get("pk")
+        print(f"{team_pk}")
         workers_added = serializer.validated_data.get("workers")
-        self._check_team_conflict(workers_added)
+        self._check_team_conflict(workers_added, team_pk=team_pk)
         return super().perform_update(serializer)
     
-    def _check_team_conflict(self, workers: list[Worker]):
+    def _check_team_conflict(self, workers: list[Worker], team_pk: int = None):
         """Проверяет конфликты команд для списка сотрудников"""
         if not workers:
             return
-
+        emails = []
         check_conflict_team = get_worker_with_team(workers)
         if check_conflict_team:
-            emails = [worker.user.email for worker in check_conflict_team]
-            raise TeamConflictError({
-                "detail": f"Конфликт. Сотрудники {emails}, добавляемые в команду, уже состоят в других командах."
-            })
+            if team_pk is not None:
+                for worker in check_conflict_team:
+                    my_team = is_your_team(team_pk=team_pk, worker=worker)
+                    print(my_team)
+                    if my_team is True:
+                        print("Мой")
+                        continue
+                    else:
+                        emails.append(worker.user.email)
+                        raise TeamConflictError({
+                            "detail": f"Конфликт. Сотрудники {emails}, добавляемые в команду, уже состоят в других командах."
+                        })
+            else:
+                emails = [worker.user.email for worker in check_conflict_team]
+                raise TeamConflictError({
+                            "detail": f"Конфликт. Сотрудники {emails}, добавляемые в команду, уже состоят в других командах."
+                        })
+            
         
 
 class WorkerViewSet(viewsets.GenericViewSet,
