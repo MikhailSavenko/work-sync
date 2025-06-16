@@ -56,28 +56,22 @@ class TeamViewSet(viewsets.ModelViewSet):
         """Проверяет конфликты команд для списка сотрудников"""
         if not workers:
             return
-        emails = []
-        check_conflict_team = get_worker_with_team(workers)
-        if check_conflict_team:
-            if team_pk is not None:
-                for worker in check_conflict_team:
-                    my_team = is_your_team(team_pk=team_pk, worker=worker)
-                    print(my_team)
-                    if my_team is True:
-                        print("Мой")
-                        continue
-                    else:
-                        emails.append(worker.user.email)
-                        raise TeamConflictError({
-                            "detail": f"Конфликт. Сотрудники {emails}, добавляемые в команду, уже состоят в других командах."
-                        })
-            else:
-                emails = [worker.user.email for worker in check_conflict_team]
-                raise TeamConflictError({
-                            "detail": f"Конфликт. Сотрудники {emails}, добавляемые в команду, уже состоят в других командах."
-                        })
-            
         
+        conflicting_emails = []
+
+        workers_already_in_team = get_worker_with_team(workers)
+        for worker in workers_already_in_team:
+            if team_pk is not None:
+                if is_your_team(team_pk=team_pk, worker=worker):
+                    continue
+                else:
+                    conflicting_emails.append(worker.user.email)
+            else:
+                conflicting_emails.append(worker.user.email)
+        if conflicting_emails:
+            raise TeamConflictError({
+                    "detail": f"Конфликт. Сотрудники {conflicting_emails}, добавляемые в команду, уже состоят в других командах."
+                })
 
 class WorkerViewSet(viewsets.GenericViewSet,
                     mixins.RetrieveModelMixin,
