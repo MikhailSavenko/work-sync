@@ -31,7 +31,6 @@ def get_evaluations_avg(worker: Worker, start: datetime, end: datetime) -> Dict[
     
     evaluations = Evaluation.objects.filter(to_worker=worker, created_at__range=(start, end))
     avg = evaluations.aggregate(Avg("score"))
-    print(start)
     data = {
         "average_score": avg.get("score__avg"),
         "evaluations_count": evaluations.count()
