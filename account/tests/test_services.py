@@ -1,8 +1,8 @@
 from django.test import TestCase
-
+import datetime
 from account.tests.factories import TeamFactory, UserFactory, TaskDeadlineFactory
 from account.services.team import get_worker_with_team, is_your_team
-from account.services.worker import format_calendar_text_table 
+from account.services.worker import format_calendar_text_table, get_calendar_events
 
 
 class TeamServiceTestCase(TestCase):
@@ -41,14 +41,23 @@ class TeamServiceTestCase(TestCase):
 
 
 class WorkerServiceTestCase(TestCase):
+
+    DATE_NO_IVENTS_START = datetime.datetime(2024, 12, 31, 23, 59, 59, tzinfo=datetime.timezone.utc)
+    DATE_NO_IVENTS_END  = datetime.datetime(2025, 1, 1, 23, 59, 59, tzinfo=datetime.timezone.utc)
     
     TABLE_VALUE_WITOUT_DATA = 215
     TABLE_VALUE_WITH_TWO_TASK = 440
+    TABLE_VALUE_WITOUT_DATA_IN_LIST = 4
+
+    ZERO = 0
 
     @classmethod
     def setUpTestData(cls):
         cls.user0 = UserFactory()
+        cls.user1 = UserFactory()
+
         cls.worker0 = cls.user0.worker
+        cls.worker1 = cls.user1.worker
 
         cls.empty_meetings = []
         cls.empty_tasks = []
@@ -75,4 +84,10 @@ class WorkerServiceTestCase(TestCase):
         self.assertEqual(self.TABLE_VALUE_WITH_TWO_TASK, len(result))
         self.assertEqual(str, type(result))
 
+    def test_get_calendar_events_input_worker_without_events(self):
+        result = get_calendar_events(worker=self.worker1, start_date=self.DATE_NO_IVENTS_START, end_date=self.DATE_NO_IVENTS_END)
+        
+        self.assertEqual(result["meetings"].count(), self.ZERO)
+        self.assertEqual(result["tasks"].count(), self.ZERO)
+        self.assertEqual(len(result["table"]), self.TABLE_VALUE_WITOUT_DATA_IN_LIST)
 
