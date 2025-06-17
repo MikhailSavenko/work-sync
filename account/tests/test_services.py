@@ -1,10 +1,11 @@
 from django.test import TestCase
 
 from account.tests.factories import TeamFactory, UserFactory
-from account.services.team import get_worker_with_team
+from account.services.team import get_worker_with_team, is_your_team
 
 
 class TeamServiceTestCase(TestCase):
+    TWO_STR = "2"
 
     @classmethod
     def setUpTestData(cls):
@@ -26,3 +27,13 @@ class TeamServiceTestCase(TestCase):
 
         self.assertEqual(1, len(result))
         self.assertEqual(result[0], self.worker0)
+    
+    def test_is_your_team_is_none(self):
+        result = is_your_team(team_pk=self.TWO_STR, worker=self.worker1)
+        
+        self.assertEqual(result, False)
+
+    def test_is_your_team(self):
+        result = is_your_team(team_pk=self.team0.id, worker=self.worker0)
+    
+        self.assertEqual(result, True)
