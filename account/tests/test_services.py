@@ -1,8 +1,8 @@
 from django.test import TestCase
 import datetime
-from account.tests.factories import TeamFactory, UserFactory, TaskDeadlineFactory, MeetingFactory
+from account.tests.factories import TeamFactory, UserFactory, TaskDeadlineFactory, MeetingFactory, EvaluationFactory
 from account.services.team import get_worker_with_team, is_your_team
-from account.services.worker import format_calendar_text_table, get_calendar_events
+from account.services.worker import format_calendar_text_table, get_calendar_events, get_evaluations_avg
 
 
 class TeamServiceTestCase(TestCase):
@@ -55,6 +55,8 @@ class WorkerServiceTestCase(TestCase):
     ONE = 1
     TWO = 2
 
+    FLOAT_FIVE = 5.0
+
     @classmethod
     def setUpTestData(cls):
         cls.user0 = UserFactory()
@@ -78,6 +80,8 @@ class WorkerServiceTestCase(TestCase):
         cls.task1.save()
 
         cls.task_list = [cls.task0, cls.task1]
+
+        cls.evaluation = EvaluationFactory(to_worker=cls.worker0, task=cls.task1)
 
     def test_format_calendar_text_table_empty_input(self):
         result = format_calendar_text_table(meetings=self.empty_meetings, tasks=self.empty_tasks)
@@ -104,3 +108,14 @@ class WorkerServiceTestCase(TestCase):
         self.assertEqual(result["meetings"].count(), self.ONE)
         self.assertEqual(result["tasks"].count(), self.ONE)
 
+    def test_get_evaluations_avg_no_evaluation(self):
+        result = get_evaluations_avg(worker=self.worker1, start=self.DATE_NO_IVENTS_START, end=self.DATE_NO_IVENTS_END)
+
+        self.assertEqual(result["average_score"], None)
+        self.assertEqual(result["evaluations_count"], self.ZERO)
+    
+    def test_get_evaluations_avg_with_evaluation(self):
+        result = get_evaluations_avg(worker=self.worker0, start=(self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS), end=(self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS))
+
+        self.assertEqual(result["average_score"], self.FLOAT_FIVE)
+        self.assertEqual(result["evaluations_count"], self.ONE)

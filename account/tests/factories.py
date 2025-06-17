@@ -1,11 +1,10 @@
 import factory
 from factory.django import DjangoModelFactory
 from django.contrib.auth import get_user_model
-from datetime import datetime, timezone, timedelta
 
 from account.models import Team
 from event.models import Meeting
-from task.models import Task
+from task.models import Evaluation, Task
 
 User = get_user_model()
 
@@ -30,8 +29,6 @@ class TaskDeadlineFactory(DjangoModelFactory):
     
     title = factory.Sequence(lambda n: "task%d" %n)
     description = factory.Sequence(lambda n: "description%d" %n)
-    # ставим дедлайн через три дня
-    # deadline = factory.LazyFunction(lambda: datetime.now(timezone.utc) + timedelta(days=3))
 
 
 class MeetingFactory(DjangoModelFactory):
@@ -39,3 +36,12 @@ class MeetingFactory(DjangoModelFactory):
         model = Meeting
     
     description = factory.Sequence(lambda n: "description%d" %n)
+
+
+class EvaluationFactory(DjangoModelFactory):
+    class Meta:
+        model = Evaluation
+    
+    score = 5
+
+    
