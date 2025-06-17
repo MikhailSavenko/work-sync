@@ -1,16 +1,28 @@
 from django.test import TestCase
 
-from account.models import Worker, Team, User
+from account.tests.factories import TeamFactory, UserFactory
+from account.services.team import get_worker_with_team
 
 
 class TeamServiceTestCase(TestCase):
-    EMAIL_CREATOR = "test_email@gmail.com"
-    PASSWORD = "superpassword123/"
 
     @classmethod
     def setUpTestData(cls):
-        cls.user_creator = User.objects.create_user(email=cls.EMAIL_CREATOR, password=cls.PASSWORD)
-        cls.worker_creator = cls.user_creator.worker
+        cls.user0 = UserFactory()
+        cls.user1 = UserFactory()
+
+        cls.worker0 = cls.user0.worker
+        cls.worker1 = cls.user1.worker
         
-        cls.team = Team.objects.create()
-        cls.workers = Worker.objects.bulk_create()
+        cls.team0 = TeamFactory()
+
+        cls.worker0.team = cls.team0
+        cls.worker0.team.save()
+
+        cls.two_workers = [cls.worker0, cls.worker1]
+
+    def test_get_worker_with_team(self):
+        result = get_worker_with_team(workers=self.two_workers)
+
+        self.assertEqual(1, len(result))
+        self.assertEqual(result[0], self.worker0)
