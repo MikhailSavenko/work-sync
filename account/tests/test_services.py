@@ -1,6 +1,6 @@
 from django.test import TestCase
 import datetime
-from account.tests.factories import TeamFactory, UserFactory, TaskDeadlineFactory
+from account.tests.factories import TeamFactory, UserFactory, TaskDeadlineFactory, MeetingFactory
 from account.services.team import get_worker_with_team, is_your_team
 from account.services.worker import format_calendar_text_table, get_calendar_events
 
@@ -41,15 +41,19 @@ class TeamServiceTestCase(TestCase):
 
 
 class WorkerServiceTestCase(TestCase):
-
+    
     DATE_NO_IVENTS_START = datetime.datetime(2024, 12, 31, 23, 59, 59, tzinfo=datetime.timezone.utc)
-    DATE_NO_IVENTS_END  = datetime.datetime(2025, 1, 1, 23, 59, 59, tzinfo=datetime.timezone.utc)
+    DATE_NO_IVENTS_END = datetime.datetime(2025, 1, 1, 23, 59, 59, tzinfo=datetime.timezone.utc)
+    DATETIME_NOW = datetime.datetime.now(datetime.timezone.utc)
+    TIMEDELTA_THREE_DAYS = datetime.timedelta(days=3)
     
     TABLE_VALUE_WITOUT_DATA = 215
     TABLE_VALUE_WITH_TWO_TASK = 440
     TABLE_VALUE_WITOUT_DATA_IN_LIST = 4
 
     ZERO = 0
+    ONE = 1
+    TWO = 2
 
     @classmethod
     def setUpTestData(cls):
@@ -62,12 +66,15 @@ class WorkerServiceTestCase(TestCase):
         cls.empty_meetings = []
         cls.empty_tasks = []
 
-        cls.task0 = TaskDeadlineFactory()
-        cls.task1 = TaskDeadlineFactory()
+        cls.task0 = TaskDeadlineFactory(deadline=cls.DATE_NO_IVENTS_START)
+        cls.task1 = TaskDeadlineFactory(deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
+
+        cls.meeting0 = MeetingFactory(creator=cls.worker0, datetime=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
+        cls.meeting0.workers.set([cls.worker0])
 
         cls.task0.executor = cls.worker0
-        cls.task1.executor = cls.worker0
         cls.task0.save()
+        cls.task1.executor = cls.worker0
         cls.task1.save()
 
         cls.task_list = [cls.task0, cls.task1]
@@ -90,4 +97,10 @@ class WorkerServiceTestCase(TestCase):
         self.assertEqual(result["meetings"].count(), self.ZERO)
         self.assertEqual(result["tasks"].count(), self.ZERO)
         self.assertEqual(len(result["table"]), self.TABLE_VALUE_WITOUT_DATA_IN_LIST)
+
+    def test_get_calendar_events_input_worker_with_events(self):
+        result = get_calendar_events(worker=self.worker0, start_date=(self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS), end_date=(self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS + self.TIMEDELTA_THREE_DAYS))
+        
+        self.assertEqual(result["meetings"].count(), self.ONE)
+        self.assertEqual(result["tasks"].count(), self.ONE)
 

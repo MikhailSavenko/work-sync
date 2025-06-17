@@ -31,7 +31,7 @@ class TaskDeadlineFactory(DjangoModelFactory):
     title = factory.Sequence(lambda n: "task%d" %n)
     description = factory.Sequence(lambda n: "description%d" %n)
     # ставим дедлайн через три дня
-    deadline = factory.LazyFunction(lambda: datetime.now(timezone.utc) + timedelta(days=3))
+    # deadline = factory.LazyFunction(lambda: datetime.now(timezone.utc) + timedelta(days=3))
 
 
 class MeetingFactory(DjangoModelFactory):
@@ -39,4 +39,3 @@ class MeetingFactory(DjangoModelFactory):
         model = Meeting
     
     description = factory.Sequence(lambda n: "description%d" %n)
-    datetime = factory.LazyFunction(lambda: datetime.now(timezone.utc) + timedelta(days=3))
