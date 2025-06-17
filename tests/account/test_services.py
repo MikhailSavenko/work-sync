@@ -1,6 +1,6 @@
 from django.test import TestCase
 import datetime
-from account.tests.factories import TeamFactory, UserFactory, TaskDeadlineFactory, MeetingFactory, EvaluationFactory
+from tests.factories import TeamFactory, UserFactory, TaskDeadlineFactory, MeetingFactory, EvaluationFactory
 from account.services.team import get_worker_with_team, is_your_team
 from account.services.worker import format_calendar_text_table, get_calendar_events, get_evaluations_avg
 

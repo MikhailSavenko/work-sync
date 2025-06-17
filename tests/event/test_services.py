@@ -1,7 +1,7 @@
 from django.test import TestCase
 from rest_framework import serializers
 
-from account.tests.factories import UserFactory
+from tests.factories import UserFactory
 from event.services.meeting import validate_workers_and_include_creator
 
 
