@@ -13,26 +13,26 @@ class ApiTestCaseBase(APITestCase):
         cls.client = APIClient()
 
         # Создадим admin_team Worker
-        cls.user0 = UserFactory()
-        cls.worker0 = cls.user0.worker
-        cls.worker0.role = Worker.Role.ADMIN_TEAM
-        cls.worker0.save()
+        cls.user_admin = UserFactory()
+        cls.worker_admin = cls.user_admin.worker
+        cls.worker_admin.role = Worker.Role.ADMIN_TEAM
+        cls.worker_admin.save()
 
         # Создадим normal Worker
-        cls.user1 = UserFactory()
-        cls.worker1 = cls.user1.worker
+        cls.user_normal = UserFactory()
+        cls.worker_normal = cls.user_normal.worker
 
         # Создадим admin_team Worker 2
-        cls.user2 = UserFactory()
-        cls.worker2 = cls.user2.worker
-        cls.worker2.role = Worker.Role.ADMIN_TEAM
-        cls.worker2.save()
+        cls.user_admin1 = UserFactory()
+        cls.worker_admin1 = cls.user_admin1.worker
+        cls.worker_admin1.role = Worker.Role.ADMIN_TEAM
+        cls.worker_admin1.save()
 
         # Создадим manager Worker
-        cls.user3 = UserFactory()
-        cls.worker3 = cls.user3.worker
-        cls.worker3.role = Worker.Role.MANAGER
-        cls.worker3.save()
+        cls.user_manager = UserFactory()
+        cls.worker_manager = cls.user_manager.worker
+        cls.worker_manager.role = Worker.Role.MANAGER
+        cls.worker_manager.save()
 
 
 class TeamApiTestCase(ApiTestCaseBase):
@@ -47,42 +47,42 @@ class TeamApiTestCase(ApiTestCaseBase):
             "title": "Test Team",
             "description": "Test descript =)",
             "workers": [
-              cls.worker0.id
+              cls.worker_admin.id
             ]
         }
         cls.update_data_team = {
             "title": "Test Team Update",
             "description": "Test descript Update =)",
             "workers": [
-              cls.worker0.id
+              cls.worker_admin.id
             ]
         }
 
-        cls.team = TeamFactory(creator=cls.worker0)
-        cls.team2 = TeamFactory(creator=cls.worker0)
-        cls.worker1.team = cls.team2
-        cls.worker1.save()
+        cls.team = TeamFactory(creator=cls.worker_admin)
+        cls.team2 = TeamFactory(creator=cls.worker_admin)
+        cls.worker_normal.team = cls.team2
+        cls.worker_normal.save()
 
         cls.data_team_conflict = {
             "title": "Test Team Conflict",
             "description": "Test descript Conflict=)",
             "workers": [
-              cls.worker1.id
+              cls.worker_normal.id
             ]
         }
     
     def test_check_team_conflict_create_team_pk_none(self):
-        self.client.force_authenticate(user=self.user0)
+        self.client.force_authenticate(user=self.user_admin)
         response = self.client.post(reverse("account:teams-list"), data=self.data_team_conflict, format="json")
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
     
     def test_check_team_conflict_update_team_pk_not_none(self):
-        self.client.force_authenticate(user=self.user0)
+        self.client.force_authenticate(user=self.user_admin)
         response = self.client.put(reverse("account:teams-detail", kwargs={"pk": self.team.id}), data=self.data_team_conflict, format="json")
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
 
     def test_admin_can_create_team(self):
-        self.client.force_authenticate(user=self.user0)
+        self.client.force_authenticate(user=self.user_admin)
         response = self.client.post(reverse("account:teams-list"), data=self.data_team, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -90,7 +90,7 @@ class TeamApiTestCase(ApiTestCaseBase):
         self.assertEqual(response.data["description"], self.data_team["description"])
     
     def test_admin_can_update_his_team(self):
-        self.client.force_authenticate(user=self.user0)
+        self.client.force_authenticate(user=self.user_admin)
         response = self.client.put(reverse("account:teams-detail", kwargs={"pk": self.team.id}), data=self.update_data_team, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -98,14 +98,14 @@ class TeamApiTestCase(ApiTestCaseBase):
         self.assertEqual(response.data["description"], self.update_data_team["description"])
     
     def test_admin_can_get_list_team(self):
-        self.client.force_authenticate(user=self.user0)
+        self.client.force_authenticate(user=self.user_admin)
         response = self.client.get(reverse("account:teams-list"))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data[0]["title"], self.team.title)
 
     def test_admin_can_get_detail_team(self):
-        self.client.force_authenticate(user=self.user0)
+        self.client.force_authenticate(user=self.user_admin)
         response = self.client.get(reverse("account:teams-detail", kwargs={"pk": self.team.id}))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -113,78 +113,78 @@ class TeamApiTestCase(ApiTestCaseBase):
     
     def test_admin_can_delete_his_team(self):
         team_count = Team.objects.count()
-        self.client.force_authenticate(user=self.user0)
+        self.client.force_authenticate(user=self.user_admin)
         response = self.client.delete(reverse("account:teams-detail", kwargs={"pk": self.team.id}))
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(team_count - self.ONE, Team.objects.count())
     
     def test_admin_cant_delete_foreign_team(self):
-        self.client.force_authenticate(user=self.user2)
+        self.client.force_authenticate(user=self.user_admin1)
         response = self.client.delete(reverse("account:teams-detail", kwargs={"pk": self.team.id}))
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_normal_cant_create_team(self):
-        self.client.force_authenticate(user=self.user1)
+        self.client.force_authenticate(user=self.user_normal)
         response = self.client.post(reverse("account:teams-list"), data=self.data_team, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_normal_cant_update_foreign_team(self):
-        self.client.force_authenticate(user=self.user1)
+        self.client.force_authenticate(user=self.user_normal)
         response = self.client.put(reverse("account:teams-detail", kwargs={"pk": self.team.id}), data=self.update_data_team, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
     def test_normal_can_get_list_team(self):
-        self.client.force_authenticate(user=self.user1)
+        self.client.force_authenticate(user=self.user_normal)
         response = self.client.get(reverse("account:teams-list"))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data[0]["title"], self.team.title)
 
     def test_normal_can_get_detail_team(self):
-        self.client.force_authenticate(user=self.user1)
+        self.client.force_authenticate(user=self.user_normal)
         response = self.client.get(reverse("account:teams-detail", kwargs={"pk": self.team.id}))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["title"], self.team.title)
     
     def test_normal_cant_delete_foreign_team(self):
-        self.client.force_authenticate(user=self.user1)
+        self.client.force_authenticate(user=self.user_normal)
         response = self.client.delete(reverse("account:teams-detail", kwargs={"pk": self.team.id}))
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
     def test_manager_cant_create_team(self):
-        self.client.force_authenticate(user=self.user3)
+        self.client.force_authenticate(user=self.user_manager)
         response = self.client.post(reverse("account:teams-list"), data=self.data_team, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_manager_cant_update_foreign_team(self):
-        self.client.force_authenticate(user=self.user3)
+        self.client.force_authenticate(user=self.user_manager)
         response = self.client.put(reverse("account:teams-detail", kwargs={"pk": self.team.id}), data=self.update_data_team, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
     def test_manager_can_get_list_team(self):
-        self.client.force_authenticate(user=self.user3)
+        self.client.force_authenticate(user=self.user_manager)
         response = self.client.get(reverse("account:teams-list"))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data[0]["title"], self.team.title)
 
     def test_manager_can_get_detail_team(self):
-        self.client.force_authenticate(user=self.user3)
+        self.client.force_authenticate(user=self.user_manager)
         response = self.client.get(reverse("account:teams-detail", kwargs={"pk": self.team.id}))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["title"], self.team.title)
     
     def test_manager_cant_delete_foreign_team(self):
-        self.client.force_authenticate(user=self.user3)
+        self.client.force_authenticate(user=self.user_manager)
         response = self.client.delete(reverse("account:teams-detail", kwargs={"pk": self.team.id}))
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
