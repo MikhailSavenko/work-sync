@@ -222,6 +222,29 @@ class WorkerApiTestCase(ApiTestCaseBase):
             self.assertIsInstance(team_data["id"], int)
             self.assertIsInstance(team_data["title"], str)
 
+    def test_normal_get_detail_worker(self):
+        self.client.force_authenticate(user=self.user_normal)
+        response = self.client.get(reverse("account:worker-detail", kwargs={"pk": self.user_normal.id}))
 
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, dict)
+
+        worker_data = response.data
+
+        # Проверяем наличие ключевых полей на верхнем уровне
+        self.assertIn("id", worker_data)
+        self.assertIn("team", worker_data)
+        self.assertIn("role", worker_data)
+        self.assertIn("user_id", worker_data)
+        self.assertIn("first_name", worker_data)
+        self.assertIn("last_name", worker_data)
+        self.assertIn("email", worker_data)
+
+        if worker_data["team"] is not None:
+            team_data = worker_data["team"]
+            self.assertIn("id", team_data)
+            self.assertIn("title", team_data)
+            self.assertIsInstance(team_data["id"], int)
+            self.assertIsInstance(team_data["title"], str)
 
 
