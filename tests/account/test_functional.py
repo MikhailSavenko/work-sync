@@ -78,7 +78,7 @@ class TeamApiTestCase(APITestCase):
         self.assertEqual(response.data["title"], self.team.title)
     
     def test_admin_can_delete_his_team(self):
-        self.client.force_authenticate(user=self.user0s)
+        self.client.force_authenticate(user=self.user0)
         response = self.client.delete(reverse("account:teams-detail", kwargs={"pk": self.team.id}))
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -96,6 +96,32 @@ class TeamApiTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_normal_cant_update_foreign_team(self):
+        self.client.force_authenticate(user=self.user1)
+        response = self.client.put(reverse("account:teams-detail", kwargs={"pk": self.team.id}), data=self.update_data_team, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
+    def test_normal_can_get_list_team(self):
+        self.client.force_authenticate(user=self.user1)
+        response = self.client.get(reverse("account:teams-list"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data[0]["title"], self.team.title)
+
+    def test_normal_can_get_detail_team(self):
+        self.client.force_authenticate(user=self.user1)
+        response = self.client.get(reverse("account:teams-detail", kwargs={"pk": self.team.id}))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["title"], self.team.title)
+    
+    def test_normal_cant_delete_foreign_team(self):
+        self.client.force_authenticate(user=self.user1)
+        response = self.client.delete(reverse("account:teams-detail", kwargs={"pk": self.team.id}))
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
 
 
 
