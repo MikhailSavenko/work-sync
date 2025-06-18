@@ -190,11 +190,38 @@ class TeamApiTestCase(ApiTestCaseBase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
     
 
-
-
-
 class WorkerApiTestCase(ApiTestCaseBase):
     
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+
+    def test_normal_get_list_worker(self):
+        self.client.force_authenticate(user=self.user_normal)
+        response = self.client.get(reverse("account:worker-list"))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, list)
+        self.assertGreater(len(response.data), 0)
+
+        worker_data = response.data[0]
+
+        # Проверяем наличие ключевых полей на верхнем уровне
+        self.assertIn("id", worker_data)
+        self.assertIn("team", worker_data)
+        self.assertIn("role", worker_data)
+        self.assertIn("user_id", worker_data)
+        self.assertIn("first_name", worker_data)
+        self.assertIn("last_name", worker_data)
+        self.assertIn("email", worker_data)
+
+        if worker_data["team"] is not None:
+            team_data = worker_data["team"]
+            self.assertIn("id", team_data)
+            self.assertIn("title", team_data)
+            self.assertIsInstance(team_data["id"], int)
+            self.assertIsInstance(team_data["title"], str)
+
+
+
+
