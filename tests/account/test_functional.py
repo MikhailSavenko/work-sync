@@ -6,10 +6,8 @@ from account.models import Worker, Team
 from django.urls import reverse
 
 
-class TeamApiTestCase(APITestCase):
-
-    ONE = 1
-
+class ApiTestCaseBase(APITestCase):
+    
     @classmethod
     def setUpTestData(cls):
         cls.client = APIClient()
@@ -35,6 +33,15 @@ class TeamApiTestCase(APITestCase):
         cls.worker3 = cls.user3.worker
         cls.worker3.role = Worker.Role.MANAGER
         cls.worker3.save()
+
+
+class TeamApiTestCase(ApiTestCaseBase):
+
+    ONE = 1
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
         
         cls.data_team = {
             "title": "Test Team",
@@ -185,4 +192,9 @@ class TeamApiTestCase(APITestCase):
 
 
 
+
+class WorkerApiTestCase(ApiTestCaseBase):
     
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()

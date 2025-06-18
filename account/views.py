@@ -73,6 +73,7 @@ class TeamViewSet(viewsets.ModelViewSet):
                     "detail": f"Конфликт. Сотрудники {conflicting_emails}, добавляемые в команду, уже состоят в других командах."
                 })
 
+
 class WorkerViewSet(viewsets.GenericViewSet,
                     mixins.RetrieveModelMixin,
                     mixins.ListModelMixin,
