@@ -2,13 +2,17 @@ import datetime
 from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
 from task.models import Task
-from tests.factories import UserFactory, TeamFactory, TaskFactory
+from tests.factories import EvaluationFactory, UserFactory, TeamFactory, TaskFactory
 from account.models import Worker, Team
 
 from django.urls import reverse
 
 
 class ApiTestCaseBase(APITestCase):
+    ONE = 1
+    ZERO = 0
+
+    FIVE_FLOAT = 5.0
 
     DATETIME_NOW = datetime.datetime.now(datetime.timezone.utc)
     TIMEDELTA_THREE_DAYS = datetime.timedelta(days=3)
@@ -41,8 +45,6 @@ class ApiTestCaseBase(APITestCase):
 
 
 class TeamApiTestCase(ApiTestCaseBase):
-
-    ONE = 1
 
     @classmethod
     def setUpTestData(cls):
@@ -196,12 +198,14 @@ class TeamApiTestCase(ApiTestCaseBase):
     
 
 class WorkerApiTestCase(ApiTestCaseBase):
-    
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         cls.task_done = TaskFactory(executor=cls.worker_normal, status=Task.StatusTask.DONE, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
         
+        cls.evaluation = EvaluationFactory(to_worker=cls.worker_normal, task=cls.task_done)
+
     def test_normal_get_list_worker(self):
         self.client.force_authenticate(user=self.user_normal)
         response = self.client.get(reverse("account:worker-list"))
@@ -251,6 +255,46 @@ class WorkerApiTestCase(ApiTestCaseBase):
             self.assertIsInstance(team_data["id"], int)
             self.assertIsInstance(team_data["title"], str)
 
+    def test_normal_get_evaluation_avg_none_score_worker(self):
+        start_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
+        end_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
+        self.client.force_authenticate(user=self.user_normal)
+        response = self.client.get(reverse("account:worker-average-evaluation", kwargs={"pk": self.worker_normal.id,
+                                                                                        "start_date": start_date, 
+                                                                                        "end_date": end_date}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_normal_get_evaluation_avg_worker(self):
-        pass
+        data = response.data
+
+        self.assertIn("start_date", data)
+        self.assertIn("end_date", data)
+        self.assertIn("average_score", data)
+        self.assertIn("evaluations_count", data)
+
+        self.assertEqual(data["start_date"], start_date)
+        self.assertEqual(data["end_date"], end_date)
+        self.assertEqual(data["average_score"], None)
+        self.assertEqual(data["evaluations_count"], self.ZERO)
+        
+    def test_normal_get_evaluation_avg_score_worker(self):
+        start_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).strftime("%Y-%m-%d")
+        end_date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).strftime("%Y-%m-%d")
+        self.client.force_authenticate(user=self.user_normal)
+        response = self.client.get(reverse("account:worker-average-evaluation", kwargs={"pk": self.worker_normal.id,
+                                                                                        "start_date": start_date, 
+                                                                                        "end_date": end_date}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.data
+
+        self.assertIn("start_date", data)
+        self.assertIn("end_date", data)
+        self.assertIn("average_score", data)
+        self.assertIn("evaluations_count", data)
+
+        self.assertEqual(data["start_date"], start_date)
+        self.assertEqual(data["end_date"], end_date)
+        self.assertEqual(data["average_score"], self.FIVE_FLOAT)
+        self.assertEqual(data["evaluations_count"], self.ONE)
+        
+        
