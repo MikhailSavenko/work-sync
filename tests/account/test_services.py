@@ -1,6 +1,6 @@
 from django.test import TestCase
 import datetime
-from tests.factories import TeamFactory, UserFactory, TaskDeadlineFactory, MeetingFactory, EvaluationFactory
+from tests.factories import TeamFactory, UserFactory, TaskFactory, MeetingFactory, EvaluationFactory
 from account.services.team import get_worker_with_team, is_your_team
 from account.services.worker import format_calendar_text_table, get_calendar_events, get_evaluations_avg
 
@@ -48,7 +48,7 @@ class WorkerServiceTestCase(TestCase):
     TIMEDELTA_THREE_DAYS = datetime.timedelta(days=3)
     
     TABLE_VALUE_WITOUT_DATA = 215
-    TABLE_VALUE_WITH_TWO_TASK = 440
+    TABLE_VALUE_WITH_TWO_TASK = 447
     TABLE_VALUE_WITOUT_DATA_IN_LIST = 4
 
     ZERO = 0
@@ -68,8 +68,8 @@ class WorkerServiceTestCase(TestCase):
         cls.empty_meetings = []
         cls.empty_tasks = []
 
-        cls.task0 = TaskDeadlineFactory(deadline=cls.DATE_NO_IVENTS_START)
-        cls.task1 = TaskDeadlineFactory(deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
+        cls.task0 = TaskFactory(deadline=cls.DATE_NO_IVENTS_START)
+        cls.task1 = TaskFactory(deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
 
         cls.meeting0 = MeetingFactory(creator=cls.worker0, datetime=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
         cls.meeting0.workers.set([cls.worker0])

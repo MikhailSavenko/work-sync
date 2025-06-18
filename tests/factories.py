@@ -23,7 +23,7 @@ class TeamFactory(DjangoModelFactory):
     title = factory.Sequence(lambda n: "team%d" %n)
 
 
-class TaskDeadlineFactory(DjangoModelFactory):
+class TaskFactory(DjangoModelFactory):
     class Meta:
         model = Task
     
@@ -43,5 +43,8 @@ class EvaluationFactory(DjangoModelFactory):
         model = Evaluation
     
     score = 5
+
+
+    
 
     

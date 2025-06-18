@@ -1,12 +1,17 @@
+import datetime
 from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
-from tests.factories import UserFactory, TeamFactory
+from task.models import Task
+from tests.factories import UserFactory, TeamFactory, TaskFactory
 from account.models import Worker, Team
 
 from django.urls import reverse
 
 
 class ApiTestCaseBase(APITestCase):
+
+    DATETIME_NOW = datetime.datetime.now(datetime.timezone.utc)
+    TIMEDELTA_THREE_DAYS = datetime.timedelta(days=3)
     
     @classmethod
     def setUpTestData(cls):
@@ -195,7 +200,8 @@ class WorkerApiTestCase(ApiTestCaseBase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-
+        cls.task_done = TaskFactory(executor=cls.worker_normal, status=Task.StatusTask.DONE, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
+        
     def test_normal_get_list_worker(self):
         self.client.force_authenticate(user=self.user_normal)
         response = self.client.get(reverse("account:worker-list"))
@@ -206,7 +212,6 @@ class WorkerApiTestCase(ApiTestCaseBase):
 
         worker_data = response.data[0]
 
-        # Проверяем наличие ключевых полей на верхнем уровне
         self.assertIn("id", worker_data)
         self.assertIn("team", worker_data)
         self.assertIn("role", worker_data)
@@ -231,7 +236,6 @@ class WorkerApiTestCase(ApiTestCaseBase):
 
         worker_data = response.data
 
-        # Проверяем наличие ключевых полей на верхнем уровне
         self.assertIn("id", worker_data)
         self.assertIn("team", worker_data)
         self.assertIn("role", worker_data)
@@ -248,3 +252,5 @@ class WorkerApiTestCase(ApiTestCaseBase):
             self.assertIsInstance(team_data["title"], str)
 
 
+    def test_normal_get_evaluation_avg_worker(self):
+        pass
