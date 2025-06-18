@@ -55,7 +55,25 @@ class TeamApiTestCase(APITestCase):
         cls.team2 = TeamFactory(creator=cls.worker0)
         cls.worker1.team = cls.team2
         cls.worker1.save()
- 
+
+        cls.data_team_conflict = {
+            "title": "Test Team Conflict",
+            "description": "Test descript Conflict=)",
+            "workers": [
+              cls.worker1.id
+            ]
+        }
+    
+    def test_check_team_conflict_create_team_pk_none(self):
+        self.client.force_authenticate(user=self.user0)
+        response = self.client.post(reverse("account:teams-list"), data=self.data_team_conflict, format="json")
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+    
+    def test_check_team_conflict_update_team_pk_not_none(self):
+        self.client.force_authenticate(user=self.user0)
+        response = self.client.put(reverse("account:teams-detail", kwargs={"pk": self.team.id}), data=self.data_team_conflict, format="json")
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+
     def test_admin_can_create_team(self):
         self.client.force_authenticate(user=self.user0)
         response = self.client.post(reverse("account:teams-list"), data=self.data_team, format="json")
