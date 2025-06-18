@@ -47,7 +47,7 @@ class TeamViewSet(viewsets.ModelViewSet):
     
     def perform_update(self, serializer):
         team_pk = self.kwargs.get("pk")
-        print(f"{team_pk}")
+        
         workers_added = serializer.validated_data.get("workers")
         self._check_team_conflict(workers_added, team_pk=team_pk)
         return super().perform_update(serializer)
