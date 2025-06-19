@@ -250,28 +250,30 @@ class WorkerApiTestCase(ApiTestCaseBase):
                 self.assertIsInstance(team_data["id"], int)
                 self.assertIsInstance(team_data["title"], str)
 
-    def test_normal_get_detail_worker(self):
-        self.client.force_authenticate(user=self.user_normal)
-        response = self.client.get(reverse("account:worker-detail", kwargs={"pk": self.worker_normal.id}))
+    def test_get_detail_worker(self):
+        for user in self.user_role_all:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.get(reverse("account:worker-detail", kwargs={"pk": self.worker_normal.id}))
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIsInstance(response.data, dict)
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertIsInstance(response.data, dict)
 
-        worker_data = response.data
+                worker_data = response.data
 
-        self.assertIn("id", worker_data)
-        self.assertIn("team", worker_data)
-        self.assertIn("role", worker_data)
-        self.assertIn("user_id", worker_data)
-        self.assertIn("first_name", worker_data)
-        self.assertIn("last_name", worker_data)
-        self.assertIn("email", worker_data)
+                self.assertIn("id", worker_data)
+                self.assertIn("team", worker_data)
+                self.assertIn("role", worker_data)
+                self.assertIn("user_id", worker_data)
+                self.assertIn("first_name", worker_data)
+                self.assertIn("last_name", worker_data)
+                self.assertIn("email", worker_data)
 
-        team_data = worker_data["team"]
-        self.assertIn("id", team_data)
-        self.assertIn("title", team_data)
-        self.assertIsInstance(team_data["id"], int)
-        self.assertIsInstance(team_data["title"], str)
+                team_data = worker_data["team"]
+                self.assertIn("id", team_data)
+                self.assertIn("title", team_data)
+                self.assertIsInstance(team_data["id"], int)
+                self.assertIsInstance(team_data["title"], str)
 
     def test_normal_get_evaluation_avg_none_score_worker(self):
         start_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
@@ -452,29 +454,6 @@ class WorkerApiTestCase(ApiTestCaseBase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_manager_get_detail_worker(self):
-        self.client.force_authenticate(user=self.user_manager)
-        response = self.client.get(reverse("account:worker-detail", kwargs={"pk": self.worker_normal.id}))
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIsInstance(response.data, dict)
-
-        worker_data = response.data
-
-        self.assertIn("id", worker_data)
-        self.assertIn("team", worker_data)
-        self.assertIn("role", worker_data)
-        self.assertIn("user_id", worker_data)
-        self.assertIn("first_name", worker_data)
-        self.assertIn("last_name", worker_data)
-        self.assertIn("email", worker_data)
-
-        team_data = worker_data["team"]
-        self.assertIn("id", team_data)
-        self.assertIn("title", team_data)
-        self.assertIsInstance(team_data["id"], int)
-        self.assertIsInstance(team_data["title"], str)
-
     def test_manager_get_evaluation_avg_none_score_worker(self):
         start_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
         end_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
@@ -653,29 +632,6 @@ class WorkerApiTestCase(ApiTestCaseBase):
         response = self.client.patch(reverse("account:worker-detail", kwargs={"pk": self.worker_normal.id}), data=self.role_manager_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_admin_get_detail_worker(self):
-        self.client.force_authenticate(user=self.user_admin)
-        response = self.client.get(reverse("account:worker-detail", kwargs={"pk": self.worker_normal.id}))
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIsInstance(response.data, dict)
-
-        worker_data = response.data
-
-        self.assertIn("id", worker_data)
-        self.assertIn("team", worker_data)
-        self.assertIn("role", worker_data)
-        self.assertIn("user_id", worker_data)
-        self.assertIn("first_name", worker_data)
-        self.assertIn("last_name", worker_data)
-        self.assertIn("email", worker_data)
-
-        team_data = worker_data["team"]
-        self.assertIn("id", team_data)
-        self.assertIn("title", team_data)
-        self.assertIsInstance(team_data["id"], int)
-        self.assertIsInstance(team_data["title"], str)
 
     def test_admin_get_evaluation_avg_none_score_worker(self):
         start_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
