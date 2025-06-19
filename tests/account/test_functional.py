@@ -1,6 +1,5 @@
 import datetime
 from rest_framework.test import APIClient, APITestCase
-from rest_framework.exceptions import NotFound
 from rest_framework import status
 from task.models import Task
 from tests.factories import EvaluationFactory, UserFactory, TeamFactory, TaskFactory, MeetingFactory
@@ -275,297 +274,194 @@ class WorkerApiTestCase(ApiTestCaseBase):
                 self.assertIsInstance(team_data["id"], int)
                 self.assertIsInstance(team_data["title"], str)
 
-    def test_normal_get_evaluation_avg_none_score_worker(self):
-        start_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
-        end_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
-        self.client.force_authenticate(user=self.user_normal)
-        response = self.client.get(reverse("account:worker-average-evaluation", kwargs={"pk": self.worker_normal.id,
-                                                                                        "start_date": start_date, 
-                                                                                        "end_date": end_date}))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def test_get_evaluation_avg_none_score_worker(self):
+        for user in self.user_role_all:
+            with self.subTest(user=user):
+                start_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
+                end_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
+                self.client.force_authenticate(user=user)
+                response = self.client.get(reverse("account:worker-average-evaluation", kwargs={"pk": self.worker_normal.id,
+                                                                                                "start_date": start_date, 
+                                                                                                "end_date": end_date}))
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        data = response.data
+                data = response.data
 
-        self.assertIn("start_date", data)
-        self.assertIn("end_date", data)
-        self.assertIn("average_score", data)
-        self.assertIn("evaluations_count", data)
+                self.assertIn("start_date", data)
+                self.assertIn("end_date", data)
+                self.assertIn("average_score", data)
+                self.assertIn("evaluations_count", data)
 
-        self.assertEqual(data["start_date"], start_date)
-        self.assertEqual(data["end_date"], end_date)
-        self.assertEqual(data["average_score"], None)
-        self.assertEqual(data["evaluations_count"], self.ZERO)
+                self.assertEqual(data["start_date"], start_date)
+                self.assertEqual(data["end_date"], end_date)
+                self.assertEqual(data["average_score"], None)
+                self.assertEqual(data["evaluations_count"], self.ZERO)
         
-    def test_normal_get_evaluation_avg_score_worker(self):
-        start_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).strftime("%Y-%m-%d")
-        end_date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).strftime("%Y-%m-%d")
-        self.client.force_authenticate(user=self.user_normal)
-        response = self.client.get(reverse("account:worker-average-evaluation", kwargs={"pk": self.worker_normal.id,
-                                                                                        "start_date": start_date, 
-                                                                                        "end_date": end_date}))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def test_get_evaluation_avg_score_worker(self):
+        for user in self.user_role_all:
+            with self.subTest(user=user):
+                start_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).strftime("%Y-%m-%d")
+                end_date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).strftime("%Y-%m-%d")
+                self.client.force_authenticate(user=user)
+                response = self.client.get(reverse("account:worker-average-evaluation", kwargs={"pk": self.worker_normal.id,
+                                                                                                "start_date": start_date, 
+                                                                                                "end_date": end_date}))
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        data = response.data
+                data = response.data
 
-        self.assertIn("start_date", data)
-        self.assertIn("end_date", data)
-        self.assertIn("average_score", data)
-        self.assertIn("evaluations_count", data)
+                self.assertIn("start_date", data)
+                self.assertIn("end_date", data)
+                self.assertIn("average_score", data)
+                self.assertIn("evaluations_count", data)
 
-        self.assertEqual(data["start_date"], start_date)
-        self.assertEqual(data["end_date"], end_date)
-        self.assertEqual(data["average_score"], self.FIVE_FLOAT)
-        self.assertEqual(data["evaluations_count"], self.ONE)
+                self.assertEqual(data["start_date"], start_date)
+                self.assertEqual(data["end_date"], end_date)
+                self.assertEqual(data["average_score"], self.FIVE_FLOAT)
+                self.assertEqual(data["evaluations_count"], self.ONE)
         
-    def test_normal_get_calendar_day_worker(self):
-        self.client.force_authenticate(user=self.user_normal)
-        date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
-        response = self.client.get(reverse("account:worker-calendar-day", kwargs={"pk": self.worker_normal.id,
-                                                                                  "date": date}))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
-        data = response.data
-        
-        self.assertIn("date", data)
-        self.assertIn("meetings", data)
-        self.assertIn("tasks", data)
-        self.assertIn("table", data)
+    def test_get_calendar_day_worker(self):
+        for user in self.user_role_all:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
+                response = self.client.get(reverse("account:worker-calendar-day", kwargs={"pk": self.worker_normal.id,
+                                                                                          "date": date}))
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertEqual(type(data["table"]), list)
+                data = response.data
 
-        tasks_data = data["tasks"][0]
-        self.assertEqual(len(data["tasks"]), self.ONE)
-        self.assertIn("id", tasks_data)
-        self.assertIn("title", tasks_data)
-        self.assertIn("description", tasks_data)
-        self.assertIn("deadline", tasks_data)
-        self.assertIn("status", tasks_data)
-       
-        self.assertIn("executor", tasks_data)
-        
-        executor_task = tasks_data["executor"]
-        self.assertIn("id", executor_task)
-        self.assertIn("full_name", executor_task)
-        self.assertIn("role", executor_task)
-        self.assertIn("team", executor_task)
+                self.assertIn("date", data)
+                self.assertIn("meetings", data)
+                self.assertIn("tasks", data)
+                self.assertIn("table", data)
 
-        self.assertIn("creator", tasks_data)
-        
-        creator_task = tasks_data["creator"]
-        self.assertIn("id", creator_task)
-        self.assertIn("full_name", creator_task)
-        self.assertIn("role", creator_task)
-        self.assertIn("team", creator_task)
+                self.assertEqual(type(data["table"]), list)
 
-        self.assertIn("evaluation", tasks_data)
-        self.assertIn("created_at", tasks_data)
-        self.assertIn("updated_at", tasks_data)
+                tasks_data = data["tasks"][0]
+                self.assertEqual(len(data["tasks"]), self.ONE)
+                self.assertIn("id", tasks_data)
+                self.assertIn("title", tasks_data)
+                self.assertIn("description", tasks_data)
+                self.assertIn("deadline", tasks_data)
+                self.assertIn("status", tasks_data)
 
-        meeting_data = data["meetings"][0]
-        self.assertEqual(len(data["meetings"]), self.ONE)
-        self.assertIn("id", meeting_data)
-        self.assertIn("description", meeting_data)
-        self.assertIn("datetime", meeting_data)
-        self.assertIn("creator", meeting_data)
-        self.assertEqual(meeting_data["creator"], self.worker_normal.id)
+                self.assertIn("executor", tasks_data)
 
-        self.assertIn("workers", meeting_data)
+                executor_task = tasks_data["executor"]
+                self.assertIn("id", executor_task)
+                self.assertIn("full_name", executor_task)
+                self.assertIn("role", executor_task)
+                self.assertIn("team", executor_task)
 
-        worker_meeting = meeting_data["workers"][0]
-        self.assertEqual(type(meeting_data["workers"]), list)
-        self.assertIn("id", worker_meeting)
-        self.assertIn("full_name", worker_meeting)
-        self.assertIn("role", worker_meeting)
-        self.assertIn("team", worker_meeting)
+                self.assertIn("creator", tasks_data)
+
+                creator_task = tasks_data["creator"]
+                self.assertIn("id", creator_task)
+                self.assertIn("full_name", creator_task)
+                self.assertIn("role", creator_task)
+                self.assertIn("team", creator_task)
+
+                self.assertIn("evaluation", tasks_data)
+                self.assertIn("created_at", tasks_data)
+                self.assertIn("updated_at", tasks_data)
+
+                meeting_data = data["meetings"][0]
+                self.assertEqual(len(data["meetings"]), self.ONE)
+                self.assertIn("id", meeting_data)
+                self.assertIn("description", meeting_data)
+                self.assertIn("datetime", meeting_data)
+                self.assertIn("creator", meeting_data)
+                self.assertEqual(meeting_data["creator"], self.worker_normal.id)
+
+                self.assertIn("workers", meeting_data)
+
+                worker_meeting = meeting_data["workers"][0]
+                self.assertEqual(type(meeting_data["workers"]), list)
+                self.assertIn("id", worker_meeting)
+                self.assertIn("full_name", worker_meeting)
+                self.assertIn("role", worker_meeting)
+                self.assertIn("team", worker_meeting)
     
-    def test_normal_get_calendar_day_not_found_worker(self):
-        self.client.force_authenticate(user=self.user_normal)
-        date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
-        response = self.client.get(reverse("account:worker-calendar-day", kwargs={"pk": self.ONE_HUNDRED,
-                                                                                  "date": date}))
-            
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    def test_get_calendar_day_not_found_worker(self):
+        for user in self.user_role_all:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=self.user_normal)
+                date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
+                response = self.client.get(reverse("account:worker-calendar-day", kwargs={"pk": self.ONE_HUNDRED,
+                                                                                          "date": date}))
+
+                self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     
-    def test_normal_get_calendar_month_worker(self):
-        self.client.force_authenticate(user=self.user_normal)
-        date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m")
-        response = self.client.get(reverse("account:worker-calendar-month", kwargs={"pk": self.worker_normal.id,
-                                                                                  "date": date}))
-            
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    def test_get_calendar_month_worker(self):
+        for user in self.user_role_all:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m")
+                response = self.client.get(reverse("account:worker-calendar-month", kwargs={"pk": self.worker_normal.id,
+                                                                                          "date": date}))
 
-        data = response.data
-        
-        self.assertIn("date", data)
-        self.assertIn("meetings", data)
-        self.assertIn("tasks", data)
-        self.assertIn("table", data)
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertEqual(type(data["table"]), list)
+                data = response.data
 
-        tasks_data = data["tasks"][0]
-        self.assertEqual(len(data["tasks"]), self.ONE)
-        self.assertIn("id", tasks_data)
-        self.assertIn("title", tasks_data)
-        self.assertIn("description", tasks_data)
-        self.assertIn("deadline", tasks_data)
-        self.assertIn("status", tasks_data)
-       
-        self.assertIn("executor", tasks_data)
-        
-        executor_task = tasks_data["executor"]
-        self.assertIn("id", executor_task)
-        self.assertIn("full_name", executor_task)
-        self.assertIn("role", executor_task)
-        self.assertIn("team", executor_task)
+                self.assertIn("date", data)
+                self.assertIn("meetings", data)
+                self.assertIn("tasks", data)
+                self.assertIn("table", data)
 
-        self.assertIn("creator", tasks_data)
-        
-        creator_task = tasks_data["creator"]
-        self.assertIn("id", creator_task)
-        self.assertIn("full_name", creator_task)
-        self.assertIn("role", creator_task)
-        self.assertIn("team", creator_task)
+                self.assertEqual(type(data["table"]), list)
 
-        self.assertIn("evaluation", tasks_data)
-        self.assertIn("created_at", tasks_data)
-        self.assertIn("updated_at", tasks_data)
+                tasks_data = data["tasks"][0]
+                self.assertEqual(len(data["tasks"]), self.ONE)
+                self.assertIn("id", tasks_data)
+                self.assertIn("title", tasks_data)
+                self.assertIn("description", tasks_data)
+                self.assertIn("deadline", tasks_data)
+                self.assertIn("status", tasks_data)
 
-        meeting_data = data["meetings"][0]
-        self.assertEqual(len(data["meetings"]), self.ONE)
-        self.assertIn("id", meeting_data)
-        self.assertIn("description", meeting_data)
-        self.assertIn("datetime", meeting_data)
-        self.assertIn("creator", meeting_data)
-        self.assertEqual(meeting_data["creator"], self.worker_normal.id)
+                self.assertIn("executor", tasks_data)
 
-        self.assertIn("workers", meeting_data)
+                executor_task = tasks_data["executor"]
+                self.assertIn("id", executor_task)
+                self.assertIn("full_name", executor_task)
+                self.assertIn("role", executor_task)
+                self.assertIn("team", executor_task)
 
-        worker_meeting = meeting_data["workers"][0]
-        self.assertEqual(type(meeting_data["workers"]), list)
-        self.assertIn("id", worker_meeting)
-        self.assertIn("full_name", worker_meeting)
-        self.assertIn("role", worker_meeting)
-        self.assertIn("team", worker_meeting)
+                self.assertIn("creator", tasks_data)
+
+                creator_task = tasks_data["creator"]
+                self.assertIn("id", creator_task)
+                self.assertIn("full_name", creator_task)
+                self.assertIn("role", creator_task)
+                self.assertIn("team", creator_task)
+
+                self.assertIn("evaluation", tasks_data)
+                self.assertIn("created_at", tasks_data)
+                self.assertIn("updated_at", tasks_data)
+
+                meeting_data = data["meetings"][0]
+                self.assertEqual(len(data["meetings"]), self.ONE)
+                self.assertIn("id", meeting_data)
+                self.assertIn("description", meeting_data)
+                self.assertIn("datetime", meeting_data)
+                self.assertIn("creator", meeting_data)
+                self.assertEqual(meeting_data["creator"], self.worker_normal.id)
+
+                self.assertIn("workers", meeting_data)
+
+                worker_meeting = meeting_data["workers"][0]
+                self.assertEqual(type(meeting_data["workers"]), list)
+                self.assertIn("id", worker_meeting)
+                self.assertIn("full_name", worker_meeting)
+                self.assertIn("role", worker_meeting)
+                self.assertIn("team", worker_meeting)
 
     def test_normal_partial_update_worker(self):
         self.client.force_authenticate(user=self.user_normal)
         response = self.client.patch(reverse("account:worker-detail", kwargs={"pk": self.worker_normal.id}), data=self.role_manager_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_manager_get_evaluation_avg_none_score_worker(self):
-        start_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
-        end_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
-        self.client.force_authenticate(user=self.user_manager)
-        response = self.client.get(reverse("account:worker-average-evaluation", kwargs={"pk": self.worker_normal.id,
-                                                                                        "start_date": start_date, 
-                                                                                        "end_date": end_date}))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        data = response.data
-
-        self.assertIn("start_date", data)
-        self.assertIn("end_date", data)
-        self.assertIn("average_score", data)
-        self.assertIn("evaluations_count", data)
-
-        self.assertEqual(data["start_date"], start_date)
-        self.assertEqual(data["end_date"], end_date)
-        self.assertEqual(data["average_score"], None)
-        self.assertEqual(data["evaluations_count"], self.ZERO)
-        
-    def test_manager_get_evaluation_avg_score_worker(self):
-        start_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).strftime("%Y-%m-%d")
-        end_date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).strftime("%Y-%m-%d")
-        self.client.force_authenticate(user=self.user_manager)
-        response = self.client.get(reverse("account:worker-average-evaluation", kwargs={"pk": self.worker_normal.id,
-                                                                                        "start_date": start_date, 
-                                                                                        "end_date": end_date}))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        data = response.data
-
-        self.assertIn("start_date", data)
-        self.assertIn("end_date", data)
-        self.assertIn("average_score", data)
-        self.assertIn("evaluations_count", data)
-
-        self.assertEqual(data["start_date"], start_date)
-        self.assertEqual(data["end_date"], end_date)
-        self.assertEqual(data["average_score"], self.FIVE_FLOAT)
-        self.assertEqual(data["evaluations_count"], self.ONE)
-        
-    def test_manager_get_calendar_day_worker(self):
-        self.client.force_authenticate(user=self.user_manager)
-        date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
-        response = self.client.get(reverse("account:worker-calendar-day", kwargs={"pk": self.worker_normal.id,
-                                                                                  "date": date}))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
-        data = response.data
-        
-        self.assertIn("date", data)
-        self.assertIn("meetings", data)
-        self.assertIn("tasks", data)
-        self.assertIn("table", data)
-
-        self.assertEqual(type(data["table"]), list)
-
-        tasks_data = data["tasks"][0]
-        self.assertEqual(len(data["tasks"]), self.ONE)
-        self.assertIn("id", tasks_data)
-        self.assertIn("title", tasks_data)
-        self.assertIn("description", tasks_data)
-        self.assertIn("deadline", tasks_data)
-        self.assertIn("status", tasks_data)
-       
-        self.assertIn("executor", tasks_data)
-        
-        executor_task = tasks_data["executor"]
-        self.assertIn("id", executor_task)
-        self.assertIn("full_name", executor_task)
-        self.assertIn("role", executor_task)
-        self.assertIn("team", executor_task)
-
-        self.assertIn("creator", tasks_data)
-        
-        creator_task = tasks_data["creator"]
-        self.assertIn("id", creator_task)
-        self.assertIn("full_name", creator_task)
-        self.assertIn("role", creator_task)
-        self.assertIn("team", creator_task)
-
-        self.assertIn("evaluation", tasks_data)
-        self.assertIn("created_at", tasks_data)
-        self.assertIn("updated_at", tasks_data)
-
-        meeting_data = data["meetings"][0]
-        self.assertEqual(len(data["meetings"]), self.ONE)
-        self.assertIn("id", meeting_data)
-        self.assertIn("description", meeting_data)
-        self.assertIn("datetime", meeting_data)
-        self.assertIn("creator", meeting_data)
-        self.assertEqual(meeting_data["creator"], self.worker_normal.id)
-
-        self.assertIn("workers", meeting_data)
-
-        worker_meeting = meeting_data["workers"][0]
-        self.assertEqual(type(meeting_data["workers"]), list)
-        self.assertIn("id", worker_meeting)
-        self.assertIn("full_name", worker_meeting)
-        self.assertIn("role", worker_meeting)
-        self.assertIn("team", worker_meeting)
-    
-    def test_manager_get_calendar_day_not_found_worker(self):
-        self.client.force_authenticate(user=self.user_manager)
-        date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
-        response = self.client.get(reverse("account:worker-calendar-day", kwargs={"pk": self.ONE_HUNDRED,
-                                                                                  "date": date}))
-            
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-    
-    def test_manager_get_calendar_month_worker(self):
         self.client.force_authenticate(user=self.user_manager)
         date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m")
         response = self.client.get(reverse("account:worker-calendar-month", kwargs={"pk": self.worker_normal.id,
@@ -632,179 +528,6 @@ class WorkerApiTestCase(ApiTestCaseBase):
         response = self.client.patch(reverse("account:worker-detail", kwargs={"pk": self.worker_normal.id}), data=self.role_manager_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_admin_get_evaluation_avg_none_score_worker(self):
-        start_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
-        end_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
-        self.client.force_authenticate(user=self.user_admin)
-        response = self.client.get(reverse("account:worker-average-evaluation", kwargs={"pk": self.worker_normal.id,
-                                                                                        "start_date": start_date, 
-                                                                                        "end_date": end_date}))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        data = response.data
-
-        self.assertIn("start_date", data)
-        self.assertIn("end_date", data)
-        self.assertIn("average_score", data)
-        self.assertIn("evaluations_count", data)
-
-        self.assertEqual(data["start_date"], start_date)
-        self.assertEqual(data["end_date"], end_date)
-        self.assertEqual(data["average_score"], None)
-        self.assertEqual(data["evaluations_count"], self.ZERO)
-        
-    def test_admin_get_evaluation_avg_score_worker(self):
-        start_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).strftime("%Y-%m-%d")
-        end_date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).strftime("%Y-%m-%d")
-        self.client.force_authenticate(user=self.user_admin)
-        response = self.client.get(reverse("account:worker-average-evaluation", kwargs={"pk": self.worker_normal.id,
-                                                                                        "start_date": start_date, 
-                                                                                        "end_date": end_date}))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        data = response.data
-
-        self.assertIn("start_date", data)
-        self.assertIn("end_date", data)
-        self.assertIn("average_score", data)
-        self.assertIn("evaluations_count", data)
-
-        self.assertEqual(data["start_date"], start_date)
-        self.assertEqual(data["end_date"], end_date)
-        self.assertEqual(data["average_score"], self.FIVE_FLOAT)
-        self.assertEqual(data["evaluations_count"], self.ONE)
-        
-    def test_admin_get_calendar_day_worker(self):
-        self.client.force_authenticate(user=self.user_admin)
-        date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
-        response = self.client.get(reverse("account:worker-calendar-day", kwargs={"pk": self.worker_normal.id,
-                                                                                  "date": date}))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
-        data = response.data
-        
-        self.assertIn("date", data)
-        self.assertIn("meetings", data)
-        self.assertIn("tasks", data)
-        self.assertIn("table", data)
-
-        self.assertEqual(type(data["table"]), list)
-
-        tasks_data = data["tasks"][0]
-        self.assertEqual(len(data["tasks"]), self.ONE)
-        self.assertIn("id", tasks_data)
-        self.assertIn("title", tasks_data)
-        self.assertIn("description", tasks_data)
-        self.assertIn("deadline", tasks_data)
-        self.assertIn("status", tasks_data)
-       
-        self.assertIn("executor", tasks_data)
-        
-        executor_task = tasks_data["executor"]
-        self.assertIn("id", executor_task)
-        self.assertIn("full_name", executor_task)
-        self.assertIn("role", executor_task)
-        self.assertIn("team", executor_task)
-
-        self.assertIn("creator", tasks_data)
-        
-        creator_task = tasks_data["creator"]
-        self.assertIn("id", creator_task)
-        self.assertIn("full_name", creator_task)
-        self.assertIn("role", creator_task)
-        self.assertIn("team", creator_task)
-
-        self.assertIn("evaluation", tasks_data)
-        self.assertIn("created_at", tasks_data)
-        self.assertIn("updated_at", tasks_data)
-
-        meeting_data = data["meetings"][0]
-        self.assertEqual(len(data["meetings"]), self.ONE)
-        self.assertIn("id", meeting_data)
-        self.assertIn("description", meeting_data)
-        self.assertIn("datetime", meeting_data)
-        self.assertIn("creator", meeting_data)
-        self.assertEqual(meeting_data["creator"], self.worker_normal.id)
-
-        self.assertIn("workers", meeting_data)
-
-        worker_meeting = meeting_data["workers"][0]
-        self.assertEqual(type(meeting_data["workers"]), list)
-        self.assertIn("id", worker_meeting)
-        self.assertIn("full_name", worker_meeting)
-        self.assertIn("role", worker_meeting)
-        self.assertIn("team", worker_meeting)
-    
-    def test_admin_get_calendar_day_not_found_worker(self):
-        self.client.force_authenticate(user=self.user_admin)
-        date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
-        response = self.client.get(reverse("account:worker-calendar-day", kwargs={"pk": self.ONE_HUNDRED,
-                                                                                  "date": date}))
-            
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-    
-    def test_admin_get_calendar_month_worker(self):
-        self.client.force_authenticate(user=self.user_admin)
-        date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m")
-        response = self.client.get(reverse("account:worker-calendar-month", kwargs={"pk": self.worker_normal.id,
-                                                                                  "date": date}))
-            
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        data = response.data
-        
-        self.assertIn("date", data)
-        self.assertIn("meetings", data)
-        self.assertIn("tasks", data)
-        self.assertIn("table", data)
-
-        self.assertEqual(type(data["table"]), list)
-
-        tasks_data = data["tasks"][0]
-        self.assertEqual(len(data["tasks"]), self.ONE)
-        self.assertIn("id", tasks_data)
-        self.assertIn("title", tasks_data)
-        self.assertIn("description", tasks_data)
-        self.assertIn("deadline", tasks_data)
-        self.assertIn("status", tasks_data)
-       
-        self.assertIn("executor", tasks_data)
-        
-        executor_task = tasks_data["executor"]
-        self.assertIn("id", executor_task)
-        self.assertIn("full_name", executor_task)
-        self.assertIn("role", executor_task)
-        self.assertIn("team", executor_task)
-
-        self.assertIn("creator", tasks_data)
-        
-        creator_task = tasks_data["creator"]
-        self.assertIn("id", creator_task)
-        self.assertIn("full_name", creator_task)
-        self.assertIn("role", creator_task)
-        self.assertIn("team", creator_task)
-
-        self.assertIn("evaluation", tasks_data)
-        self.assertIn("created_at", tasks_data)
-        self.assertIn("updated_at", tasks_data)
-
-        meeting_data = data["meetings"][0]
-        self.assertEqual(len(data["meetings"]), self.ONE)
-        self.assertIn("id", meeting_data)
-        self.assertIn("description", meeting_data)
-        self.assertIn("datetime", meeting_data)
-        self.assertIn("creator", meeting_data)
-        self.assertEqual(meeting_data["creator"], self.worker_normal.id)
-
-        self.assertIn("workers", meeting_data)
-
-        worker_meeting = meeting_data["workers"][0]
-        self.assertEqual(type(meeting_data["workers"]), list)
-        self.assertIn("id", worker_meeting)
-        self.assertIn("full_name", worker_meeting)
-        self.assertIn("role", worker_meeting)
-        self.assertIn("team", worker_meeting)
 
     def test_admin_partial_update_no_valid_worker(self):
         self.client.force_authenticate(user=self.user_admin)
