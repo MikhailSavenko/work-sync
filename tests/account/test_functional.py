@@ -45,6 +45,11 @@ class ApiTestCaseBase(APITestCase):
         cls.worker_manager.role = Worker.Role.MANAGER
         cls.worker_manager.save()
 
+        cls.user_role_all = (cls.user_normal, cls.user_manager, cls.user_admin)
+
+        cls.meeting = MeetingFactory(datetime=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS), creator=cls.worker_normal)
+        cls.meeting.workers.set([cls.worker_normal, cls.worker_manager])
+
 
 class TeamApiTestCase(ApiTestCaseBase):
 
@@ -206,9 +211,6 @@ class WorkerApiTestCase(ApiTestCaseBase):
         super().setUpTestData()
         cls.task_done = TaskFactory(creator=cls.worker_manager, executor=cls.worker_normal, status=Task.StatusTask.DONE, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
         
-        cls.meeting = MeetingFactory(datetime=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS), creator=cls.worker_normal)
-        cls.meeting.workers.set([cls.worker_normal, cls.worker_manager])
-        
         cls.evaluation = EvaluationFactory(to_worker=cls.worker_normal, task=cls.task_done)
 
         cls.team = TeamFactory(creator=cls.worker_admin)
@@ -221,7 +223,6 @@ class WorkerApiTestCase(ApiTestCaseBase):
         cls.role_manager_data = {
             "role": "MG"
         }
-        cls.user_role_all = (cls.user_normal, cls.user_manager, cls.user_admin)
 
     def test_get_list_worker(self):
         for user in self.user_role_all:
