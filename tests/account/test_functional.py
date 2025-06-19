@@ -212,6 +212,10 @@ class WorkerApiTestCase(ApiTestCaseBase):
         
         cls.evaluation = EvaluationFactory(to_worker=cls.worker_normal, task=cls.task_done)
 
+        cls.role_manager_data = {
+            "role": "MN"
+        }
+
     def test_normal_get_list_worker(self):
         self.client.force_authenticate(user=self.user_normal)
         response = self.client.get(reverse("account:worker-list"))
@@ -434,3 +438,9 @@ class WorkerApiTestCase(ApiTestCaseBase):
         self.assertIn("full_name", worker_meeting)
         self.assertIn("role", worker_meeting)
         self.assertIn("team", worker_meeting)
+
+    def test_normal_partial_update_worker(self):
+        self.client.force_authenticate(user=self.user_normal)
+        response = self.client.patch(reverse("account:worker-detail", kwargs={"pk": self.worker_normal.id}), data=self.role_manager_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
