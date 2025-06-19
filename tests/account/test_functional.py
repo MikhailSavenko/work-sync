@@ -16,6 +16,8 @@ class ApiTestCaseBase(APITestCase):
 
     FIVE_FLOAT = 5.0
 
+    SOME_STR = "some string"
+
     DATETIME_NOW = datetime.datetime.now(datetime.timezone.utc)
     TIMEDELTA_THREE_DAYS = datetime.timedelta(days=3)
     
