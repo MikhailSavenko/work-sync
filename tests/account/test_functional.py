@@ -222,30 +222,33 @@ class WorkerApiTestCase(ApiTestCaseBase):
         cls.role_manager_data = {
             "role": "MG"
         }
+        cls.user_role_all = (cls.user_normal, cls.user_manager, cls.user_admin)
 
-    def test_normal_get_list_worker(self):
-        self.client.force_authenticate(user=self.user_normal)
-        response = self.client.get(reverse("account:worker-list"))
+    def test_get_list_worker(self):
+        for user in self.user_role_all:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.get(reverse("account:worker-list"))
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIsInstance(response.data, list)
-        self.assertGreater(len(response.data), 0)
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertIsInstance(response.data, list)
+                self.assertGreater(len(response.data), 0)
 
-        worker_data = response.data[1]
+                worker_data = response.data[1]
 
-        self.assertIn("id", worker_data)
-        self.assertIn("team", worker_data)
-        self.assertIn("role", worker_data)
-        self.assertIn("user_id", worker_data)
-        self.assertIn("first_name", worker_data)
-        self.assertIn("last_name", worker_data)
-        self.assertIn("email", worker_data)
-     
-        team_data = worker_data["team"]
-        self.assertIn("id", team_data)
-        self.assertIn("title", team_data)
-        self.assertIsInstance(team_data["id"], int)
-        self.assertIsInstance(team_data["title"], str)
+                self.assertIn("id", worker_data)
+                self.assertIn("team", worker_data)
+                self.assertIn("role", worker_data)
+                self.assertIn("user_id", worker_data)
+                self.assertIn("first_name", worker_data)
+                self.assertIn("last_name", worker_data)
+                self.assertIn("email", worker_data)
+
+                team_data = worker_data["team"]
+                self.assertIn("id", team_data)
+                self.assertIn("title", team_data)
+                self.assertIsInstance(team_data["id"], int)
+                self.assertIsInstance(team_data["title"], str)
 
     def test_normal_get_detail_worker(self):
         self.client.force_authenticate(user=self.user_normal)
@@ -448,30 +451,6 @@ class WorkerApiTestCase(ApiTestCaseBase):
         response = self.client.patch(reverse("account:worker-detail", kwargs={"pk": self.worker_normal.id}), data=self.role_manager_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-    
-    def test_manager_get_list_worker(self):
-        self.client.force_authenticate(user=self.user_manager)
-        response = self.client.get(reverse("account:worker-list"))
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIsInstance(response.data, list)
-        self.assertGreater(len(response.data), 0)
-
-        worker_data = response.data[1]
-
-        self.assertIn("id", worker_data)
-        self.assertIn("team", worker_data)
-        self.assertIn("role", worker_data)
-        self.assertIn("user_id", worker_data)
-        self.assertIn("first_name", worker_data)
-        self.assertIn("last_name", worker_data)
-        self.assertIn("email", worker_data)
-
-        team_data = worker_data["team"]
-        self.assertIn("id", team_data)
-        self.assertIn("title", team_data)
-        self.assertIsInstance(team_data["id"], int)
-        self.assertIsInstance(team_data["title"], str)
 
     def test_manager_get_detail_worker(self):
         self.client.force_authenticate(user=self.user_manager)
@@ -674,30 +653,6 @@ class WorkerApiTestCase(ApiTestCaseBase):
         response = self.client.patch(reverse("account:worker-detail", kwargs={"pk": self.worker_normal.id}), data=self.role_manager_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-    
-    def test_admin_get_list_worker(self):
-        self.client.force_authenticate(user=self.user_admin)
-        response = self.client.get(reverse("account:worker-list"))
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIsInstance(response.data, list)
-        self.assertGreater(len(response.data), 0)
-
-        worker_data = response.data[1]
-
-        self.assertIn("id", worker_data)
-        self.assertIn("team", worker_data)
-        self.assertIn("role", worker_data)
-        self.assertIn("user_id", worker_data)
-        self.assertIn("first_name", worker_data)
-        self.assertIn("last_name", worker_data)
-        self.assertIn("email", worker_data)
-
-        team_data = worker_data["team"]
-        self.assertIn("id", team_data)
-        self.assertIn("title", team_data)
-        self.assertIsInstance(team_data["id"], int)
-        self.assertIsInstance(team_data["title"], str)
 
     def test_admin_get_detail_worker(self):
         self.client.force_authenticate(user=self.user_admin)
