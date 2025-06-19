@@ -2,7 +2,7 @@ import datetime
 from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
 from task.models import Task
-from tests.factories import EvaluationFactory, UserFactory, TeamFactory, TaskFactory
+from tests.factories import EvaluationFactory, UserFactory, TeamFactory, TaskFactory, MeetingFactory
 from account.models import Worker, Team
 
 from django.urls import reverse
@@ -202,7 +202,10 @@ class WorkerApiTestCase(ApiTestCaseBase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        cls.task_done = TaskFactory(executor=cls.worker_normal, status=Task.StatusTask.DONE, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
+        cls.task_done = TaskFactory(creator=cls.worker_manager, executor=cls.worker_normal, status=Task.StatusTask.DONE, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
+        
+        cls.meeting = MeetingFactory(datetime=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS), creator=cls.worker_normal)
+        cls.meeting.workers.set([cls.worker_normal, cls.worker_manager])
         
         cls.evaluation = EvaluationFactory(to_worker=cls.worker_normal, task=cls.task_done)
 
@@ -297,4 +300,68 @@ class WorkerApiTestCase(ApiTestCaseBase):
         self.assertEqual(data["average_score"], self.FIVE_FLOAT)
         self.assertEqual(data["evaluations_count"], self.ONE)
         
+    def test_normal_get_calendar_day(self):
+        self.client.force_authenticate(user=self.user_normal)
+        date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
+        response = self.client.get(reverse("account:worker-calendar-day", kwargs={"pk": self.worker_normal.id,
+                                                                                  "date": date}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        data = response.data
+        
+        self.assertIn("date", data)
+        self.assertIn("meetings", data)
+        self.assertIn("tasks", data)
+        self.assertIn("table", data)
+
+        self.assertEqual(type(data["table"]), list)
+
+        tasks_data = data["tasks"][0]
+        self.assertEqual(len(data["tasks"]), self.ONE)
+        self.assertIn("id", tasks_data)
+        self.assertIn("title", tasks_data)
+        self.assertIn("description", tasks_data)
+        self.assertIn("deadline", tasks_data)
+        self.assertIn("status", tasks_data)
+       
+        self.assertIn("executor", tasks_data)
+        
+        executor_task = tasks_data["executor"]
+        self.assertIn("id", executor_task)
+        self.assertIn("full_name", executor_task)
+        self.assertIn("role", executor_task)
+        self.assertIn("team", executor_task)
+
+        self.assertIn("creator", tasks_data)
+        
+        creator_task = tasks_data["creator"]
+        self.assertIn("id", creator_task)
+        self.assertIn("full_name", creator_task)
+        self.assertIn("role", creator_task)
+        self.assertIn("team", creator_task)
+
+        self.assertIn("evaluation", tasks_data)
+        self.assertIn("created_at", tasks_data)
+        self.assertIn("updated_at", tasks_data)
+
+        meeting_data = data["meetings"][0]
+        self.assertEqual(len(data["meetings"]), self.ONE)
+        self.assertIn("id", meeting_data)
+        self.assertIn("description", meeting_data)
+        self.assertIn("datetime", meeting_data)
+        self.assertIn("creator", meeting_data)
+        self.assertEqual(meeting_data["creator"], self.worker_normal.id)
+
+        self.assertIn("workers", meeting_data)
+
+        worker_meeting = meeting_data["workers"][0]
+        self.assertEqual(type(meeting_data["workers"]), list)
+        self.assertIn("id", worker_meeting)
+        self.assertIn("full_name", worker_meeting)
+        self.assertIn("role", worker_meeting)
+        self.assertIn("team", worker_meeting)
+
+
+
+        # нужно создатть максимальный тестовые данные чтобы тут был проверен весь json код тоесть все наши поля с execuror creator у всех тасок и встреч
         
