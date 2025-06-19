@@ -212,6 +212,10 @@ class WorkerApiTestCase(ApiTestCaseBase):
         
         cls.evaluation = EvaluationFactory(to_worker=cls.worker_normal, task=cls.task_done)
 
+        cls.team = TeamFactory(creator=cls.worker_admin)
+        cls.worker_normal.team = cls.team
+        cls.worker_normal.save()
+
         cls.role_no_valid_data = {
             "role": "MN"
         }
@@ -227,7 +231,7 @@ class WorkerApiTestCase(ApiTestCaseBase):
         self.assertIsInstance(response.data, list)
         self.assertGreater(len(response.data), 0)
 
-        worker_data = response.data[0]
+        worker_data = response.data[1]
 
         self.assertIn("id", worker_data)
         self.assertIn("team", worker_data)
@@ -236,13 +240,12 @@ class WorkerApiTestCase(ApiTestCaseBase):
         self.assertIn("first_name", worker_data)
         self.assertIn("last_name", worker_data)
         self.assertIn("email", worker_data)
-
-        if worker_data["team"] is not None:
-            team_data = worker_data["team"]
-            self.assertIn("id", team_data)
-            self.assertIn("title", team_data)
-            self.assertIsInstance(team_data["id"], int)
-            self.assertIsInstance(team_data["title"], str)
+     
+        team_data = worker_data["team"]
+        self.assertIn("id", team_data)
+        self.assertIn("title", team_data)
+        self.assertIsInstance(team_data["id"], int)
+        self.assertIsInstance(team_data["title"], str)
 
     def test_normal_get_detail_worker(self):
         self.client.force_authenticate(user=self.user_normal)
@@ -261,12 +264,11 @@ class WorkerApiTestCase(ApiTestCaseBase):
         self.assertIn("last_name", worker_data)
         self.assertIn("email", worker_data)
 
-        if worker_data["team"] is not None:
-            team_data = worker_data["team"]
-            self.assertIn("id", team_data)
-            self.assertIn("title", team_data)
-            self.assertIsInstance(team_data["id"], int)
-            self.assertIsInstance(team_data["title"], str)
+        team_data = worker_data["team"]
+        self.assertIn("id", team_data)
+        self.assertIn("title", team_data)
+        self.assertIsInstance(team_data["id"], int)
+        self.assertIsInstance(team_data["title"], str)
 
     def test_normal_get_evaluation_avg_none_score_worker(self):
         start_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
@@ -455,7 +457,7 @@ class WorkerApiTestCase(ApiTestCaseBase):
         self.assertIsInstance(response.data, list)
         self.assertGreater(len(response.data), 0)
 
-        worker_data = response.data[0]
+        worker_data = response.data[1]
 
         self.assertIn("id", worker_data)
         self.assertIn("team", worker_data)
@@ -465,12 +467,11 @@ class WorkerApiTestCase(ApiTestCaseBase):
         self.assertIn("last_name", worker_data)
         self.assertIn("email", worker_data)
 
-        if worker_data["team"] is not None:
-            team_data = worker_data["team"]
-            self.assertIn("id", team_data)
-            self.assertIn("title", team_data)
-            self.assertIsInstance(team_data["id"], int)
-            self.assertIsInstance(team_data["title"], str)
+        team_data = worker_data["team"]
+        self.assertIn("id", team_data)
+        self.assertIn("title", team_data)
+        self.assertIsInstance(team_data["id"], int)
+        self.assertIsInstance(team_data["title"], str)
 
     def test_manager_get_detail_worker(self):
         self.client.force_authenticate(user=self.user_manager)
@@ -489,12 +490,11 @@ class WorkerApiTestCase(ApiTestCaseBase):
         self.assertIn("last_name", worker_data)
         self.assertIn("email", worker_data)
 
-        if worker_data["team"] is not None:
-            team_data = worker_data["team"]
-            self.assertIn("id", team_data)
-            self.assertIn("title", team_data)
-            self.assertIsInstance(team_data["id"], int)
-            self.assertIsInstance(team_data["title"], str)
+        team_data = worker_data["team"]
+        self.assertIn("id", team_data)
+        self.assertIn("title", team_data)
+        self.assertIsInstance(team_data["id"], int)
+        self.assertIsInstance(team_data["title"], str)
 
     def test_manager_get_evaluation_avg_none_score_worker(self):
         start_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
@@ -683,7 +683,7 @@ class WorkerApiTestCase(ApiTestCaseBase):
         self.assertIsInstance(response.data, list)
         self.assertGreater(len(response.data), 0)
 
-        worker_data = response.data[0]
+        worker_data = response.data[1]
 
         self.assertIn("id", worker_data)
         self.assertIn("team", worker_data)
@@ -693,12 +693,11 @@ class WorkerApiTestCase(ApiTestCaseBase):
         self.assertIn("last_name", worker_data)
         self.assertIn("email", worker_data)
 
-        if worker_data["team"] is not None:
-            team_data = worker_data["team"]
-            self.assertIn("id", team_data)
-            self.assertIn("title", team_data)
-            self.assertIsInstance(team_data["id"], int)
-            self.assertIsInstance(team_data["title"], str)
+        team_data = worker_data["team"]
+        self.assertIn("id", team_data)
+        self.assertIn("title", team_data)
+        self.assertIsInstance(team_data["id"], int)
+        self.assertIsInstance(team_data["title"], str)
 
     def test_admin_get_detail_worker(self):
         self.client.force_authenticate(user=self.user_admin)
@@ -717,12 +716,11 @@ class WorkerApiTestCase(ApiTestCaseBase):
         self.assertIn("last_name", worker_data)
         self.assertIn("email", worker_data)
 
-        if worker_data["team"] is not None:
-            team_data = worker_data["team"]
-            self.assertIn("id", team_data)
-            self.assertIn("title", team_data)
-            self.assertIsInstance(team_data["id"], int)
-            self.assertIsInstance(team_data["title"], str)
+        team_data = worker_data["team"]
+        self.assertIn("id", team_data)
+        self.assertIn("title", team_data)
+        self.assertIsInstance(team_data["id"], int)
+        self.assertIsInstance(team_data["title"], str)
 
     def test_admin_get_evaluation_avg_none_score_worker(self):
         start_date = (self.DATETIME_NOW - self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m-%d")
