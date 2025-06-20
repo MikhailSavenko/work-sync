@@ -34,6 +34,18 @@ class ApiTestCaseBase(APITestCase):
         # Создадим normal Worker
         cls.user_normal = UserFactory()
         cls.worker_normal = cls.user_normal.worker
+        
+        # Создадим normal Worker 1
+        cls.user_normal1 = UserFactory()
+        cls.worker_normal1 = cls.user_normal1.worker
+
+        # Создадим normal Worker 2
+        cls.user_normal2 = UserFactory()
+        cls.worker_normal2 = cls.user_normal2.worker
+
+        # Создадим normal Worker 3
+        cls.user_normal3 = UserFactory()
+        cls.worker_normal3 = cls.user_normal3.worker
 
         # Создадим admin_team Worker 2
         cls.user_admin1 = UserFactory()
@@ -51,6 +63,14 @@ class ApiTestCaseBase(APITestCase):
 
         cls.meeting = MeetingFactory(datetime=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS), creator=cls.worker_normal)
         cls.meeting.workers.set([cls.worker_normal, cls.worker_manager])
+        
+        datetime_with_second = (cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS)
+        no_second_datetime = datetime_with_second.replace(second=0, microsecond=0)
+        cls.meeting1 = MeetingFactory(datetime=no_second_datetime, creator=cls.worker_normal1)
+        cls.meeting1.workers.set([cls.worker_normal1])
+
+        cls.meeting2 = MeetingFactory(datetime=no_second_datetime, creator=cls.worker_normal1)
+        cls.meeting2.workers.set([cls.worker_normal2])
 
 
 class TeamApiTestCase(ApiTestCaseBase):

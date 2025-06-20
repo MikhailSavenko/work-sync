@@ -26,6 +26,23 @@ class MeetingApiTestCase(ApiTestCaseBase):
             ]
         }
 
+        cls.meeting_conflict_data = {
+            "description": "My Meeting",
+            "datetime": cls.meeting1.datetime.strftime("%Y-%m-%dT%H:%M"),
+            "workers": [
+              cls.worker_normal2.id
+            ]
+        }
+
+        cls.meeting_no_conflict_data = {
+            "description": "My Meeting",
+            "datetime": cls.meeting1.datetime.strftime("%Y-%m-%dT%H:%M"),
+            "workers": [
+              cls.worker_normal1.id,
+              cls.worker_normal3.id
+            ]
+        }
+
     def test_get_list_meeting(self):
         for user in self.user_role_all:
             with self.subTest(user=user):
@@ -88,7 +105,7 @@ class MeetingApiTestCase(ApiTestCaseBase):
                 response = self.client.get(reverse("event:meeting-me"), data={"done": self.SOME_STR})
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_get_me_no_param_wrong_meeting(self):
+    def test_get_me_no_param_meeting(self):
         for user in self.user_role_all:
             with self.subTest(user=user):
                 self.client.force_authenticate(user=user)
@@ -157,6 +174,13 @@ class MeetingApiTestCase(ApiTestCaseBase):
 
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
                 self.assertCountEqual(["description", "datetime", "workers"], response.json())
+    
+    def test_create_conflict_data_meeting(self):
+        self.client.force_authenticate(user=self.user_normal3)
+
+        response = self.client.post(reverse("event:meeting-list"), data=self.meeting_conflict_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertCountEqual(["detail"], response.json())
               
     def test_update_input_valid_data_meeting(self):
         self.client.force_authenticate(user=self.user_normal)
@@ -190,3 +214,30 @@ class MeetingApiTestCase(ApiTestCaseBase):
         response = self.client.put(reverse("event:meeting-detail", kwargs={"pk": self.meeting.id}), data=self.meeting_no_valid_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertCountEqual(["description", "datetime", "workers"], response.json())
+
+    def test_update_conflict_meeting(self):
+        self.client.force_authenticate(user=self.user_normal1)
+        response = self.client.put(reverse("event:meeting-detail", kwargs={"pk": self.meeting1.id}), data=self.meeting_conflict_data)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertCountEqual(["detail"], response.json())
+    
+    def test_update_no_conflict_if_this_your_meeting(self):
+        self.client.force_authenticate(user=self.user_normal1)
+        response = self.client.put(reverse("event:meeting-detail", kwargs={"pk": self.meeting1.id}), data=self.meeting_no_conflict_data)
+        print(response.json())
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        meeting_data = response.data
+        self.assertIn("id", meeting_data)
+        self.assertEqual(meeting_data["id"], self.meeting1.id)
+        
+        self.assertIn("description", meeting_data)
+        self.assertEqual(meeting_data["description"], self.meeting_no_conflict_data["description"])
+        
+        self.assertIn("datetime", meeting_data)
+        
+        self.assertIn("creator", meeting_data)
+        self.assertEqual(meeting_data["creator"], self.meeting1.creator.id)
+        
+        worker_meeting = meeting_data["workers"]
+        self.assertEqual(type(worker_meeting), list)
