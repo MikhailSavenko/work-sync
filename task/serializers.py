@@ -53,8 +53,7 @@ class TaskCreateSerializer(serializers.ModelSerializer):
         model = Task
         fields = ("id", "title", "description", "status", "deadline", "executor", "creator")
         extra_kwargs = {
-            "executor": {"help_text": "id исполнителя, может быть назначен позже"},
-            "deadline":  {"help_text": "YYYY-MM-DDTHH:MM"}
+            "executor": {"help_text": "id исполнителя, может быть назначен позже"}
         }
     
     def validate_deadline(self, value):

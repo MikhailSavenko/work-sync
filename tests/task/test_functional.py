@@ -1,4 +1,5 @@
 from django.urls import reverse
+from task.models import Task
 from tests.account.test_functional import ApiTestCaseBase
 from tests.factories import TaskFactory
 from rest_framework import status
@@ -11,7 +12,14 @@ class TaskApiTestCase(ApiTestCaseBase):
         super().setUpTestData() 
 
         cls.task = TaskFactory(creator=cls.worker_manager, executor=cls.worker_normal, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
-    
+
+        cls.valid_data_task = {
+            "title": "New Test Task",
+            "description": "Task description",
+            "deadline": (cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS).strftime("%Y-%m-%dT%H:%M"),
+            "executor": cls.worker_normal2.id
+        }
+
     def _assert_task_detail_structure(self, task_data):
         """Проверяет общую структуру JSON-представления задачи."""
         self.assertIn("id", task_data)
@@ -38,6 +46,29 @@ class TaskApiTestCase(ApiTestCaseBase):
         self.assertIn("created_at", task_data)
         self.assertIn("updated_at", task_data)
     
+    def _assert_task_response_create_structure(self, task_data):
+        self.assertIn("id", task_data)
+        self.assertIn("title", task_data)
+        self.assertIn("description", task_data)
+        self.assertIn("deadline", task_data)
+        self.assertIn("status", task_data)
+        self.assertIn("executor", task_data)
+        self.assertIn("creator", task_data)
+
+    def _assert_task_check_value_with_task(self, task_data):
+        self.assertEqual(task_data["id"], self.task.id)
+        self.assertEqual(task_data["title"], self.task.title)
+        self.assertEqual(task_data["description"], self.task.description)
+        self.assertEqual(task_data["status"], Task.StatusTask.OPEN.label)
+        self.assertEqual(task_data["executor"]["id"], self.task.executor.id)
+        self.assertEqual(task_data["creator"]["id"], self.task.creator.id)
+
+    def _assert_task_check_input_data_with_db(self, task_data, db_qs, worker):
+        self.assertEqual(db_qs.title, task_data["title"])
+        self.assertEqual(db_qs.description, task_data["description"])
+        self.assertEqual(db_qs.executor.id, task_data["executor"])
+        self.assertEqual(db_qs.creator.id, worker.id)
+
     def test_get_list_task(self):
         for user in self.user_role_all:
             with self.subTest(user=user):
@@ -46,9 +77,10 @@ class TaskApiTestCase(ApiTestCaseBase):
 
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 data = response.json()
-                tasks_data = data[0]
+                task_data = data[0]
                 self.assertIsInstance(data, list)
-                self._assert_task_detail_structure(tasks_data)
+                self._assert_task_detail_structure(task_data)
+                self._assert_task_check_value_with_task(task_data=task_data)
 
     def test_get_detail_task(self):
         for user in self.user_role_all:
@@ -58,9 +90,10 @@ class TaskApiTestCase(ApiTestCaseBase):
 
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 data = response.json()
-                tasks_data = data
-                self.assertIsInstance(tasks_data, dict)
-                self._assert_task_detail_structure(tasks_data)
+                task_data = data
+                self.assertIsInstance(task_data, dict)
+                self._assert_task_detail_structure(task_data)
+                self._assert_task_check_value_with_task(task_data=task_data)
     
     def test_get_me_task(self):
         for user in self.user_role_all:
@@ -71,11 +104,44 @@ class TaskApiTestCase(ApiTestCaseBase):
                 self.assertEqual(response.status_code, status.HTTP_200_OK)
                 if user == self.user_normal:
                     data = response.json()
-                    tasks_data = data[0]
+                    task_data = data[0]
                     self.assertIsInstance(data, list)
-                    self._assert_task_detail_structure(tasks_data)
-                    self.assertEqual(tasks_data["id"], self.task.id)
-                    self.assertEqual(tasks_data["title"], self.task.title)
-                    self.assertEqual(tasks_data["description"], self.task.description)
-                    self.assertEqual(tasks_data["status"], self.task.status)
-                    self.assertEqual(tasks_data["executor"], self.task.self.task.status)
+                    self._assert_task_detail_structure(task_data)     
+                    self._assert_task_check_value_with_task(task_data=task_data)    
+    
+    def test_normal_create_input_valid_data_task(self):
+        self.client.force_authenticate(user=self.user_normal)
+        response = self.client.post(reverse("task:tasks-list"), data=self.valid_data_task, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
+    def test_manager_create_input_valid_data_task(self):
+        count_tasks = Task.objects.count()
+        self.client.force_authenticate(user=self.user_manager)
+        response = self.client.post(reverse("task:tasks-list"), data=self.valid_data_task, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        task_data = response.json()
+        self._assert_task_response_create_structure(task_data=task_data)
+        self.assertEqual(count_tasks + self.ONE, Task.objects.count())
+
+        created_task_id = task_data["id"]
+        try:
+            task_in_db = Task.objects.get(id=created_task_id)
+            self._assert_task_check_input_data_with_db(db_qs=task_in_db, task_data=task_data, worker=self.worker_manager)
+        except Task.DoesNotExist:
+            self.fail(f"Task with ID {created_task_id} was not found in the database after manager creation. Response: {response.json()}")
+    
+    def test_admin_create_input_valid_data_task(self):
+        count_tasks = Task.objects.count()
+        self.client.force_authenticate(user=self.user_admin)
+        response = self.client.post(reverse("task:tasks-list"), data=self.valid_data_task, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        task_data = response.json()
+        self._assert_task_response_create_structure(task_data=task_data)
+        self.assertEqual(count_tasks + self.ONE, Task.objects.count())
+
+        created_task_id = task_data["id"]
+        try:
+            task_in_db = Task.objects.get(id=created_task_id)
+            self._assert_task_check_input_data_with_db(db_qs=task_in_db, task_data=task_data, worker=self.worker_admin)
+        except Task.DoesNotExist:
+            self.fail(f"Task with ID {created_task_id} was not found in the database after admin creation. Response: {response.json()}")
