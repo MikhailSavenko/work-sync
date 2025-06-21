@@ -40,6 +40,13 @@ class TaskApiTestCase(ApiTestCaseBase):
             "deadline": (cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS + cls.TIMEDELTA_THREE_DAYS).strftime("%Y-%m-%dT%H:%M"),
             "executor": cls.worker_normal2.id
         }
+        cls.no_valid_update_data_task = {
+            "title": ["New Test Task"],
+            "description": ["Task description"],
+            "deadline": "2020-20-20",
+            "status": "sss",
+            "executor": "ss"
+        }
         cls.valid_partial_upd_status_data = {
             "status": "DN"
         }
@@ -253,3 +260,46 @@ class TaskApiTestCase(ApiTestCaseBase):
                     self.assertEqual(task_data["status"], task_in_db.status)
                 except Task.DoesNotExist:
                     self.fail(f"Task with ID {created_task_id} was not found in the database after {user.worker.role} partial updated. Response: {response.json()}")
+
+    def test_partial_upd_manager_or_admin_owner_input_valid_data_task(self):
+        params_user_task = {
+            self.user_manager: self.task.id,
+            self.user_admin: self.task1.id
+        }
+        for user, task in params_user_task.items():
+            with self.subTest(user=user, task=task):
+                self.client.force_authenticate(user=user)
+                response = self.client.patch(reverse("task:tasks-detail", kwargs={"pk": task}), data=self.valid_update_data_task, format="json")
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                task_data = response.json()
+                created_task_id = task_data["id"]
+                try:
+                    task_in_db = Task.objects.get(id=created_task_id)
+                    self._assert_task_check_input_data_with_db(db_qs=task_in_db, task_data=task_data, worker=user.worker)
+                    self.assertEqual(task_data["status"], task_in_db.status)
+                except Task.DoesNotExist:
+                    self.fail(f"Task with ID {created_task_id} was not found in the database after {user.worker.role} partial update. Response: {response.json()}")
+
+    def test_update_no_valid_data_task(self):
+        params_user_task = {
+            self.user_manager: self.task.id,
+            self.user_admin: self.task1.id
+        }
+        for user, task in params_user_task.items():
+            with self.subTest(user=user, task=task):
+                self.client.force_authenticate(user=user)
+                response = self.client.put(reverse("task:tasks-detail", kwargs={"pk": task}), data=self.no_valid_update_data_task, format="json")
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertCountEqual(["description", "deadline", "title", "executor", "status"], response.json())
+    
+    def test_partial_upd_no_valid_data_task(self):
+        params_user_task = {
+            self.user_manager: self.task.id,
+            self.user_admin: self.task1.id
+        }
+        for user, task in params_user_task.items():
+            with self.subTest(user=user, task=task):
+                self.client.force_authenticate(user=user)
+                response = self.client.patch(reverse("task:tasks-detail", kwargs={"pk": task}), data=self.no_valid_update_data_task, format="json")
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertCountEqual(["description", "deadline", "title", "executor", "status"], response.json())
