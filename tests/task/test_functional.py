@@ -40,6 +40,9 @@ class TaskApiTestCase(ApiTestCaseBase):
             "deadline": (cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS + cls.TIMEDELTA_THREE_DAYS).strftime("%Y-%m-%dT%H:%M"),
             "executor": cls.worker_normal2.id
         }
+        cls.valid_partial_upd_status_data = {
+            "status": "DN"
+        }
 
     def _assert_task_detail_structure(self, task_data):
         """Проверяет общую структуру JSON-представления задачи."""
@@ -218,3 +221,35 @@ class TaskApiTestCase(ApiTestCaseBase):
         self.client.force_authenticate(user=self.user_normal)
         response = self.client.put(reverse("task:tasks-detail", kwargs={"pk": self.task.id}), data=self.valid_update_data_task, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_partial_upd_normal_no_owner_task(self):
+        self.client.force_authenticate(user=self.user_normal)
+        response = self.client.patch(reverse("task:tasks-detail", kwargs={"pk": self.task.id}), data=self.valid_partial_upd_status_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
+    def test_partial_upd_manager_or_admin_owner_input_valid_field_status_data_task(self):
+        params_user_task = {
+            self.user_manager: self.task.id,
+            self.user_admin: self.task1.id
+        }
+        for user, task in params_user_task.items():
+            with self.subTest(user=user, task=task):
+                self.client.force_authenticate(user=user)
+
+                try:
+                    task_in_db = Task.objects.get(id=task)
+                    status_befor_partial_upd = task_in_db.status
+                    self.assertEqual(status_befor_partial_upd, Task.StatusTask.OPEN)
+                except Task.DoesNotExist:
+                    self.fail(f"Task with ID {task.id} was not found in the database.")
+
+                response = self.client.patch(reverse("task:tasks-detail", kwargs={"pk": task}), data=self.valid_partial_upd_status_data, format="json")
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                task_data = response.json()
+                created_task_id = task_data["id"]
+                try:
+                    task_in_db = Task.objects.get(id=created_task_id)
+                    self._assert_task_check_input_data_with_db(db_qs=task_in_db, task_data=task_data, worker=user.worker)
+                    self.assertEqual(task_data["status"], task_in_db.status)
+                except Task.DoesNotExist:
+                    self.fail(f"Task with ID {created_task_id} was not found in the database after {user.worker.role} partial updated. Response: {response.json()}")
