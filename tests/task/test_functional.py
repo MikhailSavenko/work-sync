@@ -184,43 +184,36 @@ class TaskApiTestCase(ApiTestCaseBase):
                 self.assertCountEqual(["deadline"], response.json())
                 self.assertEqual(response.json()["deadline"][0], self.DEADLINE_NOT_IN_THE_PAST_STR)
     
-    def test_update_manager_owner_input_valid_data_task(self):
-        self.client.force_authenticate(user=self.user_manager)
-        response = self.client.put(reverse("task:tasks-detail", kwargs={"pk": self.task.id}), data=self.valid_update_data_task, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        task_data = response.json()
-        created_task_id = task_data["id"]
-        try:
-            task_in_db = Task.objects.get(id=created_task_id)
-            self._assert_task_check_input_data_with_db(db_qs=task_in_db, task_data=task_data, worker=self.worker_manager)
-            self.assertEqual(task_data["status"], task_in_db.status)
-        except Task.DoesNotExist:
-            self.fail(f"Task with ID {created_task_id} was not found in the database after manager creation. Response: {response.json()}")
+    def test_update_manager_or_admin_owner_input_valid_data_task(self):
+        params_user_task = {
+            self.user_manager: self.task.id,
+            self.user_admin: self.task1.id
+        }
+        for user, task in params_user_task.items():
+            with self.subTest(user=user, task=task):
+                self.client.force_authenticate(user=user)
+                response = self.client.put(reverse("task:tasks-detail", kwargs={"pk": task}), data=self.valid_update_data_task, format="json")
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                task_data = response.json()
+                created_task_id = task_data["id"]
+                try:
+                    task_in_db = Task.objects.get(id=created_task_id)
+                    self._assert_task_check_input_data_with_db(db_qs=task_in_db, task_data=task_data, worker=user.worker)
+                    self.assertEqual(task_data["status"], task_in_db.status)
+                except Task.DoesNotExist:
+                    self.fail(f"Task with ID {created_task_id} was not found in the database after manager creation. Response: {response.json()}")
 
-    def test_update_manager_not_owner_input_valid_data_task(self):
-        self.client.force_authenticate(user=self.user_manager1)
-        response = self.client.put(reverse("task:tasks-detail", kwargs={"pk": self.task.id}), data=self.valid_update_data_task, format="json")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-    
-    def test_update_admin_owner_input_valid_data_task(self):
-        self.client.force_authenticate(user=self.user_admin)
-        response = self.client.put(reverse("task:tasks-detail", kwargs={"pk": self.task1.id}), data=self.valid_update_data_task, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        task_data = response.json()
-        created_task_id = task_data["id"]
-        try:
-            task_in_db = Task.objects.get(id=created_task_id)
-            self._assert_task_check_input_data_with_db(db_qs=task_in_db, task_data=task_data, worker=self.worker_admin)
-            self.assertEqual(task_data["status"], task_in_db.status)
-        except Task.DoesNotExist:
-            self.fail(f"Task with ID {created_task_id} was not found in the database after manager creation. Response: {response.json()}")
-
-    def test_update_admin_not_owner_input_valid_data_task(self):
-        self.client.force_authenticate(user=self.user_admin1)
-        response = self.client.put(reverse("task:tasks-detail", kwargs={"pk": self.task.id}), data=self.valid_update_data_task, format="json")
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-    
-
+    def test_update_manager_or_admin_not_owner_input_valid_data_task(self):
+        params_user_task = {
+            self.user_manager1: self.task.id,
+            self.user_admin1: self.task1.id
+        }
+        for user, task in params_user_task.items():
+            with self.subTest(user=user, task=task):
+                self.client.force_authenticate(user=user)
+                response = self.client.put(reverse("task:tasks-detail", kwargs={"pk": task}), data=self.valid_update_data_task, format="json")
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+                
     def test_update_normal_no_owner_task(self):
         self.client.force_authenticate(user=self.user_normal)
         response = self.client.put(reverse("task:tasks-detail", kwargs={"pk": self.task.id}), data=self.valid_update_data_task, format="json")

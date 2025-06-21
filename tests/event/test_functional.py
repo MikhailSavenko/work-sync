@@ -224,7 +224,6 @@ class MeetingApiTestCase(ApiTestCaseBase):
     def test_update_no_conflict_if_this_your_meeting(self):
         self.client.force_authenticate(user=self.user_normal1)
         response = self.client.put(reverse("event:meeting-detail", kwargs={"pk": self.meeting1.id}), data=self.meeting_no_conflict_data)
-        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         meeting_data = response.data
