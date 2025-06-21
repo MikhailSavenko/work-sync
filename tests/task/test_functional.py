@@ -6,12 +6,14 @@ from rest_framework import status
 
 
 class TaskApiTestCase(ApiTestCaseBase):
+    DEADLINE_NOT_IN_THE_PAST_STR = "Дэдлайн не может быть в прошлом."
 
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData() 
 
         cls.task = TaskFactory(creator=cls.worker_manager, executor=cls.worker_normal, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
+        cls.task1 = TaskFactory(creator=cls.worker_admin, executor=cls.worker_normal, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
 
         cls.valid_data_task = {
             "title": "New Test Task",
@@ -24,6 +26,19 @@ class TaskApiTestCase(ApiTestCaseBase):
             "description": ["Task description"],
             "deadline": "2020-20-20",
             "executor": "ss"
+        }
+        cls.deadline_in_the_past_data = {
+            "title": "in the past",
+            "description": "Task description",
+            "deadline": (cls.DATETIME_NOW - cls.TIMEDELTA_THREE_DAYS).strftime("%Y-%m-%dT%H:%M"),
+            "executor": cls.worker_normal2.id
+        }
+        cls.valid_update_data_task = {
+            "title": "valid update",
+            "description": "update description",
+            "status": "DN",
+            "deadline": (cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS + cls.TIMEDELTA_THREE_DAYS).strftime("%Y-%m-%dT%H:%M"),
+            "executor": cls.worker_normal2.id
         }
 
     def _assert_task_detail_structure(self, task_data):
@@ -158,6 +173,55 @@ class TaskApiTestCase(ApiTestCaseBase):
                 self.client.force_authenticate(user=user)
                 response = self.client.post(reverse("task:tasks-list"), data=self.no_valid_data_task, format="json")
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-                print(response.json())
                 self.assertCountEqual(["description", "deadline", "title", "executor"], response.json())
     
+    def test_create_deadline_in_the_past_data_task(self):
+        for user in [self.user_admin, self.user_manager]:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.post(reverse("task:tasks-list"), data=self.deadline_in_the_past_data, format="json")
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertCountEqual(["deadline"], response.json())
+                self.assertEqual(response.json()["deadline"][0], self.DEADLINE_NOT_IN_THE_PAST_STR)
+    
+    def test_update_manager_owner_input_valid_data_task(self):
+        self.client.force_authenticate(user=self.user_manager)
+        response = self.client.put(reverse("task:tasks-detail", kwargs={"pk": self.task.id}), data=self.valid_update_data_task, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        task_data = response.json()
+        created_task_id = task_data["id"]
+        try:
+            task_in_db = Task.objects.get(id=created_task_id)
+            self._assert_task_check_input_data_with_db(db_qs=task_in_db, task_data=task_data, worker=self.worker_manager)
+            self.assertEqual(task_data["status"], task_in_db.status)
+        except Task.DoesNotExist:
+            self.fail(f"Task with ID {created_task_id} was not found in the database after manager creation. Response: {response.json()}")
+
+    def test_update_manager_not_owner_input_valid_data_task(self):
+        self.client.force_authenticate(user=self.user_manager1)
+        response = self.client.put(reverse("task:tasks-detail", kwargs={"pk": self.task.id}), data=self.valid_update_data_task, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
+    def test_update_admin_owner_input_valid_data_task(self):
+        self.client.force_authenticate(user=self.user_admin)
+        response = self.client.put(reverse("task:tasks-detail", kwargs={"pk": self.task1.id}), data=self.valid_update_data_task, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        task_data = response.json()
+        created_task_id = task_data["id"]
+        try:
+            task_in_db = Task.objects.get(id=created_task_id)
+            self._assert_task_check_input_data_with_db(db_qs=task_in_db, task_data=task_data, worker=self.worker_admin)
+            self.assertEqual(task_data["status"], task_in_db.status)
+        except Task.DoesNotExist:
+            self.fail(f"Task with ID {created_task_id} was not found in the database after manager creation. Response: {response.json()}")
+
+    def test_update_admin_not_owner_input_valid_data_task(self):
+        self.client.force_authenticate(user=self.user_admin1)
+        response = self.client.put(reverse("task:tasks-detail", kwargs={"pk": self.task.id}), data=self.valid_update_data_task, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
+
+    def test_update_normal_no_owner_task(self):
+        self.client.force_authenticate(user=self.user_normal)
+        response = self.client.put(reverse("task:tasks-detail", kwargs={"pk": self.task.id}), data=self.valid_update_data_task, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

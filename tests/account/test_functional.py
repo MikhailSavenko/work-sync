@@ -59,6 +59,12 @@ class ApiTestCaseBase(APITestCase):
         cls.worker_manager.role = Worker.Role.MANAGER
         cls.worker_manager.save()
 
+        # Создадим manager Worker
+        cls.user_manager1 = UserFactory()
+        cls.worker_manager1 = cls.user_manager1.worker
+        cls.worker_manager1.role = Worker.Role.MANAGER
+        cls.worker_manager1.save()
+
         cls.user_role_all = (cls.user_normal, cls.user_manager, cls.user_admin)
 
         cls.meeting = MeetingFactory(datetime=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS), creator=cls.worker_normal)
