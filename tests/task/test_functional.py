@@ -19,6 +19,12 @@ class TaskApiTestCase(ApiTestCaseBase):
             "deadline": (cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS).strftime("%Y-%m-%dT%H:%M"),
             "executor": cls.worker_normal2.id
         }
+        cls.no_valid_data_task = {
+            "title": ["New Test Task"],
+            "description": ["Task description"],
+            "deadline": "2020-20-20",
+            "executor": "ss"
+        }
 
     def _assert_task_detail_structure(self, task_data):
         """Проверяет общую структуру JSON-представления задачи."""
@@ -145,3 +151,13 @@ class TaskApiTestCase(ApiTestCaseBase):
             self._assert_task_check_input_data_with_db(db_qs=task_in_db, task_data=task_data, worker=self.worker_admin)
         except Task.DoesNotExist:
             self.fail(f"Task with ID {created_task_id} was not found in the database after admin creation. Response: {response.json()}")
+
+    def test_create_no_valid_data_task(self):
+        for user in [self.user_admin, self.user_manager]:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.post(reverse("task:tasks-list"), data=self.no_valid_data_task, format="json")
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                print(response.json())
+                self.assertCountEqual(["description", "deadline", "title", "executor"], response.json())
+    
