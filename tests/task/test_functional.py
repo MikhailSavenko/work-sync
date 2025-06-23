@@ -1,5 +1,5 @@
 from django.urls import reverse
-from task.models import Task
+from task.models import Comment, Task
 from tests.account.test_functional import ApiTestCaseBase
 from tests.factories import CommentFactory, TaskFactory
 from rest_framework import status
@@ -312,9 +312,100 @@ class CommentApiTestCase(ApiTestCaseBase):
         super().setUpTestData()
         cls.task = TaskFactory(creator=cls.worker_manager, executor=cls.worker_normal, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
         cls.comment = CommentFactory(task=cls.task, creator=cls.worker_normal, text=cls.SOME_STR)
+        cls.comment1 = CommentFactory(task=cls.task, creator=cls.worker_manager, text=cls.SOME_STR_ANOTHER)
+
+    def _assert_fields_in_json_comment(self, comment_data: dict):
+        self.assertIn("id", comment_data)
+        self.assertIn("task", comment_data)
+        self.assertIn("text", comment_data)
+        self.assertIn("creator", comment_data)
+        self.assertIn("created_at", comment_data)
+        self.assertIn("updated_at", comment_data)
+
+    def _assert_compare_value_with_db_comment(self, db_obj, comment_data: dict):
+        self.assertEqual(comment_data["id"], db_obj.id)
+        self.assertEqual(comment_data["task"], db_obj.task.id)
+        self.assertEqual(comment_data["text"], db_obj.text)
+        self.assertEqual(comment_data["creator"], db_obj.creator.id)
 
     def test_get_list_comment(self):
         for user in self.user_role_all:
             with self.subTest(user=user):
                 self.client.force_authenticate(user=user)
-                # response = self.client.get(reverse("task:"))
+                response = self.client.get(reverse("task:comment-list", kwargs={"task_pk": self.task.id}))
+                
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+                comment_data = response.json()[0]   
+                self._assert_fields_in_json_comment(comment_data=comment_data)
+
+                try:
+                    com_id = comment_data["id"] 
+                    comment_db = Comment.objects.get(id=com_id)
+                    self._assert_compare_value_with_db_comment(comment_data=comment_data, db_obj=comment_db)
+                except Comment.DoesNotExist:
+                    self.fail(f"Comment with {comment_db} does not exist in DB! :O")
+
+    def test_get_list_not_found_task_pk_comment(self):
+        for user in self.user_role_all:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.get(reverse("task:comment-list", kwargs={"task_pk": self.ONE_HUNDRED}))
+                
+                self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_list_no_valid_task_pk_comment(self):
+        for user in self.user_role_all:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.get(reverse("task:comment-list", kwargs={"task_pk": self.SOME_STR}))
+                
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_get_detail_comment(self):
+        for user in self.user_role_all:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.get(reverse("task:comment-detail", kwargs={"task_pk": self.task.id, "pk": self.comment.id}))
+                
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+                comment_data = response.json()  
+                self._assert_fields_in_json_comment(comment_data=comment_data)
+
+                try:
+                    comment_db = Comment.objects.get(id=self.comment.id)
+                    self._assert_compare_value_with_db_comment(comment_data=comment_data, db_obj=comment_db)
+                except Comment.DoesNotExist:
+                    self.fail(f"Comment with {comment_db} does not exist in DB! :O")
+
+    def test_get_detail_not_found_comment(self):
+        input_sub_test_value = (
+            (self.user_normal, self.ONE_HUNDRED, self.comment.id),
+            (self.user_admin, self.ONE_HUNDRED, self.comment.id),
+            (self.user_manager, self.ONE_HUNDRED, self.comment.id),
+            (self.user_normal, self.task.id, self.ONE_HUNDRED),
+            (self.user_admin, self.task.id, self.ONE_HUNDRED),
+            (self.user_manager, self.task.id, self.ONE_HUNDRED),
+        )
+
+        for user, task_pk, comment_pk in input_sub_test_value:
+            with self.subTest(user=user, task_pk=task_pk, comment_pk=comment_pk):
+                self.client.force_authenticate(user=user)
+                response = self.client.get(reverse("task:comment-detail", kwargs={"task_pk": task_pk, "pk": comment_pk}))
+                
+                self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def test_get_detail_no_valid_task_pk_comment(self):
+        input_sub_test_value = (
+            (self.user_normal, self.SOME_STR, self.comment.id),
+            (self.user_admin, self.SOME_STR, self.comment.id),
+            (self.user_manager, self.SOME_STR, self.comment.id),
+        )
+
+        for user, no_valid_task_pk, comment_pk in input_sub_test_value:
+            with self.subTest(user=user, task_pk=no_valid_task_pk, comment_pk=comment_pk):
+                self.client.force_authenticate(user=user)
+                response = self.client.get(reverse("task:comment-detail", kwargs={"task_pk": no_valid_task_pk, "pk": comment_pk}))
+                
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
