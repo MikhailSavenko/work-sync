@@ -1,5 +1,5 @@
 from django.urls import reverse
-from task.models import Comment, Task
+from task.models import Comment, Evaluation, Task
 from tests.account.test_functional import ApiTestCaseBase
 from tests.factories import CommentFactory, TaskFactory
 from rest_framework import status
@@ -572,15 +572,22 @@ class EvaluationApiTestCase(ApiTestCaseBase):
         super().setUpTestData()
 
         cls.task_done = TaskFactory(creator=cls.worker_manager, status=Task.StatusTask.DONE, executor=cls.worker_normal, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
-        cls.task_done1 = TaskFactory(creator=cls.worker_manager1, status=Task.StatusTask.DONE, executor=cls.worker_normal1, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
+        cls.task_done1 = TaskFactory(creator=cls.worker_admin, status=Task.StatusTask.DONE, executor=cls.worker_normal1, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
         cls.valid_data_evaluation = {
             "score": 5
         }
+
+        cls.two_role = (cls.user_admin, cls.user_manager)
 
     def _assert_fields_json_comment(self, evaluation_data: dict):
         self.assertIn("id", evaluation_data)
         self.assertIn("task", evaluation_data)
         self.assertIn("score", evaluation_data)
+    
+    def _assert_compare_value_with_db_evaluation(self, evaluation_data, db_obj):
+        self.assertEqual(evaluation_data["id"], db_obj.id)
+        self.assertEqual(evaluation_data["task"], db_obj.task.id)
+        self.assertEqual(evaluation_data["score"], db_obj.score)
     
     def test_create_normal_u_valid_data_evaluation(self):
         self.client.force_authenticate(user=self.user_normal)
@@ -608,27 +615,44 @@ class EvaluationApiTestCase(ApiTestCaseBase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_put_405_evaluation(self):
-        for user in [self.user_admin, self.user_manager]:
+        for user in self.two_role:
             with self.subTest(user=user):
                 self.client.force_authenticate(user=user)
                 response = self.client.put(reverse("task:evaluation-detail", kwargs={"task_pk": self.task_done.id, "pk": self.ONE}))
                 self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
     
     def test_list_405_evaluation(self):
-        for user in [self.user_admin, self.user_manager]:
+        for user in self.two_role:
             with self.subTest(user=user):
                 self.client.force_authenticate(user=user)
                 response = self.client.get(reverse("task:evaluation-list", kwargs={"task_pk": self.task_done.id}))
                 self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_detail_405_evaluation(self):
-        for user in [self.user_admin, self.user_manager]:
+        for user in self.two_role:
             with self.subTest(user=user):
                 self.client.force_authenticate(user=user)
                 response = self.client.get(reverse("task:evaluation-detail", kwargs={"task_pk": self.task_done.id, "pk": self.ONE}))
                 self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    # def test_create_valid_data_evaluation(self):
-    #     self.client.force_authenticate(user=self.user_normal)
-    #     response = self.client.post(reverse("task:evaluation-list", kwargs={"task_pk": self.task_done.id}), data=self.valid_data_evaluation, format="json")
-    #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    def test_create_valid_data_evaluation(self):
+        input_data_sub_test = (
+            (self.user_manager, self.task_done.id),
+            (self.user_admin, self.task_done1.id)
+        )
+        for user, task_pk in input_data_sub_test:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.post(reverse("task:evaluation-list", kwargs={"task_pk": task_pk}), data=self.valid_data_evaluation, format="json")
+                self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+                
+                evaluation_data = response.json()
+                self._assert_fields_json_comment(evaluation_data=evaluation_data)
+
+                try:
+                    evaluation_id = evaluation_data["id"]
+                    evaluation_db = Evaluation.objects.get(id=evaluation_id)
+                    self._assert_compare_value_with_db_evaluation(db_obj=evaluation_db, evaluation_data=evaluation_data)
+                except Comment.DoesNotExist:
+                    self.fail(f"Evaluation with ID {evaluation_id} does not exist in DB after created {user.worker.role}! :O")
+
