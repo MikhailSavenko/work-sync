@@ -656,3 +656,26 @@ class EvaluationApiTestCase(ApiTestCaseBase):
                 except Comment.DoesNotExist:
                     self.fail(f"Evaluation with ID {evaluation_id} does not exist in DB after created {user.worker.role}! :O")
 
+    def test_create_not_found_task_pk_evaluation(self):
+        input_data_sub_test = (
+            (self.user_manager, self.ONE_HUNDRED),
+            (self.user_admin, self.ONE_HUNDRED)
+        )
+        for user, task_pk in input_data_sub_test:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.post(reverse("task:evaluation-list", kwargs={"task_pk": task_pk}), data=self.valid_data_evaluation, format="json")
+                self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def test_create_invalid_task_pk_evaluation(self):
+        input_data_sub_test = (
+            (self.user_manager, self.SOME_STR),
+            (self.user_admin, self.SOME_STR)
+        )
+        for user, task_pk in input_data_sub_test:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.post(reverse("task:evaluation-list", kwargs={"task_pk": task_pk}), data=self.valid_data_evaluation, format="json")
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    
