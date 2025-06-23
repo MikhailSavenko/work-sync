@@ -409,3 +409,7 @@ class CommentApiTestCase(ApiTestCaseBase):
                 response = self.client.get(reverse("task:comment-detail", kwargs={"task_pk": no_valid_task_pk, "pk": comment_pk}))
                 
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+    def test_create_valid_data_comment(self):
+        pass
