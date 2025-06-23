@@ -523,5 +523,43 @@ class CommentApiTestCase(ApiTestCaseBase):
                 response = self.client.patch(reverse("task:comment-detail", kwargs={"task_pk": self.task.id, "pk": comment_pk}), data=self.invalid_data_comment_text_list, format="json")
                 
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-                print(response.json())
                 self.assertCountEqual(["text"], response.json())
+    
+    def test_partial_upd_not_found_comment(self):
+        input_sub_test_value = (
+            (self.user_normal, self.ONE_HUNDRED, self.comment.id),
+            (self.user_admin, self.ONE_HUNDRED, self.comment2.id),
+            (self.user_manager, self.ONE_HUNDRED, self.comment1.id),
+            (self.user_normal, self.task.id, self.ONE_HUNDRED),
+            (self.user_admin, self.task.id, self.ONE_HUNDRED),
+            (self.user_manager, self.task.id, self.ONE_HUNDRED),
+        )
+
+        for user, task_pk, comment_pk in input_sub_test_value:
+            with self.subTest(user=user, task_pk=task_pk, comment_pk=comment_pk):
+                self.client.force_authenticate(user=user)
+                response = self.client.patch(reverse("task:comment-detail", kwargs={"task_pk": task_pk, "pk": comment_pk}))
+                
+                self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_partial_upd_invalid_task_pk_comment(self):
+        for user in self.user_role_all:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.patch(reverse("task:comment-detail", kwargs={"task_pk": self.SOME_STR, "pk": self.comment.id}), data=self.valid_data_comment, format="json")
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_partial_upd_not_owner_comment(self):
+        input_sub_test_value = (
+            (self.user_normal, self.comment1.id),
+            (self.user_admin, self.comment.id),
+            (self.user_manager, self.comment2.id)
+        )
+
+        for user, comment_pk in input_sub_test_value:
+            with self.subTest(user=user, comment_pk=comment_pk):
+                self.client.force_authenticate(user=user)
+                response = self.client.patch(reverse("task:comment-detail", kwargs={"task_pk": self.task.id, "pk": comment_pk}))
+                
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
