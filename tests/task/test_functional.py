@@ -307,12 +307,21 @@ class TaskApiTestCase(ApiTestCaseBase):
 
 class CommentApiTestCase(ApiTestCaseBase):
 
+    THIS_FIELD_IS_REQUIRED = "This field is required."
+
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         cls.task = TaskFactory(creator=cls.worker_manager, executor=cls.worker_normal, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
         cls.comment = CommentFactory(task=cls.task, creator=cls.worker_normal, text=cls.SOME_STR)
         cls.comment1 = CommentFactory(task=cls.task, creator=cls.worker_manager, text=cls.SOME_STR_ANOTHER)
+
+        cls.valid_data_comment = {
+            "text": "Super text comment"
+        }
+        cls.invalid_data_comment_empty_json = {
+
+        }
 
     def _assert_fields_in_json_comment(self, comment_data: dict):
         self.assertIn("id", comment_data)
@@ -410,6 +419,50 @@ class CommentApiTestCase(ApiTestCaseBase):
                 
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-
     def test_create_valid_data_comment(self):
-        pass
+        for user in self.user_role_all:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.post(reverse("task:comment-list", kwargs={"task_pk": self.task.id}), data=self.valid_data_comment, format="json")
+                
+                self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+                comment_data = response.json()
+
+                self._assert_fields_in_json_comment(comment_data=comment_data)
+
+                try:
+                    com_id = comment_data["id"]
+                    comment_db = Comment.objects.get(id=com_id)
+                    self._assert_compare_value_with_db_comment(comment_data=comment_data, db_obj=comment_db)
+                except Comment.DoesNotExist:
+                    self.fail(f"Comment with ID {com_id} does not exist in DB! :O")
+
+    def test_create_invalid_data_comment(self):
+        for user in self.user_role_all:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.post(reverse("task:comment-list", kwargs={"task_pk": self.task.id}), data=self.invalid_data_comment_empty_json, format="json")
+                
+                comment_data = response.json()
+                
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertCountEqual(["text"], comment_data)
+                self.assertEqual(comment_data["text"][0], self.THIS_FIELD_IS_REQUIRED)
+
+    def test_create_not_found_task_comment(self):
+        for user in self.user_role_all:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.post(reverse("task:comment-list", kwargs={"task_pk": self.ONE_HUNDRED}), data=self.valid_data_comment, format="json")
+
+                self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def test_create_invalid_task_pk_comment(self):
+        for user in self.user_role_all:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.post(reverse("task:comment-list", kwargs={"task_pk": self.SOME_STR}), data=self.valid_data_comment, format="json")
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertCountEqual(["detail"], response.json())
