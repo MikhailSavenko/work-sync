@@ -11,8 +11,8 @@ router = SimpleRouter()
 router.register(r"tasks", TaskViewSet, basename="tasks")
 
 nested_router = NestedSimpleRouter(router, r"tasks", lookup="task")
-nested_router.register(r"comments", CommentViewSet, basename="comments")
-nested_router.register(r"evaluation", EvaluationViewSet, basename="evaluation")
+nested_router.register(r"comments", CommentViewSet, basename="comment")
+nested_router.register(r"evaluations", EvaluationViewSet, basename="evaluation")
 
 
 urlpatterns = [

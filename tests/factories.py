@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 
 from account.models import Team
 from event.models import Meeting
-from task.models import Evaluation, Task
+from task.models import Comment, Evaluation, Task
 
 User = get_user_model()
 
@@ -45,6 +45,10 @@ class EvaluationFactory(DjangoModelFactory):
     score = 5
 
 
+class CommentFactory(DjangoModelFactory):
+
+    class Meta:
+        model = Comment
     
 
     

@@ -1,7 +1,7 @@
 from django.urls import reverse
 from task.models import Task
 from tests.account.test_functional import ApiTestCaseBase
-from tests.factories import TaskFactory
+from tests.factories import CommentFactory, TaskFactory
 from rest_framework import status
 
 
@@ -303,3 +303,18 @@ class TaskApiTestCase(ApiTestCaseBase):
                 response = self.client.patch(reverse("task:tasks-detail", kwargs={"pk": task}), data=self.no_valid_update_data_task, format="json")
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
                 self.assertCountEqual(["description", "deadline", "title", "executor", "status"], response.json())
+    
+
+class CommentApiTestCase(ApiTestCaseBase):
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.task = TaskFactory(creator=cls.worker_manager, executor=cls.worker_normal, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
+        cls.comment = CommentFactory(task=cls.task, creator=cls.worker_normal, text=cls.SOME_STR)
+
+    def test_get_list_comment(self):
+        for user in self.user_role_all:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                # response = self.client.get(reverse("task:"))
