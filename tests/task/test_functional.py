@@ -1,4 +1,5 @@
 from django.urls import reverse
+from common.variables import CURRENT_TASK_ALREADY_HAS_SCORE, CURRENT_TASK_HASNT_EXECUTOR, CURRENT_TASK_WILL_BE_DONE_STATUS
 from task.models import Comment, Evaluation, Task
 from tests.account.test_functional import ApiTestCaseBase
 from tests.factories import CommentFactory, TaskFactory
@@ -566,6 +567,8 @@ class CommentApiTestCase(ApiTestCaseBase):
 
 
 class EvaluationApiTestCase(ApiTestCaseBase):
+
+    ENSURE_SCORE = "Ensure this value is less than or equal to 5."
     
     @classmethod
     def setUpTestData(cls):
@@ -573,8 +576,16 @@ class EvaluationApiTestCase(ApiTestCaseBase):
 
         cls.task_done = TaskFactory(creator=cls.worker_manager, status=Task.StatusTask.DONE, executor=cls.worker_normal, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
         cls.task_done1 = TaskFactory(creator=cls.worker_admin, status=Task.StatusTask.DONE, executor=cls.worker_normal1, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
+
+        cls.task_no_executor = TaskFactory(creator=cls.worker_admin, status=Task.StatusTask.DONE, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
+
+        cls.task_status_not_done = TaskFactory(creator=cls.worker_admin, executor=cls.worker_normal1, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
+
         cls.valid_data_evaluation = {
             "score": 5
+        }
+        cls.invalid_data_evaluation = {
+            "score": 100
         }
 
         cls.two_role = (cls.user_admin, cls.user_manager)
@@ -678,4 +689,50 @@ class EvaluationApiTestCase(ApiTestCaseBase):
                 response = self.client.post(reverse("task:evaluation-list", kwargs={"task_pk": task_pk}), data=self.valid_data_evaluation, format="json")
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     
+    def test_create_invalid_data_evaluation(self):
+        input_data_sub_test = (
+            (self.user_manager, self.task_done.id),
+            (self.user_admin, self.task_done1.id)
+        )
+        for user, task_pk in input_data_sub_test:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.post(reverse("task:evaluation-list", kwargs={"task_pk": task_pk}), data=self.invalid_data_evaluation, format="json")
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertCountEqual(["score"], response.json())
+                self.assertEqual(response.json()["score"][0], self.ENSURE_SCORE)
+            
+    def test_create_conflict_has_score_evaluation(self):
+        input_data_sub_test = (
+            (self.user_manager, self.task_done.id, status.HTTP_201_CREATED),
+            (self.user_admin, self.task_done.id, status.HTTP_409_CONFLICT)
+        )
+        for user, task_pk, status_response in input_data_sub_test:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.post(reverse("task:evaluation-list", kwargs={"task_pk": task_pk}), data=self.valid_data_evaluation, format="json")
+                self.assertEqual(response.status_code, status_response)
+                
+                if status_response == status.HTTP_409_CONFLICT:
+                    self.assertCountEqual(["evaluation_create_conflict"], response.json())
+                    self.assertEqual(response.json()["evaluation_create_conflict"], CURRENT_TASK_ALREADY_HAS_SCORE)
+
+    def test_create_conflict_hasnt_executor_evaluation(self):
+        for user in self.two_role:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.post(reverse("task:evaluation-list", kwargs={"task_pk": self.task_no_executor.id}), data=self.valid_data_evaluation, format="json")
+                self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+                
+                self.assertCountEqual(["evaluation_create_conflict"], response.json())
+                self.assertEqual(response.json()["evaluation_create_conflict"], CURRENT_TASK_HASNT_EXECUTOR)
     
+    def test_create_conflict_task_status_not_done_evaluation(self):
+        for user in self.two_role:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.post(reverse("task:evaluation-list", kwargs={"task_pk": self.task_status_not_done.id}), data=self.valid_data_evaluation, format="json")
+                self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+                
+                self.assertCountEqual(["evaluation_create_conflict"], response.json())
+                self.assertEqual(response.json()["evaluation_create_conflict"], CURRENT_TASK_WILL_BE_DONE_STATUS)

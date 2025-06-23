@@ -3,6 +3,7 @@ from rest_framework import mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from common.variables import CURRENT_TASK_ALREADY_HAS_SCORE, CURRENT_TASK_HASNT_EXECUTOR, CURRENT_TASK_WILL_BE_DONE_STATUS
 from task.doc.schemas import EvaluationAutoSchema, TaskAutoSchema, CommentAutoSchema
 from task.models import Evaluation, Task, Comment
 from task.permissions import IsCreatorAdminManager, IsCreatorAdminManagerOrReadOnly, IsCreatorOrReadOnly
@@ -115,11 +116,11 @@ class EvaluationViewSet(mixins.CreateModelMixin,
         task = get_object_or_404(Task, pk=task_pk)
 
         if hasattr(task, "evaluation"):
-            raise EvaluationConflictError({"evaluation_create_conflict": "Задача, за которую выставляется оценка, уже имеет оценку"})
+            raise EvaluationConflictError({"evaluation_create_conflict": CURRENT_TASK_ALREADY_HAS_SCORE})
         elif not task.executor:
-            raise EvaluationConflictError({"evaluation_create_conflict": "Задача, за которую выставляется оценка, не имеет назначенного исполнителя."})
+            raise EvaluationConflictError({"evaluation_create_conflict": CURRENT_TASK_HASNT_EXECUTOR})
         elif task.status != Task.StatusTask.DONE:
-            raise EvaluationConflictError({"evaluation_create_conflict": "Задача, за которую выставляется оценка, должна быть в статусе выполнена."})
+            raise EvaluationConflictError({"evaluation_create_conflict": CURRENT_TASK_WILL_BE_DONE_STATUS})
         serializer.save(to_worker=task.executor, from_worker=from_worker, task=task)
 
     def get_queryset(self):
