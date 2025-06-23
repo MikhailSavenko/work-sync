@@ -122,7 +122,8 @@ class CommentAutoSchema(SwaggerAutoSchema):
 
             operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(text=comment_text_partial_upd, status_code=403)
             operation.responses["404"] = OpenApiResponse(comment_text_partial_upd["responses"]["404"], Schema(type=TYPE_OBJECT, properties={"detail": Schema(type=TYPE_STRING)}, example=comment_text_partial_upd["example"]["404"]))
-
+            operation.responses["400"] = OpenApiResponse(comment_text_partial_upd["responses"]["400"], Schema(type=TYPE_OBJECT, properties={"name_field": Schema(type=TYPE_ARRAY, items=Schema(type=TYPE_STRING))}, example=comment_text_partial_upd["example"]["400"]))
+        
         elif operation_keys and operation_keys[-1] == "delete":
             comment_text_delete = COMMENT_TEXTS["delete"]
 

@@ -315,12 +315,20 @@ class CommentApiTestCase(ApiTestCaseBase):
         cls.task = TaskFactory(creator=cls.worker_manager, executor=cls.worker_normal, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
         cls.comment = CommentFactory(task=cls.task, creator=cls.worker_normal, text=cls.SOME_STR)
         cls.comment1 = CommentFactory(task=cls.task, creator=cls.worker_manager, text=cls.SOME_STR_ANOTHER)
+        cls.comment2 = CommentFactory(task=cls.task, creator=cls.worker_admin, text=cls.SOME_STR_MORE)
 
         cls.valid_data_comment = {
             "text": "Super text comment"
         }
+        cls.valid_data_comment_another = {
+            "text": "Another text comment"
+        }
         cls.invalid_data_comment_empty_json = {
 
+        }
+
+        cls.invalid_data_comment_text_list = {
+            "text": ["Another text comment"]
         }
 
     def _assert_fields_in_json_comment(self, comment_data: dict):
@@ -466,3 +474,54 @@ class CommentApiTestCase(ApiTestCaseBase):
 
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
                 self.assertCountEqual(["detail"], response.json())
+    
+    def test_update_comment(self):
+        for user in self.user_role_all:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.post(reverse("task:comment-detail", kwargs={"task_pk": self.task.id, "pk": self.comment.id}), data=self.valid_data_comment, format="json")
+                self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+    
+    def test_partial_upd_valid_data_comment(self):
+        input_sub_test_value = (
+            (self.user_normal, self.comment.id),
+            (self.user_admin, self.comment2.id),
+            (self.user_manager, self.comment1.id),
+        )
+
+        for user, comment_pk in input_sub_test_value:
+            with self.subTest(user=user, comment=comment_pk):
+                self.client.force_authenticate(user=user)
+                response = self.client.patch(reverse("task:comment-detail", kwargs={"task_pk": self.task.id, "pk": comment_pk}), data=self.valid_data_comment_another, format="json")
+                
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                
+                comment_data = response.json()
+                
+                self.assertCountEqual(["text"], comment_data)
+                
+                text_response = comment_data["text"]
+
+                self.assertEqual(text_response, self.valid_data_comment_another["text"])
+
+                try:
+                    comment_db = Comment.objects.get(id=comment_pk)
+                    self.assertEqual(comment_db.text, text_response)
+                except Comment.DoesNotExist:
+                    self.fail(f"Comment with {comment_db} does not exist in DB! :O")
+
+    def test_partial_upd_invalid_data_comment(self):
+        input_sub_test_value = (
+            (self.user_normal, self.comment.id),
+            (self.user_admin, self.comment2.id),
+            (self.user_manager, self.comment1.id),
+        )
+
+        for user, comment_pk in input_sub_test_value:
+            with self.subTest(user=user, comment=comment_pk):
+                self.client.force_authenticate(user=user)
+                response = self.client.patch(reverse("task:comment-detail", kwargs={"task_pk": self.task.id, "pk": comment_pk}), data=self.invalid_data_comment_text_list, format="json")
+                
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                print(response.json())
+                self.assertCountEqual(["text"], response.json())

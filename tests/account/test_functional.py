@@ -20,6 +20,8 @@ class ApiTestCaseBase(APITestCase):
 
     SOME_STR_ANOTHER = "some string another"
 
+    SOME_STR_MORE = "more string"
+
     DATETIME_NOW = datetime.datetime.now(datetime.timezone.utc)
     TIMEDELTA_THREE_DAYS = datetime.timedelta(days=3)
     

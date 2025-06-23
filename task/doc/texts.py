@@ -192,14 +192,14 @@ COMMENT_TEXTS = {
         'description': "Частично обновить комментарий",
         'responses': {
             '200': "",
-            '400': "",
+            '400': VALIDATION_ERROR_DESCRIPTION,
             '403': MESSAGE_403_DESCRIPTION,
             '404': NOT_FOUND
         },
         'example': {  
             "400": {
                 "text": [
-                    ""
+                    "Not a valid string"
                 ]
             },
             "403": {
