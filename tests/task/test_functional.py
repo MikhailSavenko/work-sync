@@ -563,3 +563,72 @@ class CommentApiTestCase(ApiTestCaseBase):
                 response = self.client.patch(reverse("task:comment-detail", kwargs={"task_pk": self.task.id, "pk": comment_pk}))
                 
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class EvaluationApiTestCase(ApiTestCaseBase):
+    
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        cls.task_done = TaskFactory(creator=cls.worker_manager, status=Task.StatusTask.DONE, executor=cls.worker_normal, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
+        cls.task_done1 = TaskFactory(creator=cls.worker_manager1, status=Task.StatusTask.DONE, executor=cls.worker_normal1, deadline=(cls.DATETIME_NOW + cls.TIMEDELTA_THREE_DAYS))
+        cls.valid_data_evaluation = {
+            "score": 5
+        }
+
+    def _assert_fields_json_comment(self, evaluation_data: dict):
+        self.assertIn("id", evaluation_data)
+        self.assertIn("task", evaluation_data)
+        self.assertIn("score", evaluation_data)
+    
+    def test_create_normal_u_valid_data_evaluation(self):
+        self.client.force_authenticate(user=self.user_normal)
+        response = self.client.post(reverse("task:evaluation-list", kwargs={"task_pk": self.task_done.id}), data=self.valid_data_evaluation, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_put_normal_u_evaluation(self):
+        self.client.force_authenticate(user=self.user_normal)
+        response = self.client.put(reverse("task:evaluation-detail", kwargs={"task_pk": self.task_done.id, "pk": self.ONE}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
+    def test_list_normal_u_evaluation(self):
+        self.client.force_authenticate(user=self.user_normal)
+        response = self.client.get(reverse("task:evaluation-list", kwargs={"task_pk": self.task_done.id}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_detail_normal_u_evaluation(self):
+        self.client.force_authenticate(user=self.user_normal)
+        response = self.client.get(reverse("task:evaluation-detail", kwargs={"task_pk": self.task_done.id, "pk": self.ONE}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_partial_upd_normal_u_evaluation(self):
+        self.client.force_authenticate(user=self.user_normal)
+        response = self.client.patch(reverse("task:evaluation-detail", kwargs={"task_pk": self.task_done.id, "pk": self.ONE}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_put_405_evaluation(self):
+        for user in [self.user_admin, self.user_manager]:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.put(reverse("task:evaluation-detail", kwargs={"task_pk": self.task_done.id, "pk": self.ONE}))
+                self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+    
+    def test_list_405_evaluation(self):
+        for user in [self.user_admin, self.user_manager]:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.get(reverse("task:evaluation-list", kwargs={"task_pk": self.task_done.id}))
+                self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_detail_405_evaluation(self):
+        for user in [self.user_admin, self.user_manager]:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.get(reverse("task:evaluation-detail", kwargs={"task_pk": self.task_done.id, "pk": self.ONE}))
+                self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    # def test_create_valid_data_evaluation(self):
+    #     self.client.force_authenticate(user=self.user_normal)
+    #     response = self.client.post(reverse("task:evaluation-list", kwargs={"task_pk": self.task_done.id}), data=self.valid_data_evaluation, format="json")
+    #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
