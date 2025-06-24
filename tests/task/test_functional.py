@@ -1,5 +1,5 @@
 from django.urls import reverse
-from common.variables import CURRENT_TASK_ALREADY_HAS_SCORE, CURRENT_TASK_HASNT_EXECUTOR, CURRENT_TASK_WILL_BE_DONE_STATUS
+from common.variables import CURRENT_TASK_ALREADY_HAS_SCORE, CURRENT_TASK_HASNT_EXECUTOR, CURRENT_TASK_WILL_BE_DONE_STATUS, SENT_INVALID_FORMAT
 from task.models import Comment, Evaluation, Task
 from tests.account.test_functional import ApiTestCaseBase
 from tests.factories import CommentFactory, TaskFactory
@@ -569,6 +569,8 @@ class CommentApiTestCase(ApiTestCaseBase):
 class EvaluationApiTestCase(ApiTestCaseBase):
 
     ENSURE_SCORE = "Ensure this value is less than or equal to 5."
+    NO_TASK = "No Task matches the given query."
+    NO_EVALUATION = "No Evaluation matches the given query."
     
     @classmethod
     def setUpTestData(cls):
@@ -741,42 +743,92 @@ class EvaluationApiTestCase(ApiTestCaseBase):
                 self.assertEqual(response.json()["evaluation_create_conflict"], CURRENT_TASK_WILL_BE_DONE_STATUS)
     
     def test_partial_upd_valid_data_evaluation(self):
-
-        for user in self.two_role:
+        input_data_sub_test = (
+            (self.user_admin, self.task_done1.id),
+            (self.user_manager, self.task_done.id)
+        )
+        for user, task_pk in input_data_sub_test:
             with self.subTest(user=user):
                 self.client.force_authenticate(user=user)
-                create_response = self.client.post(reverse("task:evaluation-list", kwargs={"task_pk": self.task_done.id}), data=self.valid_data_evaluation, format="json")
-                self.assertEqual(create_response, status.HTTP_201_CREATED)
-                self.assertIn("id", create_response)
+                create_response = self.client.post(reverse("task:evaluation-list", kwargs={"task_pk": task_pk}), data=self.valid_data_evaluation, format="json")
+                self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
+                response_post_data = create_response.json()
+                self.assertIn("id", response_post_data, "нет id в ответе")
 
 
-                patch_response = self.client.patch(reverse("task:evaluation-list", kwargs={"task_pk": self.task_done.id}), data=self.valid_another_data_evaluation, format="json")
-
-                self.assertEqual(create_response, status.HTTP_200_OK)
+                patch_response = self.client.patch(reverse("task:evaluation-detail", kwargs={"task_pk": task_pk, "pk": response_post_data["id"] }), data=self.valid_another_data_evaluation, format="json")
+                self.assertEqual(patch_response.status_code, status.HTTP_200_OK)
+                
                 response_patch_data = patch_response.json()
                 self.assertCountEqual(["score"], response_patch_data)
                 
                 try:
-                    evaluation_id = create_response["id"]
+                    evaluation_id = response_post_data["id"]
                     evaluation_db = Evaluation.objects.get(id=evaluation_id)
                     self.assertEqual(evaluation_db.score, self.valid_another_data_evaluation["score"])
                 except Comment.DoesNotExist:
                     self.fail(f"Evaluation with ID {evaluation_id} does not exist in DB after created and partial upd {user.worker.role}! :O")
 
     def test_partial_upd_invalid_data_evaluation(self):
-        for user in self.two_role:
+        input_data_sub_test = (
+            (self.user_admin, self.task_done1.id),
+            (self.user_manager, self.task_done.id)
+        )
+        for user, task_pk in input_data_sub_test:
             with self.subTest(user=user):
                 self.client.force_authenticate(user=user)
-                create_response = self.client.post(reverse("task:evaluation-list", kwargs={"task_pk": self.task_done.id}), data=self.valid_data_evaluation, format="json")
-                self.assertEqual(create_response, status.HTTP_201_CREATED)
-                self.assertIn("id", create_response)
+                create_response = self.client.post(reverse("task:evaluation-list", kwargs={"task_pk": task_pk}), data=self.valid_data_evaluation, format="json")
+                self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
+                response_post_data = create_response.json()
+                self.assertIn("id", response_post_data, "нет id в ответе")
 
 
-                patch_response = self.client.patch(reverse("task:evaluation-list", kwargs={"task_pk": self.task_done.id}), data=self.invalid_data_evaluation, format="json")
+                patch_response = self.client.patch(reverse("task:evaluation-detail", kwargs={"task_pk": task_pk, "pk": response_post_data["id"] }), data=self.invalid_data_evaluation, format="json")
+                self.assertEqual(patch_response.status_code, status.HTTP_400_BAD_REQUEST)
 
-                self.assertEqual(create_response, status.HTTP_400_BAD_REQUEST)
                 response_patch_data = patch_response.json()
                 self.assertCountEqual(["score"], response_patch_data)
-                self.assertEqual(patch_response.json()["score"][0], self.ENSURE_SCORE)
+                self.assertEqual(patch_response.json()["score"][0], self.ENSURE_SCORE)        
+
+    def test_partial_upd_invalid_task_pk_evaluation(self):
+        input_data_sub_test = (
+            (self.user_manager, self.SOME_STR),
+            (self.user_admin, self.SOME_STR)
+        )
+        for user, task_pk in input_data_sub_test:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.patch(reverse("task:evaluation-detail", kwargs={"task_pk": task_pk, "pk": self.ONE}), data=self.valid_data_evaluation, format="json")
+                response_data = response.json()
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertCountEqual(["detail"], response_data)
+                self.assertEqual(response_data["detail"], SENT_INVALID_FORMAT)
+    
+    def test_partial_upd_not_found_evaluation(self):
+        input_data_sub_test = (
+            (self.user_manager, self.ONE_HUNDRED),
+            (self.user_admin, self.ONE_HUNDRED)
+        )
+        for user, task_pk in input_data_sub_test:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.patch(reverse("task:evaluation-detail", kwargs={"task_pk": task_pk, "pk": self.ONE}), data=self.valid_data_evaluation, format="json")
+                self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+                response_data = response.json()
+                self.assertCountEqual(["detail"], response_data)
+                self.assertEqual(response_data["detail"], self.NO_TASK)
+    
+    def test_partial_upd_not_found_evaluation_pk_evaluation(self):
+        input_data_sub_test = (
+            (self.user_manager, self.task_done.id),
+            (self.user_admin, self.task_done1.id)
+        )
+        for user, task_pk in input_data_sub_test:
+            with self.subTest(user=user):
+                self.client.force_authenticate(user=user)
+                response = self.client.patch(reverse("task:evaluation-detail", kwargs={"task_pk": task_pk, "pk": self.ONE_HUNDRED}), data=self.valid_data_evaluation, format="json")
+                self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
                 
-                
+                response_data = response.json()
+                self.assertCountEqual(["detail"], response_data)
+                self.assertEqual(response_data["detail"], self.NO_EVALUATION)
