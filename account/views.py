@@ -36,6 +36,20 @@ from account.utils import get_day_bounds, get_month_bounds
 
 
 class TeamViewSet(viewsets.ModelViewSet):
+    """
+    API для управления командами.
+
+    Этот ViewSet предоставляет полный набор операций CRUD (Create, Retrieve, Update, Delete)
+    для объектов команд. Доступ к командам контролируется разрешениями на основе
+    роли пользователя (администратор, владелец команды).
+
+    **Разрешенные HTTP-методы:**
+    - GET: Получение списка всех команд или деталей конкретной команды.
+    - POST: Создание новой команды.
+    - PUT: Полное обновление существующей команды.
+    - DELETE: Удаление команды.
+    - OPTIONS, HEAD: Стандартные методы для интроспекции API.
+    """
     http_method_names = ("get", "post", "put", "delete", "options", "head")
     permission_classes = [IsAdminTeamOwnerOrReadOnly]
     queryset = Team.objects.prefetch_related(Prefetch("workers", queryset=Worker.objects.select_related("user")))
@@ -51,6 +65,16 @@ class TeamViewSet(viewsets.ModelViewSet):
         return self.serializer_class.get(self.action, TeamGetSerializer)
 
     def perform_create(self, serializer):
+        """
+        Создает новую команду, автоматически назначая текущего аутентифицированного
+        пользователя (Worker) её создателем.
+
+        Перед сохранением команды выполняется проверка на предмет того,
+        не состоят ли добавляемые сотрудники уже в других командах.
+
+        :param serializer: Сериализатор, содержащий валидированные данные для создания команды.
+        :raises TeamConflictError: Если один или несколько добавляемых сотрудников уже состоят в других командах.
+        """
         current_worker = self.request.user.worker
 
         workers_added = serializer.validated_data.get("workers")
@@ -59,6 +83,16 @@ class TeamViewSet(viewsets.ModelViewSet):
         serializer.save(creator=current_worker)
 
     def perform_update(self, serializer):
+        """
+        Обновляет существующую команду.
+
+        Перед сохранением обновлений выполняется проверка на предмет того,
+        не состоят ли добавляемые/изменяемые сотрудники уже в других командах.
+
+        :param serializer: Сериализатор, содержащий валидированные данные для обновления команды.
+        :raises TeamConflictError: Если один или несколько добавляемых/изменяемых сотрудников
+                                   уже состоят в других командах, отличных от текущей.
+        """
         team_pk = self.kwargs.get("pk")
 
         workers_added = serializer.validated_data.get("workers")
@@ -66,7 +100,18 @@ class TeamViewSet(viewsets.ModelViewSet):
         super().perform_update(serializer)
 
     def _check_team_conflict(self, workers: list[Worker], team_pk: int = None):
-        """Проверяет конфликты команд для списка сотрудников"""
+        """
+        Проверяет потенциальные конфликты, если сотрудники уже состоят в других командах.
+
+        Этот вспомогательный метод итерируется по списку предполагаемых сотрудников для добавления
+        и проверяет, не привязаны ли они уже к какой-либо команде.
+
+        :param workers: Список объектов `Worker`, которые должны быть добавлены или обновлены в команде.
+        :param team_pk: (Опционально) Первичный ключ текущей команды. Если предоставленый
+                        сотрудник может быть уже в этой *же* команде без конфликта.
+        :raises TeamConflictError: Если обнаружен хотя бы один сотрудник, который
+                                   уже состоит в другой команде.
+        """
         if not workers:
             return
 
@@ -92,6 +137,18 @@ class TeamViewSet(viewsets.ModelViewSet):
 class WorkerViewSet(
     viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.ListModelMixin, mixins.UpdateModelMixin
 ):
+    """
+    API для управления данными о сотрудниках.
+
+    Предоставляет операции для получения списка сотрудников, деталей конкретного сотрудника,
+    а также частичного обновления информации о сотруднике. Включает специализированные
+    эндпоинты для просмотра календаря и средней оценки производительности.
+
+    **Разрешенные HTTP-методы:**
+    - GET: Получение списка всех сотрудников или деталей конкретного сотрудника.
+    - PATCH: Частичное обновление данных сотрудника.
+    - OPTIONS, HEAD: Стандартные методы для интроспекции API.
+    """  
     http_method_names = ("get", "patch", "options", "head")
     permission_classes = [IsAdminTeamOrReadOnly]
     queryset = Worker.objects.all()
