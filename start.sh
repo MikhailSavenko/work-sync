@@ -14,6 +14,10 @@ python manage.py makemigrations
 echo "Применение миграций..."
 python manage.py migrate
 
+# Статика
+echo "Сбор статики"
+python manage.py collectstatic --noinput
+
 # Запускаем приложение
 echo "Запуск приложения..."
 gunicorn work_sync.wsgi:application --bind 0.0.0.0:8000 --log-level info

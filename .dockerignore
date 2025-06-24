@@ -1,4 +1,3 @@
-# Python-специфичные файлы
 *.pyc
 *.pyo
 __pycache__/
@@ -6,32 +5,8 @@ __pycache__/
 venv/
 env/
 .venv/
-pip-log.txt
-pip-delete-this-directory.txt
-.pytest_cache/
-.coverage
-.mypy_cache/
-
-# Конфигурационные файлы, специфичные для разработки
-.env
-.flaskenv
 .vscode/          
-.idea/             
-*.DS_Store        
-*.swp            
-*.swo
-
-# Системы контроля версий
 .git/
 .gitignore
 
-# Логи и временные файлы
-*.log
-tmp/
-temp/
-
-# Данные, которые генерируются во время разработки или управляются Docker'ом
-db.sqlite3         # Локальная база данных SQLite
-build/
-dist/
-*.egg-info/
+db.sqlite3 
