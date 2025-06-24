@@ -1,0 +1,20 @@
+volumes:
+  pg_data:
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env
+    ports:
+      - "8080:8000"
+  
+  db:
+    image: postgres:17-alpine
+    env_file:
+      - .env
+    volumes:
+      pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
