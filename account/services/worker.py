@@ -1,12 +1,12 @@
-from event.models import Meeting
-from task.models import Evaluation, Task
-from account.models import Worker
-
-from django.db.models import Avg
-
-from tabulate import tabulate
 from datetime import datetime
 from typing import Dict, List, Union
+
+from django.db.models import Avg
+from tabulate import tabulate
+
+from account.models import Worker
+from event.models import Meeting
+from task.models import Evaluation, Task
 
 
 def get_evaluations_avg(worker: Worker, start: datetime, end: datetime) -> Dict[str, Union[float, int, None]]:
@@ -28,17 +28,16 @@ def get_evaluations_avg(worker: Worker, start: datetime, end: datetime) -> Dict[
               'average_score' может быть None, если нет оценок.
     :rtype: dict
     """
-    
+
     evaluations = Evaluation.objects.filter(to_worker=worker, created_at__range=(start, end))
     avg = evaluations.aggregate(Avg("score"))
-    data = {
-        "average_score": avg.get("score__avg"),
-        "evaluations_count": evaluations.count()
-    }
+    data = {"average_score": avg.get("score__avg"), "evaluations_count": evaluations.count()}
     return data
 
 
-def get_calendar_events(worker: Worker, start_date: datetime, end_date: datetime) -> Dict[str, Union[List['Meeting'], List['Task'], List[str]]]:
+def get_calendar_events(
+    worker: Worker, start_date: datetime, end_date: datetime
+) -> Dict[str, Union[List["Meeting"], List["Task"], List[str]]]:
     """
     Получает события календаря (встречи и задачи) для конкретного сотрудника
     в заданном диапазоне дат и времени.
@@ -60,16 +59,14 @@ def get_calendar_events(worker: Worker, start_date: datetime, end_date: datetime
               и список строк (`table`) с отформатированной текстовой таблицей событий.
     :rtype: dict
     """
-    meetings = Meeting.objects.prefetch_related("workers").filter(workers=worker, datetime__range=(start_date, end_date))
+    meetings = Meeting.objects.prefetch_related("workers").filter(
+        workers=worker, datetime__range=(start_date, end_date)
+    )
     tasks = Task.objects.select_related("executor").filter(executor=worker, deadline__range=(start_date, end_date))
-    
+
     table = format_calendar_text_table(meetings, tasks)
 
-    return {
-        "meetings": meetings,
-        "tasks": tasks,
-        "table": table.splitlines()
-    }
+    return {"meetings": meetings, "tasks": tasks, "table": table.splitlines()}
 
 
 def format_calendar_text_table(meetings: List[Meeting], tasks: List[Task]) -> str:
@@ -95,7 +92,14 @@ def format_calendar_text_table(meetings: List[Meeting], tasks: List[Task]) -> st
     table = []
 
     for meeting in meetings:
-        table.append(["Встреча", meeting.datetime.strftime("%d.%m.%Y %H:%M"), meeting.description, ", ".join(worker.user.email for worker in meeting.workers.all())])
+        table.append(
+            [
+                "Встреча",
+                meeting.datetime.strftime("%d.%m.%Y %H:%M"),
+                meeting.description,
+                ", ".join(worker.user.email for worker in meeting.workers.all()),
+            ]
+        )
 
     for task in tasks:
         table.append(["Задача", task.deadline.strftime("%d.%m.%Y %H:%M"), task.title, task.executor.user.email])

@@ -20,5 +20,5 @@ def is_your_team(team_pk: str, worker: Worker) -> bool:
     """
     if worker.team is None:
         return False
-    
+
     return int(team_pk) == worker.team.id

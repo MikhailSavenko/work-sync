@@ -1,11 +1,11 @@
+from django.utils import timezone
 from rest_framework import serializers
 
+from account.models import Worker
 from event.exceptions import MeetingConflictError
 from event.models import Meeting
-from account.models import Worker
-from event.services.meeting import validate_workers_and_include_creator, is_datetime_available
+from event.services.meeting import is_datetime_available, validate_workers_and_include_creator
 from task.serializers import WorkerNameSerializer
-from django.utils import timezone
 
 
 class MeetingCreateUpdateSerializer(serializers.ModelSerializer):
@@ -17,10 +17,12 @@ class MeetingCreateUpdateSerializer(serializers.ModelSerializer):
     workers: list - список id приглашенных сотрудников
     description - описание встречи
     """
+
     creator = serializers.PrimaryKeyRelatedField(read_only=True)
-    workers = serializers.PrimaryKeyRelatedField(queryset=Worker.objects.all(), many=True, help_text="Список ID приглашенных сотрудников")
-    datetime = serializers.DateTimeField(input_formats=("%Y-%m-%dT%H:%M",), 
-                                         help_text="Формат: YYYY-MM-DDTHH:MM")
+    workers = serializers.PrimaryKeyRelatedField(
+        queryset=Worker.objects.all(), many=True, help_text="Список ID приглашенных сотрудников"
+    )
+    datetime = serializers.DateTimeField(input_formats=("%Y-%m-%dT%H:%M",), help_text="Формат: YYYY-MM-DDTHH:MM")
 
     class Meta:
         model = Meeting
@@ -40,11 +42,11 @@ class MeetingCreateUpdateSerializer(serializers.ModelSerializer):
         meeting_id = None
         if self.context["request"].method == "PUT":
             meeting_id = self.instance.pk if self.instance else None
-        
+
         for worker in data["workers"]:
             if not is_datetime_available(worker=worker, check_date=data["datetime"], meeting_id=meeting_id):
                 raise MeetingConflictError(f"{worker.user.email} уже имеет встречу на дату: {data["datetime"]}")
-        
+
         return data
 
     def validate_datetime(self, value):
@@ -53,7 +55,7 @@ class MeetingCreateUpdateSerializer(serializers.ModelSerializer):
 
         if value < date_now:
             raise serializers.ValidationError("Дата и время встречи не может быть в прошлом.")
-        
+
         return value
 
 
@@ -62,11 +64,12 @@ class MeetingGetSerializer(serializers.ModelSerializer):
     Сериалайзер встречи - Просмотр
 
     datetime - время и дата
-    creator - из request.user.worker 
+    creator - из request.user.worker
     workers: list - список id приглашенных сотрудников
     description - описание встречи
     """
-    creator = serializers.PrimaryKeyRelatedField(read_only=True) # избыточно
+
+    creator = serializers.PrimaryKeyRelatedField(read_only=True)  # избыточно
     workers = WorkerNameSerializer(many=True)
 
     class Meta:

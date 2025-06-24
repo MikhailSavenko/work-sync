@@ -1,7 +1,8 @@
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework.routers import SimpleRouter
 from rest_framework_nested.routers import NestedSimpleRouter
-from task.views import TaskViewSet, CommentViewSet, EvaluationViewSet
+
+from task.views import CommentViewSet, EvaluationViewSet, TaskViewSet
 
 app_name = "task"
 

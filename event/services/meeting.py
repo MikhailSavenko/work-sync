@@ -1,6 +1,8 @@
-from account.models import Worker
-from rest_framework import serializers
 from datetime import datetime
+
+from rest_framework import serializers
+
+from account.models import Worker
 from event.models import Meeting
 
 
@@ -26,11 +28,11 @@ def validate_workers_and_include_creator(creator: Worker, workers: list[Worker])
 
     if len(set(workers)) < 2:
         raise serializers.ValidationError("Встреча должна включать минимум двух участников.")
-    
+
     return workers
 
 
-def is_datetime_available(worker: Worker, check_date: datetime,  meeting_id: int | None = None) -> bool:
+def is_datetime_available(worker: Worker, check_date: datetime, meeting_id: int | None = None) -> bool:
     """
     Проверяет, свободно ли указанное время для сотрудника, сравнивая с уже назначенными встречами.
 
@@ -45,5 +47,5 @@ def is_datetime_available(worker: Worker, check_date: datetime,  meeting_id: int
 
     if meeting_id is not None:
         queryset = queryset.exclude(id=meeting_id)
-      
+
     return not queryset.exists()

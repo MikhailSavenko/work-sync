@@ -1,12 +1,12 @@
-from rest_framework import viewsets, status
+from django.utils import timezone
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.utils import timezone
 
-from event.models import Meeting
 from event.doc.schemas import MeetingAutoSchema
-from event.serializers import MeetingGetSerializer, MeetingCreateUpdateSerializer
+from event.models import Meeting
 from event.permissions import IsOwnerOrReadOnly
+from event.serializers import MeetingCreateUpdateSerializer, MeetingGetSerializer
 
 
 class MeetingViewSet(viewsets.ModelViewSet):
@@ -24,6 +24,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
     - DELETE: Удаление встречи.
     - OPTIONS, HEAD: Стандартные методы для интроспекции API.
     """
+
     http_method_names = ("get", "post", "put", "delete", "options", "head")
     permission_classes = [IsOwnerOrReadOnly]
     queryset = Meeting.objects.all()
@@ -38,11 +39,11 @@ class MeetingViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         return self.serializer_class.get(self.action, MeetingGetSerializer)
-    
+
     def perform_create(self, serializer):
         current_user = self.request.user.worker
         serializer.save(creator=current_user)
-    
+
     @action(detail=False, methods=["get"], url_path="me")
     def me(self, request):
         """
@@ -61,13 +62,10 @@ class MeetingViewSet(viewsets.ModelViewSet):
         """
         user_worker = request.user.worker
         done_param = request.query_params.get("done", "0")
-        
+
         if done_param not in ("0", "1"):
-            return Response(
-                {"detail": "Парамтер 'done' может быть 0 или 1"},
-                status=status.HTTP_400_BAD_REQUEST
-                )
-        
+            return Response({"detail": "Парамтер 'done' может быть 0 или 1"}, status=status.HTTP_400_BAD_REQUEST)
+
         queryset = super().get_queryset()
 
         if done_param == "1":
@@ -75,7 +73,7 @@ class MeetingViewSet(viewsets.ModelViewSet):
         elif done_param == "0":
             now = timezone.now()
             meetings = queryset.filter(workers=user_worker, datetime__gt=now)
-        
+
         serializer = self.get_serializer_class()
         serializer = serializer(meetings, many=True)
 

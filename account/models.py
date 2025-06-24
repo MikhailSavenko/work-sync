@@ -1,6 +1,7 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 from django.utils.translation import gettext_lazy as _
+
 from account.managers import CustomUserManager
 
 
@@ -34,6 +35,7 @@ class Worker(models.Model):
         meetings (Reverse relation): Встречи сотрудника
         created_meetings (Reverse relation): Встречи организованные сотрудником
     """
+
     class Role(models.TextChoices):
         NORMAL = "NM", _("Обычный пользователь")
         MANAGER = "MG", _("Менеджер")
@@ -57,11 +59,19 @@ class Team(models.Model):
 
     Связи:
         workers (Reverse relation): Список связанных объектов Worker, привязанных к данной команде.
-        
+
     """
+
     title = models.CharField(max_length=255, verbose_name="Название команды")
     description = models.TextField(verbose_name="Описание команды")
 
-    creator = models.ForeignKey(Worker, verbose_name="Создатель", on_delete=models.SET_NULL, null=True, blank=True, related_name="created_teams")
+    creator = models.ForeignKey(
+        Worker,
+        verbose_name="Создатель",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_teams",
+    )
     created_at = models.DateTimeField(verbose_name="Даты и время создания", auto_now_add=True)
     updated_at = models.DateTimeField(verbose_name="Даты и время обновления", auto_now=True)

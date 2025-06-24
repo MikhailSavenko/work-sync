@@ -1,13 +1,14 @@
-from datetime import datetime, time
-from django.utils import timezone
-from typing import Union, Tuple
 import calendar
+from datetime import datetime, time
+from typing import Tuple, Union
+
+from django.utils import timezone
 
 
 def get_day_bounds(date: Union[Tuple[datetime], datetime]) -> Tuple[datetime, datetime]:
     """
     Возвращает временные границы (начало и конец дня или диапазона дней).
-    
+
     - Если передан список из двух дат — считает их как start и end.
     - Если передана одна дата — возвращает границы этого дня.
     """
@@ -41,5 +42,5 @@ def get_month_bounds(start_date: datetime) -> Tuple[datetime, datetime]:
     end_date = start_date.replace(day=last_day_month)
 
     start, end = get_day_bounds((start_date, end_date))
-    
+
     return start, end

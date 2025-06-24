@@ -1,11 +1,13 @@
 from rest_framework import serializers
-from account.models import Worker, User, Team
-from task.serializers import GetTaskSerializer
+
+from account.models import Team, User, Worker
 from event.serializers import MeetingGetSerializer
+from task.serializers import GetTaskSerializer
 
 
 class WorkerCalendarResponseSerializer(serializers.Serializer):
     """Serializer для календаря событий"""
+
     date = serializers.DateField()
     meetings = MeetingGetSerializer(many=True)
     tasks = GetTaskSerializer(many=True)
@@ -14,6 +16,7 @@ class WorkerCalendarResponseSerializer(serializers.Serializer):
 
 class WorkerEvaluationResponseSerializer(serializers.Serializer):
     """Serializer для просмотра средней оценки сотрудника за период"""
+
     start_date = serializers.DateField()
     end_date = serializers.DateField()
     average_score = serializers.FloatField(help_text="Средняя оценка сотрудника за период")
@@ -22,6 +25,7 @@ class WorkerEvaluationResponseSerializer(serializers.Serializer):
 
 class TeamShortSerializer(serializers.ModelSerializer):
     """Вложенный сериалайзер для Worker.team"""
+
     class Meta:
         model = Team
         fields = ("id", "title")
@@ -29,11 +33,12 @@ class TeamShortSerializer(serializers.ModelSerializer):
 
 class WorkerGetSerializer(serializers.ModelSerializer):
     """Сериалайзер Сотрудника просмотра с полями пользователя"""
+
     user_id = serializers.IntegerField(source="user.id")
     first_name = serializers.CharField(source="user.first_name")
     last_name = serializers.CharField(source="user.last_name")
     email = serializers.CharField(source="user.email")
-    role = serializers.CharField(source='get_role_display', read_only=True)
+    role = serializers.CharField(source="get_role_display", read_only=True)
     team = TeamShortSerializer()
 
     class Meta:
@@ -43,12 +48,11 @@ class WorkerGetSerializer(serializers.ModelSerializer):
 
 class WorkerUpdateSerializer(serializers.ModelSerializer):
     """Сериалайзер обновления роли для сотрудника"""
+
     class Meta:
         model = Worker
         fields = ("role",)
-        extra_kwargs = {
-            "role": {"help_text": "NM - Пользователь |MG - Менеджер |AT - Админ"}
-        }
+        extra_kwargs = {"role": {"help_text": "NM - Пользователь |MG - Менеджер |AT - Админ"}}
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -61,6 +65,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class TeamCreateUpdateSerializer(serializers.ModelSerializer):
     """Сериалайзер для создания/обновления Тeam"""
+
     workers = serializers.PrimaryKeyRelatedField(queryset=Worker.objects.all(), many=True)
     creator = serializers.PrimaryKeyRelatedField(read_only=True)
 
@@ -71,11 +76,12 @@ class TeamCreateUpdateSerializer(serializers.ModelSerializer):
 
 class TeamWorkerGetSerializer(serializers.ModelSerializer):
     """Сериалайзер cотрудника для вложения в TeamGetSerializer"""
+
     user_id = serializers.IntegerField(source="user.id")
     first_name = serializers.CharField(source="user.first_name")
     last_name = serializers.CharField(source="user.last_name")
     email = serializers.CharField(source="user.email")
-    role = serializers.CharField(source='get_role_display', read_only=True)
+    role = serializers.CharField(source="get_role_display", read_only=True)
 
     class Meta:
         model = Worker
@@ -84,6 +90,7 @@ class TeamWorkerGetSerializer(serializers.ModelSerializer):
 
 class TeamGetSerializer(serializers.ModelSerializer):
     """Сериалайзер для просмотра Тeam"""
+
     workers = TeamWorkerGetSerializer(many=True)
 
     class Meta:

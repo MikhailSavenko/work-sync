@@ -1,24 +1,38 @@
-from rest_framework import viewsets
-from rest_framework import mixins
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenObtainPairView as TokenObtainPairViewBase, TokenBlacklistView as TokenBlacklistViewBase, TokenRefreshView as TokenRefreshViewBase, TokenVerifyView as TokenVerifyViewBase
-
-from djoser.views import UserViewSet as UserViewSetBase
-
-from django.db.models import Prefetch
-
 from datetime import datetime
 
-from account.doc.schemas import TeamAutoSchema, WorkerAutoSchema, UserAutoSchema, TokenObtainAutoSchema, TokenBlacklistAutoSchema, TokenRefreshAutoSchema, TokenVerifyAutoSchema
-from account.exceptions import TeamConflictError, ValidationDateError
-from account.serializers import TeamCreateUpdateSerializer, WorkerEvaluationResponseSerializer, WorkerCalendarResponseSerializer, WorkerGetSerializer, TeamGetSerializer, WorkerUpdateSerializer
-from account.models import Team, Worker
+from django.db.models import Prefetch
+from djoser.views import UserViewSet as UserViewSetBase
+from rest_framework import mixins, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenBlacklistView as TokenBlacklistViewBase
+from rest_framework_simplejwt.views import TokenObtainPairView as TokenObtainPairViewBase
+from rest_framework_simplejwt.views import TokenRefreshView as TokenRefreshViewBase
+from rest_framework_simplejwt.views import TokenVerifyView as TokenVerifyViewBase
 
-from account.services.worker import get_calendar_events, get_evaluations_avg
+from account.doc.schemas import (
+    TeamAutoSchema,
+    TokenBlacklistAutoSchema,
+    TokenObtainAutoSchema,
+    TokenRefreshAutoSchema,
+    TokenVerifyAutoSchema,
+    UserAutoSchema,
+    WorkerAutoSchema,
+)
+from account.exceptions import TeamConflictError, ValidationDateError
+from account.models import Team, Worker
+from account.permissions import IsAdminTeamOrReadOnly, IsAdminTeamOwnerOrReadOnly
+from account.serializers import (
+    TeamCreateUpdateSerializer,
+    TeamGetSerializer,
+    WorkerCalendarResponseSerializer,
+    WorkerEvaluationResponseSerializer,
+    WorkerGetSerializer,
+    WorkerUpdateSerializer,
+)
 from account.services.team import get_worker_with_team, is_your_team
+from account.services.worker import get_calendar_events, get_evaluations_avg
 from account.utils import get_day_bounds, get_month_bounds
-from account.permissions import IsAdminTeamOwnerOrReadOnly, IsAdminTeamOrReadOnly
 
 
 class TeamViewSet(viewsets.ModelViewSet):
@@ -43,19 +57,19 @@ class TeamViewSet(viewsets.ModelViewSet):
         self._check_team_conflict(workers_added)
 
         serializer.save(creator=current_worker)
-    
+
     def perform_update(self, serializer):
         team_pk = self.kwargs.get("pk")
-        
+
         workers_added = serializer.validated_data.get("workers")
         self._check_team_conflict(workers_added, team_pk=team_pk)
         super().perform_update(serializer)
-    
+
     def _check_team_conflict(self, workers: list[Worker], team_pk: int = None):
         """Проверяет конфликты команд для списка сотрудников"""
         if not workers:
             return
-        
+
         conflicting_emails = []
 
         workers_already_in_team = get_worker_with_team(workers)
@@ -68,15 +82,16 @@ class TeamViewSet(viewsets.ModelViewSet):
             else:
                 conflicting_emails.append(worker.user.email)
         if conflicting_emails:
-            raise TeamConflictError({
+            raise TeamConflictError(
+                {
                     "detail": f"Конфликт. Сотрудники {conflicting_emails}, добавляемые в команду, уже состоят в других командах."
-                })
+                }
+            )
 
 
-class WorkerViewSet(viewsets.GenericViewSet,
-                    mixins.RetrieveModelMixin,
-                    mixins.ListModelMixin,
-                    mixins.UpdateModelMixin):
+class WorkerViewSet(
+    viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.ListModelMixin, mixins.UpdateModelMixin
+):
     http_method_names = ("get", "patch", "options", "head")
     permission_classes = [IsAdminTeamOrReadOnly]
     queryset = Worker.objects.all()
@@ -86,14 +101,18 @@ class WorkerViewSet(viewsets.GenericViewSet,
         "partial_update": WorkerUpdateSerializer,
         "calendar_day": WorkerCalendarResponseSerializer,
         "calendar_month": WorkerCalendarResponseSerializer,
-        "average_evaluation": WorkerEvaluationResponseSerializer
+        "average_evaluation": WorkerEvaluationResponseSerializer,
     }
     swagger_schema = WorkerAutoSchema
-    
+
     def get_serializer_class(self):
         return self.serializer_class.get(self.action, WorkerGetSerializer)
-    
-    @action(detail=True, methods=["get"], url_path=r"evaluation/avg/(?P<start_date>\d{4}-\d{2}-\d{2})/(?P<end_date>\d{4}-\d{2}-\d{2})")
+
+    @action(
+        detail=True,
+        methods=["get"],
+        url_path=r"evaluation/avg/(?P<start_date>\d{4}-\d{2}-\d{2})/(?P<end_date>\d{4}-\d{2}-\d{2})",
+    )
     def average_evaluation(self, request, start_date=None, end_date=None, pk=None):
         """
         Рассчитывает среднюю оценку производительности сотрудника за указанный период.
@@ -113,7 +132,7 @@ class WorkerViewSet(viewsets.GenericViewSet,
             parse_end = datetime.strptime(end_date, "%Y-%m-%d").date()
         except (ValueError, Exception) as e:
             raise ValidationDateError(detail=f"{e}")
-        
+
         start, end = get_day_bounds((parce_start, parse_end))
 
         evaluation_avg = get_evaluations_avg(worker=current_worker, start=start, end=end)
@@ -153,7 +172,7 @@ class WorkerViewSet(viewsets.GenericViewSet,
         start, end = get_day_bounds(date=parse_date)
 
         calendar_events = get_calendar_events(worker=worker, start_date=start, end_date=end)
-        
+
         data = {"date": parse_date, **calendar_events}
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(data, context={"request": request})
@@ -177,7 +196,7 @@ class WorkerViewSet(viewsets.GenericViewSet,
         :raises ValueError: Если параметр пути 'date' не соответствует ожидаемому формату YYYY-MM.
         """
         worker = self.get_object()
-        
+
         try:
             parse_date = datetime.strptime(date, "%Y-%m").date()
         except (ValueError, Exception) as e:

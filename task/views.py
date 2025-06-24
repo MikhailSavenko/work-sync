@@ -1,17 +1,27 @@
-from rest_framework import viewsets
-from rest_framework import mixins
+from django.shortcuts import get_object_or_404
+from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from common.variables import CURRENT_TASK_ALREADY_HAS_SCORE, CURRENT_TASK_HASNT_EXECUTOR, CURRENT_TASK_WILL_BE_DONE_STATUS
-from task.doc.schemas import EvaluationAutoSchema, TaskAutoSchema, CommentAutoSchema
-from task.models import Evaluation, Task, Comment
-from task.permissions import IsCreatorAdminManager, IsCreatorAdminManagerOrReadOnly, IsCreatorOrReadOnly
-from task.serializers import TaskCreateSerializer, TaskUpdateSerializer,  GetTaskSerializer, UpdateEvaluation, GetCommentSerializer, UpdateCommentSerializer, CreateCommentSerializer, CreateEvaluation
+from common.variables import (
+    CURRENT_TASK_ALREADY_HAS_SCORE,
+    CURRENT_TASK_HASNT_EXECUTOR,
+    CURRENT_TASK_WILL_BE_DONE_STATUS,
+)
+from task.doc.schemas import CommentAutoSchema, EvaluationAutoSchema, TaskAutoSchema
 from task.exeptions import EvaluationConflictError, TaskConflictError
-
-from django.shortcuts import get_object_or_404
-
+from task.models import Comment, Evaluation, Task
+from task.permissions import IsCreatorAdminManager, IsCreatorAdminManagerOrReadOnly, IsCreatorOrReadOnly
+from task.serializers import (
+    CreateCommentSerializer,
+    CreateEvaluation,
+    GetCommentSerializer,
+    GetTaskSerializer,
+    TaskCreateSerializer,
+    TaskUpdateSerializer,
+    UpdateCommentSerializer,
+    UpdateEvaluation,
+)
 from task.utils import is_int_or_valid_error
 
 
@@ -31,6 +41,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     - DELETE: Удаление задачи.
     - OPTIONS, HEAD: Стандартные методы для интроспекции API.
     """
+
     queryset = Task.objects.all()
     permission_classes = [IsCreatorAdminManagerOrReadOnly]
     swagger_schema = TaskAutoSchema
@@ -61,7 +72,7 @@ class TaskViewSet(viewsets.ModelViewSet):
 
         tasks = Task.objects.filter(executor=user_worker)
         serializer = self.get_serializer(tasks, many=True)
-        
+
         return Response(serializer.data)
 
     def perform_create(self, serializer):
@@ -88,12 +99,20 @@ class TaskViewSet(viewsets.ModelViewSet):
 
         if hasattr(instance, "evaluation"):
             if executor and executor != instance.executor:
-                raise TaskConflictError(detail={"task_update_conflict": "Ошибка. Нельзя изменить исполнителя(executor) для оцененной и завершенной задачи."})
+                raise TaskConflictError(
+                    detail={
+                        "task_update_conflict": "Ошибка. Нельзя изменить исполнителя(executor) для оцененной и завершенной задачи."
+                    }
+                )
             if status and status != instance.status:
-                raise TaskConflictError(detail={"task_update_conflict": "Ошибка. Нельзя изменить статус(status) для оцененной и завершенной задачи."})
+                raise TaskConflictError(
+                    detail={
+                        "task_update_conflict": "Ошибка. Нельзя изменить статус(status) для оцененной и завершенной задачи."
+                    }
+                )
         serializer.save()
 
-    
+
 class CommentViewSet(viewsets.ModelViewSet):
     """
     API для управления комментариями к задачам.
@@ -109,6 +128,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     - DELETE: Удаление комментария.
     - OPTIONS, HEAD: Стандартные методы для интроспекции API.
     """
+
     http_method_names = ("get", "post", "patch", "delete", "options", "head")
     queryset = Comment.objects.all()
     permission_classes = [IsCreatorOrReadOnly]
@@ -140,7 +160,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         task = get_object_or_404(Task, pk=task_pk)
 
         serializer.save(creator=self.request.user.worker, task=task)
-    
+
     def get_queryset(self):
         """
         Возвращает queryset комментариев, отфильтрованных по задаче.
@@ -163,10 +183,9 @@ class CommentViewSet(viewsets.ModelViewSet):
         return comments
 
 
-class EvaluationViewSet(mixins.CreateModelMixin,
-                        mixins.UpdateModelMixin,
-                        mixins.DestroyModelMixin,
-                        viewsets.GenericViewSet):
+class EvaluationViewSet(
+    mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet
+):
     """
     API для управления оценками выполнения задач (Evaluation).
 
@@ -181,18 +200,16 @@ class EvaluationViewSet(mixins.CreateModelMixin,
     - DELETE: Удаление оценки.
     - OPTIONS, HEAD: Стандартные методы для интроспекции API.
     """
+
     http_method_names = ("post", "patch", "delete", "options", "head")
     queryset = Evaluation.objects.all()
     permission_classes = [IsCreatorAdminManager]
     swagger_schema = EvaluationAutoSchema
-    serializer_class = {
-        "create": CreateEvaluation,
-        "partial_update": UpdateEvaluation
-    }
-    
+    serializer_class = {"create": CreateEvaluation, "partial_update": UpdateEvaluation}
+
     def get_serializer_class(self):
         return self.serializer_class.get(self.action)
-    
+
     def perform_create(self, serializer):
         """
         Создает новую оценку для задачи, связывая её с задачей, её исполнителем
@@ -214,7 +231,7 @@ class EvaluationViewSet(mixins.CreateModelMixin,
 
         task_pk = self.kwargs.get("task_pk")
         task_pk = is_int_or_valid_error(num_check=task_pk)
-        
+
         task = get_object_or_404(Task, pk=task_pk)
 
         if hasattr(task, "evaluation"):
@@ -245,6 +262,3 @@ class EvaluationViewSet(mixins.CreateModelMixin,
 
         evaluation = queryset.filter(task=task_pk)
         return evaluation
-
-    
-    
