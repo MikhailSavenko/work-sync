@@ -9,3 +9,6 @@ factory_boy==3.3.3
 flake8==7.3.0
 black==25.1.0
 isort==6.0.1
+python-dotenv==1.1.1
+psycopg2-binary==2.9.10
+gunicorn==23.0.0
