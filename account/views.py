@@ -43,14 +43,13 @@ class TeamViewSet(viewsets.ModelViewSet):
         self._check_team_conflict(workers_added)
 
         serializer.save(creator=current_worker)
-        return super().perform_create(serializer)
     
     def perform_update(self, serializer):
         team_pk = self.kwargs.get("pk")
         
         workers_added = serializer.validated_data.get("workers")
         self._check_team_conflict(workers_added, team_pk=team_pk)
-        return super().perform_update(serializer)
+        super().perform_update(serializer)
     
     def _check_team_conflict(self, workers: list[Worker], team_pk: int = None):
         """Проверяет конфликты команд для списка сотрудников"""

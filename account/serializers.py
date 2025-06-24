@@ -28,7 +28,7 @@ class TeamShortSerializer(serializers.ModelSerializer):
 
 
 class WorkerGetSerializer(serializers.ModelSerializer):
-    """Сериалайзер Сотрудника"""
+    """Сериалайзер Сотрудника просмотра с полями пользователя"""
     user_id = serializers.IntegerField(source="user.id")
     first_name = serializers.CharField(source="user.first_name")
     last_name = serializers.CharField(source="user.last_name")
@@ -42,7 +42,7 @@ class WorkerGetSerializer(serializers.ModelSerializer):
 
 
 class WorkerUpdateSerializer(serializers.ModelSerializer):
-
+    """Сериалайзер обновления роли для сотрудника"""
     class Meta:
         model = Worker
         fields = ("role",)
