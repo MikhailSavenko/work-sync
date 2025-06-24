@@ -11,7 +11,7 @@ from django.db.models import Prefetch
 from datetime import datetime
 
 from account.doc.schemas import TeamAutoSchema, WorkerAutoSchema, UserAutoSchema, TokenObtainAutoSchema, TokenBlacklistAutoSchema, TokenRefreshAutoSchema, TokenVerifyAutoSchema
-from account.exceptions import TeamConflictError
+from account.exceptions import TeamConflictError, ValidationDateError
 from account.serializers import TeamCreateUpdateSerializer, WorkerEvaluationResponseSerializer, WorkerCalendarResponseSerializer, WorkerGetSerializer, TeamGetSerializer, WorkerUpdateSerializer
 from account.models import Team, Worker
 
@@ -97,14 +97,23 @@ class WorkerViewSet(viewsets.GenericViewSet,
     @action(detail=True, methods=["get"], url_path=r"evaluation/avg/(?P<start_date>\d{4}-\d{2}-\d{2})/(?P<end_date>\d{4}-\d{2}-\d{2})")
     def average_evaluation(self, request, start_date=None, end_date=None, pk=None):
         """
-        Средняя оценка сотрудника
-        start_date - начальная дата YYYY-MM-DD
-        end_date - конечная дата YYYY-MM-DD
+        Рассчитывает среднюю оценку производительности сотрудника за указанный период.
+
+        Эта функция агрегирует все оценки, связанные с данным сотрудником,
+        и возвращает их среднее значение. Период задается начальной и конечной датами.
+
+        :param start_date: Начальная дата периода в формате YYYY-MM-DD.
+        :param end_date: Конечная дата периода в формате YYYY-MM-DD.
+        :param pk: ID сотрудника, для которого рассчитывается оценка.
+        :return: JSON-ответ, содержащий среднюю оценку, количество задач, и даты запроса.
+        :raises ValueError: Если формат даты не соответствует YYYY-MM-DD.
         """
         current_worker = self.get_object()
-        
-        parce_start = datetime.strptime(start_date, "%Y-%m-%d").date()
-        parse_end = datetime.strptime(end_date, "%Y-%m-%d").date()
+        try:
+            parce_start = datetime.strptime(start_date, "%Y-%m-%d").date()
+            parse_end = datetime.strptime(end_date, "%Y-%m-%d").date()
+        except (ValueError, Exception) as e:
+            raise ValidationDateError(detail=f"{e}")
         
         start, end = get_day_bounds((parce_start, parse_end))
 
@@ -119,12 +128,28 @@ class WorkerViewSet(viewsets.GenericViewSet,
     @action(detail=True, methods=["get"], url_path=r"calendar/day/(?P<date>\d{4}-\d{2}-\d{2})")
     def calendar_day(self, request, date=None, pk=None):
         """
-        Эндпоиинт просмотра событий сотрудника за день 
-        date - обязательный параметр пути YYYY-MM-DD
+        Возвращает календарные события сотрудника за указанный день.
+
+        Данный эндпоинт предоставляет консолидированный обзор расписания сотрудника за заданную дату,
+        включая:
+        - Все запланированные **события**.
+        - **Задачи**, срок выполнения которых истекает в этот день.
+        - **Встречи**, запланированные на этот день.
+
+        Ответ содержит исчерпывающий ежедневный обзор всех обязательств сотрудника.
+
+        :param date: Обязательный параметр пути в формате YYYY-MM-DD, представляющий день для получения событий.
+        :param pk: ID сотрудника, чей календарь просматривается.
+        :return: JSON-ответ, содержащий указанную дату и словарь со связанными календарными событиями, задачами и встречами, а также таблицу списком строк.
+        :raises ValidationError: Если параметр пути 'date' не соответствует ожидаемому формату YYYY-MM-DD.
         """
         worker = self.get_object()
 
-        parse_date = datetime.strptime(date, "%Y-%m-%d").date()
+        try:
+            parse_date = datetime.strptime(date, "%Y-%m-%d").date()
+        except (ValueError, Exception) as e:
+            print(e)
+            raise ValidationDateError(detail=f"{e}")
 
         start, end = get_day_bounds(date=parse_date)
 
@@ -138,11 +163,26 @@ class WorkerViewSet(viewsets.GenericViewSet,
     @action(detail=True, methods=["get"], url_path=r"calendar/month/(?P<date>\d{4}-\d{2})")
     def calendar_month(self, request, date=None, pk=None):
         """
-        Эндпоиинт просмотра событий сотрудника за месяц 
-        date - обязательный параметр пути YYYY-MM
+        Возвращает календарные события сотрудника за указанный месяц.
+
+        Данный эндпоинт предоставляет агрегированный обзор расписания сотрудника за заданный месяц,
+        включая:
+        - Все запланированные **события**.
+        - **Задачи**, срок выполнения которых истекает в течение месяца.
+        - **Встречи**, запланированные на этот месяц.
+        Ответ содержит полный ежемесячный обзор всех событий сотрудника.
+
+        :param date: Обязательный параметр пути в формате YYYY-MM, представляющий месяц для получения событий.
+        :param pk: ID сотрудника, чей календарь просматривается.
+        :return: JSON-ответ, содержащий указанный месяц и словарь со связанными календарными событиями, задачами и встречами.
+        :raises ValueError: Если параметр пути 'date' не соответствует ожидаемому формату YYYY-MM.
         """
         worker = self.get_object()
-        parse_date = datetime.strptime(date, "%Y-%m").date()
+        
+        try:
+            parse_date = datetime.strptime(date, "%Y-%m").date()
+        except (ValueError, Exception) as e:
+            raise ValidationDateError(detail=f"{e}")
 
         start, end = get_month_bounds(start_date=parse_date)
 

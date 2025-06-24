@@ -498,7 +498,7 @@ class WorkerApiTestCase(ApiTestCaseBase):
         self.client.force_authenticate(user=self.user_manager)
         date = (self.DATETIME_NOW + self.TIMEDELTA_THREE_DAYS).date().strftime("%Y-%m")
         response = self.client.get(reverse("account:worker-calendar-month", kwargs={"pk": self.worker_normal.id,
-                                                                                  "date": date}))
+                                                                                    "date": date}))
             
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
