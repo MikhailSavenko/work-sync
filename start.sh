@@ -14,6 +14,10 @@ python manage.py makemigrations
 echo "Применение миграций..."
 python manage.py migrate
 
+# Создаем суперпользователя
+echo "Создаем суперпользователя..."
+python create_superuser_admin_role.py
+
 # Статика
 echo "Сбор статики"
 python manage.py collectstatic --noinput
