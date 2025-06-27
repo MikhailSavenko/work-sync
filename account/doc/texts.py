@@ -2,12 +2,14 @@ VALIDATION_ERROR_DESCRIPTION = "Ошибка валидации"
 NOT_FOUND_DESCRIPTION = "Объект не найден"
 FORBIDDEN_DESCRIPTION = "Доступ запрещен"
 CONFLICT_DATA = "Конфликт данных"
+TOKEN_NOT_A_VALID = "token_not_valid"
+TITLE_SHOLD_BE = "Not a valid string. Title should be string 255 max."
 
 TAGS_TEAMS = ["Teams"]
-NO_TEAMS = "No Team matches the given query"
+NO_TEAMS = "Нет Команды соответствующей запросу"
 
 TAGS_WORKER = ["Workers"]
-NO_WORKER = "No Worker matches the given query"
+NO_WORKER = "Нет Сотрудника соответствующего запросу"
 
 TAGS_AUTH = ["Auth"]
 UNAUTHORIZED_REQUEST_LOGIN = "No active account found with the given credentials"
@@ -35,7 +37,7 @@ TEAM_TEXTS = {
         "description": "Позволяет создать новую команду с указанными параметрами. Возвращает созданный объект команды.",
         "responses": {"403": FORBIDDEN_DESCRIPTION, "400": VALIDATION_ERROR_DESCRIPTION, "409": CONFLICT_DATA},
         "example": {
-            "400": {"title": ["Not a valid string."]},
+            "400": {"title": [TITLE_SHOLD_BE]},
             "409": {
                 "detail": "Конфликт. Сотрудники ['mi47sav4@gmail.com'], добавляемые в команду, уже состоят в других командах"
             },
@@ -48,7 +50,7 @@ TEAM_TEXTS = {
         "description": "Позволяет изменить существующую команду",
         "responses": {"400": VALIDATION_ERROR_DESCRIPTION, "403": FORBIDDEN_DESCRIPTION, "409": CONFLICT_DATA},
         "example": {
-            "400": {"title": ["Not a valid string."]},
+            "400": {"title": [TITLE_SHOLD_BE]},
             "409": {
                 "detail": "Конфликт. Сотрудники ['mi47sav4@gmail.com'], добавляемые в команду, уже состоят в других командах"
             },
@@ -145,7 +147,7 @@ TOKEN_BLACKLIST_TEXTS = {
         "summary": "Аннулирование токена обновления",
         "description": "Добавляет предоставленный токен обновления в черный список, делая его недействительным для дальнейшего использования",
         "responses": {"200": "Успешное аннулирование токена", "401": UNAUTHORIZED_REQUEST},
-        "example": {"401": {"detail": "Token is blacklisted", "code": "token_not_valid"}},
+        "example": {"401": {"detail": "Token is blacklisted", "code": "TOKEN_NOT_A_VALID"}},
     }
 }
 
@@ -157,7 +159,7 @@ TOKEN_REFRESH_TEXTS = {
         "description": "Принимает токен обновления и возвращает новую пару токенов доступа",
         "responses": {"200": "Успешное обновление токенов", "401": UNAUTHORIZED_REQUEST},
         "example": {
-            "401": {"detail": "Token is blacklisted", "code": "token_not_valid"},
+            "401": {"detail": "Token is blacklisted", "code": "TOKEN_NOT_A_VALID"},
             "200": {
                 "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1MDE3Mjc0NywiaWF0IjoxNzQ5NTY3OTQ3LCJqdGkiOiIyYTVjZTJlODllMjI0M2E2YmNiMjg1OTg0MjQwYTRmZiIsInVzZXJfaWQiOjh9.7Rqk9H07m4OHmnUdU6B0n09bXzj8tF6w_GD04mRc7QU",
                 "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1MDE3Mjc0NywiaWF0IjoxNzQ5NTY3OTQ3LCJqdGkiOiIyYTVjZTJlODllMjI0M2E2YmNiMjg1OTg0MjQwYTRmZiIsInVzZXJfaWQiOjh9.7Rqk9H07m4OHmnUdU6B0n09bXzj8tF6w_GD04mRc7QU",
@@ -174,7 +176,7 @@ TOKEN_VERIFY_TEXTS = {
         "description": "Принимает любой JWT-токен (как доступа, так и обновления) и указывает, является ли он действительным (не истекшим, не поврежденным, с корректной подписью). Этот эндпоинт не предоставляет информацию о типе токена (access/refresh) и не проверяет полномочия для конкретных действий или доступ к ресурсам.",
         "responses": {"200": "Токен валиден", "401": "Токен недействителен или просрочен", "400": "Токен в блэклисте"},
         "example": {
-            "401": {"detail": "Token is invalid", "code": "token_not_valid"},
+            "401": {"detail": "Token is invalid", "code": "TOKEN_NOT_A_VALID"},
             "200": {},
             "400": {"non_field_errors": ["Token is blacklisted"]},
         },
@@ -207,7 +209,7 @@ USER_REGISTER_TEXTS = {
             "401": UNAUTHORIZED_REQUEST,
         },
         "example": {
-            "401": {"detail": "Given token not valid for any token type", "code": "token_not_valid"},
+            "401": {"detail": "Given token not valid for any token type", "code": "TOKEN_NOT_A_VALID"},
             "400": {"current_password": ["Invalid password."]},
         },
     },
