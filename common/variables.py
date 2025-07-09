@@ -16,4 +16,4 @@ NO_MEETING = "Нет встреч, соответствующих указанн
 NO_VALID_STRING = "Неверная строка."
 NOT_VALID_TOKEN = "Предоставленный токен недействителен ни для одного типа токена."
 
-NO_ACTIVE_ACCOUNT = "No active account found with the given credentials"
+NO_ACTIVE_ACCOUNT = "Ни одной активной учетной записи не найдена"
