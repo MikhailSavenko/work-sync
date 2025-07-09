@@ -36,7 +36,7 @@ TASK_TEXTS = {
         "tags": TAGS_TASKS,
         "summary": "Обновление задачи",
         "description": "Позволяет обновить задачу полностью",
-        "responses": {"403": FORBIDDEN_403_DESCRIPTION, "400": VALIDATION_ERROR_DESCRIPTION, "409": CONFLICT_DATA},
+        "responses": {"403": FORBIDDEN_403_DESCRIPTION, "400": VALIDATION_ERROR_DESCRIPTION, "404": NOT_FOUND_DESCRIPTION, "409": CONFLICT_DATA},
         "example": {
             "400": {"deadline": [DEADLINE_NOT_WILL_BE_PAST]},
             "409": {
@@ -45,13 +45,14 @@ TASK_TEXTS = {
                 },
             },
             "403": {"detail": FORBIDDEN_403_RUSSIAN},
+            "404": {"detail": NO_TASK}
         },
     },
     "partial_update": {
         "tags": TAGS_TASKS,
         "summary": "Обновление отдельных полей задачи",
         "description": "Позволяет обновить одно поле у задачи",
-        "responses": {"403": FORBIDDEN_403_DESCRIPTION, "400": VALIDATION_ERROR_DESCRIPTION, "409": CONFLICT_DATA},
+        "responses": {"403": FORBIDDEN_403_DESCRIPTION, "404": NOT_FOUND_DESCRIPTION, "400": VALIDATION_ERROR_DESCRIPTION, "409": CONFLICT_DATA},
         "example": {
             "400": {"deadline": [DEADLINE_NOT_WILL_BE_PAST]},
             "409": {
@@ -60,6 +61,7 @@ TASK_TEXTS = {
                 },
             },
             "403": {"detail": FORBIDDEN_403_RUSSIAN},
+            "404": {"detail": NO_TASK}
         },
     },
     "delete": {

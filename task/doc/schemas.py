@@ -71,6 +71,9 @@ class TaskAutoSchema(SwaggerAutoSchema):
             operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(
                 text=task_text_update, status_code=403
             )
+            operation.responses["404"] = get_response_open_api_scheme_with_detail_string_and_example(
+                text=task_text_update, status_code=404
+            )
             operation.responses["400"] = OpenApiResponse(
                 task_text_update["responses"]["400"],
                 Schema(
@@ -94,10 +97,7 @@ class TaskAutoSchema(SwaggerAutoSchema):
             operation.tags = task_text_partial_upd["tags"]
             operation.summary = task_text_partial_upd["summary"]
             operation.description = task_text_partial_upd["description"]
-
-            operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(
-                text=task_text_partial_upd, status_code=403
-            )
+            
             operation.responses["400"] = OpenApiResponse(
                 task_text_partial_upd["responses"]["400"],
                 Schema(
@@ -105,6 +105,12 @@ class TaskAutoSchema(SwaggerAutoSchema):
                     properties={"name_field": Schema(type=TYPE_STRING)},
                     example=task_text_partial_upd["example"]["400"],
                 ),
+            )
+            operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(
+                text=task_text_partial_upd, status_code=403
+            )
+            operation.responses["404"] = get_response_open_api_scheme_with_detail_string_and_example(
+                text=task_text_partial_upd, status_code=404
             )
             operation.responses["409"] = OpenApiResponse(
                 task_text_partial_upd["responses"]["409"],
