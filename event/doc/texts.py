@@ -1,14 +1,7 @@
-# Общие тексты
-from common.permissions import MESSAGE_403
+from common.variables import NO_VALID_STRING, NO_MEETING, CONFLICT_DATA, FORBIDDEN_DESCRIPTION, FORBIDDEN_403_RUSSIAN, VALIDATION_ERROR_DESCRIPTION, NOT_FOUND_DESCRIPTION
 
-VALIDATION_ERROR_DESCRIPTION = "Ошибка валидации"
-NOT_FOUND_DESCRIPTION = "Объект не найден"
-FORBIDDEN_DESCRIPTION = "Доступ запрещен"
-CONFLICT_DATA = "Конфликт данных"
 TAGS_MEETINGS = ["Meetings"]
-NO_MEETINGS = "No Meeting matches the given query"
 
-# Тексты для MeetingAutoSchema
 MEETING_TEXTS = {
     "me": {
         "tags": TAGS_MEETINGS,
@@ -33,7 +26,7 @@ MEETING_TEXTS = {
         "summary": "Получить встречу по ID",
         "description": "Детальная информация о конкретной встрече",
         "responses": {"200": "Встреча", "404": NOT_FOUND_DESCRIPTION},
-        "example": {"404": {"detail": NO_MEETINGS}},
+        "example": {"404": {"detail": NO_MEETING}},
     },
     "create": {
         "tags": TAGS_MEETINGS,
@@ -41,7 +34,7 @@ MEETING_TEXTS = {
         "description": "Позволяет создать новую встречу с указанными параметрами. Возвращает созданный объект встречи.",
         "responses": {"201": "Встреча создана", "400": VALIDATION_ERROR_DESCRIPTION, "409": CONFLICT_DATA},
         "example": {
-            "400": {"description": ["Not a valid string."]},
+            "400": {"description": [NO_VALID_STRING]},
             "409": {"detail": "mike@gmail.com уже имеет встречу на дату: 2025-07-05 13:31:00+00:00"},
         },
     },
@@ -53,7 +46,7 @@ MEETING_TEXTS = {
         "example": {
             "400": {"non_field_errors": ["Встреча должна включать минимум двух участников."]},
             "409": {"detail": "mike@gmail.com уже имеет встречу на дату: 2025-07-05 13:31:00+00:00"},
-            "403": {"detail": MESSAGE_403},
+            "403": {"detail": FORBIDDEN_403_RUSSIAN},
         },
     },
     "delete": {
@@ -61,6 +54,6 @@ MEETING_TEXTS = {
         "summary": "Отмена встречи",
         "description": "Позволяет удалить существующую встречу",
         "responses": {"404": NOT_FOUND_DESCRIPTION, "403": FORBIDDEN_DESCRIPTION},
-        "example": {"403": {"detail": MESSAGE_403}, "404": {"detail": NO_MEETINGS}},
+        "example": {"403": {"detail": FORBIDDEN_403_RUSSIAN}, "404": {"detail": NO_MEETING}},
     },
 }
