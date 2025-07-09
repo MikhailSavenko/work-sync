@@ -1,4 +1,4 @@
-from common.variables import NO_VALID_STRING, NO_MEETING, CONFLICT_DATA, FORBIDDEN_DESCRIPTION, FORBIDDEN_403_RUSSIAN, VALIDATION_ERROR_DESCRIPTION, NOT_FOUND_DESCRIPTION
+from common.variables import MEETING_WORKER_CONFLICT_DATETIME, NO_VALID_STRING, NO_MEETING, CONFLICT_DATA, FORBIDDEN_DESCRIPTION, FORBIDDEN_403_RUSSIAN, VALIDATION_ERROR_DESCRIPTION, NOT_FOUND_DESCRIPTION, WRONG_PARAM_DONE
 
 TAGS_MEETINGS = ["Meetings"]
 
@@ -13,7 +13,7 @@ MEETING_TEXTS = {
             "default": "0",
         },
         "responses": {"200": "Список встреч", "400": "Некорректный параметр done"},
-        "example": {"400": {"detail": "Парамтер 'done' может быть 0 или 1"}},
+        "example": {"400": {"detail": WRONG_PARAM_DONE}},
     },
     "list": {
         "tags": TAGS_MEETINGS,
@@ -35,7 +35,7 @@ MEETING_TEXTS = {
         "responses": {"201": "Встреча создана", "400": VALIDATION_ERROR_DESCRIPTION, "409": CONFLICT_DATA},
         "example": {
             "400": {"description": [NO_VALID_STRING]},
-            "409": {"detail": "mike@gmail.com уже имеет встречу на дату: 2025-07-05 13:31:00+00:00"},
+            "409": {"detail": MEETING_WORKER_CONFLICT_DATETIME},
         },
     },
     "update": {
@@ -45,7 +45,7 @@ MEETING_TEXTS = {
         "responses": {"400": VALIDATION_ERROR_DESCRIPTION, "403": FORBIDDEN_DESCRIPTION, "409": CONFLICT_DATA},
         "example": {
             "400": {"non_field_errors": ["Встреча должна включать минимум двух участников."]},
-            "409": {"detail": "mike@gmail.com уже имеет встречу на дату: 2025-07-05 13:31:00+00:00"},
+            "409": {"detail": MEETING_WORKER_CONFLICT_DATETIME},
             "403": {"detail": FORBIDDEN_403_RUSSIAN},
         },
     },

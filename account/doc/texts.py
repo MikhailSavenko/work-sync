@@ -1,4 +1,4 @@
-from common.variables import VALIDATION_ERROR_DESCRIPTION, UNAUTHORIZED_REQUEST, FORBIDDEN_403_RUSSIAN, CONFLICT_DATA, NOT_FOUND_DESCRIPTION, FORBIDDEN_DESCRIPTION, NO_VALID_STRING, NO_TEAM, NO_WORKER, NO_ACTIVE_ACCOUNT, NOT_VALID_TOKEN_FOR_ANY_TOKEN_TYPE, REQUIRED_FIELD, TOKEN_BLACKLISTED, TOKEN_IS_INVALID
+from common.variables import INVALID_PASSWORD, TEAM_WORKER_CONFLICT, VALIDATION_ERROR_DESCRIPTION, UNAUTHORIZED_REQUEST, FORBIDDEN_403_RUSSIAN, CONFLICT_DATA, NOT_FOUND_DESCRIPTION, FORBIDDEN_DESCRIPTION, NO_VALID_STRING, NO_TEAM, NO_WORKER, NO_ACTIVE_ACCOUNT, NOT_VALID_TOKEN_FOR_ANY_TOKEN_TYPE, REQUIRED_FIELD, TOKEN_BLACKLISTED, TOKEN_IS_INVALID
 
 TAGS_TEAMS = ["Teams"]
 TAGS_WORKER = ["Workers"]
@@ -29,7 +29,7 @@ TEAM_TEXTS = {
         "example": {
             "400": {"title": [NO_VALID_STRING]},
             "409": {
-                "detail": "Конфликт. Сотрудники ['mi47sav4@gmail.com'], добавляемые в команду, уже состоят в других командах"
+                "detail": TEAM_WORKER_CONFLICT
             },
             "403": {"detail": FORBIDDEN_403_RUSSIAN},
         },
@@ -42,7 +42,7 @@ TEAM_TEXTS = {
         "example": {
             "400": {"title": [NO_VALID_STRING]},
             "409": {
-                "detail": "Конфликт. Сотрудники ['mi47sav4@gmail.com'], добавляемые в команду, уже состоят в других командах"
+                "detail": TEAM_WORKER_CONFLICT
             },
             "403": {"detail": FORBIDDEN_403_RUSSIAN},
         },
@@ -200,7 +200,7 @@ USER_REGISTER_TEXTS = {
         },
         "example": {
             "401": {"detail": NOT_VALID_TOKEN_FOR_ANY_TOKEN_TYPE, "code": "token_not_valid"},
-            "400": {"current_password": ["Неправильный пароль."]},
+            "400": {"current_password": [INVALID_PASSWORD]},
         },
     },
 }
