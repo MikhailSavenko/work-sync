@@ -1,4 +1,4 @@
-from common.variables import NO_VALID_STRING, REQUIRED_FIELD, NO_TASK_COMM_TEXT, NO_TASK_EVAL_TEXT, NO_TASK, FORBIDDEN_403_RUSSIAN, CONFLICT_DATA, FORBIDDEN_403_DESCRIPTION, NOT_FOUND_DESCRIPTION, VALIDATION_ERROR_DESCRIPTION, VALUE_LE_FIVE
+from common.variables import DEADLINE_NOT_WILL_BE_PAST, EVALUATION_CREATE_CONFLICT, NO_VALID_STRING, REQUIRED_FIELD, NO_TASK_COMM_TEXT, NO_TASK_EVAL_TEXT, NO_TASK, FORBIDDEN_403_RUSSIAN, CONFLICT_DATA, FORBIDDEN_403_DESCRIPTION, NOT_FOUND_DESCRIPTION, TASK_UPDATE_CONFLICT, VALIDATION_ERROR_DESCRIPTION, VALUE_LE_FIVE, WRONG_FORMAT_MUST_BE_INT
 
 TAGS_TASKS = ["Tasks"]
 TAGS_COMMENTS = ["Comments"]
@@ -30,7 +30,7 @@ TASK_TEXTS = {
         "summary": "Создание задачи",
         "description": "Позволяет создать новую задачу.",
         "responses": {"403": FORBIDDEN_403_DESCRIPTION, "400": VALIDATION_ERROR_DESCRIPTION},
-        "example": {"400": {"deadline": ["Дэдлайн не может быть в прошлом."]}, "403": {"detail": FORBIDDEN_403_RUSSIAN}},
+        "example": {"400": {"deadline": [DEADLINE_NOT_WILL_BE_PAST]}, "403": {"detail": FORBIDDEN_403_RUSSIAN}},
     },
     "update": {
         "tags": TAGS_TASKS,
@@ -38,10 +38,10 @@ TASK_TEXTS = {
         "description": "Позволяет обновить задачу полностью",
         "responses": {"403": FORBIDDEN_403_DESCRIPTION, "400": VALIDATION_ERROR_DESCRIPTION, "409": CONFLICT_DATA},
         "example": {
-            "400": {"deadline": ["Дэдлайн не может быть в прошлом."]},
+            "400": {"deadline": [DEADLINE_NOT_WILL_BE_PAST]},
             "409": {
                 "task_update_conflict": {
-                    "task_update_conflict": "Ошибка. Нельзя изменить статус для оцененной и завершенной задачи."
+                    "task_update_conflict": TASK_UPDATE_CONFLICT
                 },
             },
             "403": {"detail": FORBIDDEN_403_RUSSIAN},
@@ -53,10 +53,10 @@ TASK_TEXTS = {
         "description": "Позволяет обновить одно поле у задачи",
         "responses": {"403": FORBIDDEN_403_DESCRIPTION, "400": VALIDATION_ERROR_DESCRIPTION, "409": CONFLICT_DATA},
         "example": {
-            "400": {"deadline": ["Дэдлайн не может быть в прошлом."]},
+            "400": {"deadline": [DEADLINE_NOT_WILL_BE_PAST]},
             "409": {
                 "task_update_conflict": {
-                    "task_update_conflict": "Ошибка. Нельзя изменить исполнителя для оцененной и завершенной задачи."
+                    "task_update_conflict": TASK_UPDATE_CONFLICT
                 },
             },
             "403": {"detail": FORBIDDEN_403_RUSSIAN},
@@ -78,7 +78,7 @@ COMMENT_TEXTS = {
         "summary": "Список комментариев к задаче",
         "description": "Получить все комментарии для определенной задачи",
         "responses": {"400": VALIDATION_ERROR_DESCRIPTION, "404": NOT_FOUND_DESCRIPTION},
-        "example": {"404": {"detail": NO_TASK}, "400": {"detail": "Передан неверный формат. Ожидаем число."}},
+        "example": {"404": {"detail": NO_TASK}, "400": {"detail": WRONG_FORMAT_MUST_BE_INT}},
     },
     "create": {
         "tags": TAGS_COMMENTS,
@@ -98,7 +98,7 @@ COMMENT_TEXTS = {
         "responses": {"200": "", "400": VALIDATION_ERROR_DESCRIPTION, "404": NOT_FOUND_DESCRIPTION},
         "example": {
             "404": {"detail": NO_TASK_COMM_TEXT},
-            "400": {"detail": "Передан неверный формат. Ожидаем число."},
+            "400": {"detail": WRONG_FORMAT_MUST_BE_INT},
         },
     },
     "partial_update": {
@@ -140,7 +140,7 @@ EVALUATION_TEXTS = {
         },
         "example": {
             "400": {"score": [VALUE_LE_FIVE]},
-            "409": {"evaluation_create_conflict": "Задача, за которую выставляется оценка, уже имеет оценку"},
+            "409": {"evaluation_create_conflict": EVALUATION_CREATE_CONFLICT},
             "403": {"detail": FORBIDDEN_403_RUSSIAN},
             "404": {"detail": NO_TASK},
         },
