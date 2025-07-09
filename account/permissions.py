@@ -1,11 +1,11 @@
 from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 from account.models import Worker
-from common.permissions import MESSAGE_403
+from common.variables import FORBIDDEN_403_RUSSIAN
 
 
 class IsAdminTeamOwnerOrReadOnly(BasePermission):
-    message = MESSAGE_403
+    message = FORBIDDEN_403_RUSSIAN
 
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
@@ -24,7 +24,7 @@ class IsAdminTeamOwnerOrReadOnly(BasePermission):
 
 
 class IsAdminTeamOrReadOnly(BasePermission):
-    message = MESSAGE_403
+    message = FORBIDDEN_403_RUSSIAN
 
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
