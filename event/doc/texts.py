@@ -42,11 +42,12 @@ MEETING_TEXTS = {
         "tags": TAGS_MEETINGS,
         "summary": "Изменение встречи",
         "description": "Позволяет изменить существующую встречу",
-        "responses": {"400": VALIDATION_ERROR_DESCRIPTION, "403": FORBIDDEN_DESCRIPTION, "409": CONFLICT_DATA},
+        "responses": {"400": VALIDATION_ERROR_DESCRIPTION, "403": FORBIDDEN_DESCRIPTION, "409": CONFLICT_DATA, "404": NOT_FOUND_DESCRIPTION},
         "example": {
             "400": {"non_field_errors": ["Встреча должна включать минимум двух участников."]},
             "409": {"detail": MEETING_WORKER_CONFLICT_DATETIME},
             "403": {"detail": FORBIDDEN_403_RUSSIAN},
+            "404": {"detail": NO_MEETING}
         },
     },
     "delete": {

@@ -98,6 +98,9 @@ class MeetingAutoSchema(SwaggerAutoSchema):
             operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(
                 text=meeting_text_update, status_code=403
             )
+            operation.responses["404"] = get_response_open_api_scheme_with_detail_string_and_example(
+                text=meeting_text_update, status_code=404
+            )
             operation.responses["400"] = OpenApiResponse(
                 meeting_text_update["responses"]["400"],
                 Schema(
