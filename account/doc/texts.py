@@ -38,13 +38,14 @@ TEAM_TEXTS = {
         "tags": TAGS_TEAMS,
         "summary": "Изменение команды",
         "description": "Позволяет изменить существующую команду",
-        "responses": {"400": VALIDATION_ERROR_DESCRIPTION, "403": FORBIDDEN_DESCRIPTION, "409": CONFLICT_DATA},
+        "responses": {"400": VALIDATION_ERROR_DESCRIPTION, "404": NOT_FOUND_DESCRIPTION, "403": FORBIDDEN_DESCRIPTION, "409": CONFLICT_DATA},
         "example": {
             "400": {"title": [NO_VALID_STRING]},
             "409": {
                 "detail": TEAM_WORKER_CONFLICT
             },
             "403": {"detail": FORBIDDEN_403_RUSSIAN},
+            "404": {"detail": NO_TEAM}
         },
     },
     "delete": {
@@ -108,8 +109,9 @@ WORKER_TEXTS = {
         "responses": {
             "400": VALIDATION_ERROR_DESCRIPTION,
             "403": FORBIDDEN_DESCRIPTION,
+            "404": NOT_FOUND_DESCRIPTION,
         },
-        "example": {"400": {"status": ['Значения "NfM" нет среди допустимых вариантов.']}, "403": {"detail": FORBIDDEN_403_RUSSIAN}},
+        "example": {"400": {"status": ['Значения "NfM" нет среди допустимых вариантов.']}, "403": {"detail": FORBIDDEN_403_RUSSIAN}, "404": {"detail": NO_WORKER}},
     },
 }
 

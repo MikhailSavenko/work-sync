@@ -88,6 +88,9 @@ class TeamAutoSchema(SwaggerAutoSchema):
                     example=team_text_update["example"]["400"],
                 ),
             )
+            operation.responses["404"] = get_response_open_api_scheme_with_detail_string_and_example(
+                text=team_text_update, status_code=404
+            )
             operation.responses["409"] = OpenApiResponse(
                 team_text_update["responses"]["409"],
                 Schema(
@@ -154,6 +157,9 @@ class WorkerAutoSchema(SwaggerAutoSchema):
 
             operation.responses["403"] = get_response_open_api_scheme_with_detail_string_and_example(
                 text=worker_text_partial_upd, status_code=403
+            )
+            operation.responses["404"] = get_response_open_api_scheme_with_detail_string_and_example(
+                text=worker_text_partial_upd, status_code=404
             )
             operation.responses["400"] = OpenApiResponse(
                 worker_text_partial_upd["responses"]["400"],
