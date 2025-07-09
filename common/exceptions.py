@@ -1,5 +1,5 @@
 from rest_framework.views import exception_handler
-from common.variables import NO_TASK, NO_WORKER, NO_MEETING, NO_COMMENT, NO_EVALUATION, NO_TEAM, NO_VALID_STRING, NOT_VALID_TOKEN, NO_ACTIVE_ACCOUNT
+from common.variables import TOKEN_BLACKLISTED, TOKEN_IS_INVALID, NO_TASK, NO_WORKER, NO_MEETING, NO_COMMENT, NO_EVALUATION, NO_TEAM, NO_VALID_STRING, NOT_VALID_TOKEN_FOR_ANY_TOKEN_TYPE, NO_ACTIVE_ACCOUNT
 
 ERROR_TRANSLATIONS = {
     # 404 ошибки
@@ -12,8 +12,11 @@ ERROR_TRANSLATIONS = {
     
     "Not a valid string.": NO_VALID_STRING,
     
-    "Given token not valid for any token type": NOT_VALID_TOKEN,
-    "No active account found with the given credentials": NO_ACTIVE_ACCOUNT
+    "Given token not valid for any token type": NOT_VALID_TOKEN_FOR_ANY_TOKEN_TYPE,
+    "No active account found with the given credentials": NO_ACTIVE_ACCOUNT,
+
+    "Token is blacklisted": TOKEN_BLACKLISTED,
+    "Token is invalid": TOKEN_IS_INVALID
 }
 
 
