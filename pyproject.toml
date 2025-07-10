@@ -1,0 +1,22 @@
+[tool.black]
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | \.mypy_cache
+  | \.pytest_cache
+  | \.vscode
+  | migrations
+  | media
+  | env
+  | venv
+  | build
+  | dist
+)/
+'''
+line_length = 119
+
+[tool.isort]
+profile = "black"
+line_length = 119
+skip = [".venv", "venv", ".git"]
