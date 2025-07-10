@@ -5,7 +5,11 @@ from common.variables import (
     CURRENT_TASK_ALREADY_HAS_SCORE,
     CURRENT_TASK_HASNT_EXECUTOR,
     CURRENT_TASK_WILL_BE_DONE_STATUS,
+    NO_EVALUATION,
+    NO_TASK,
     SENT_INVALID_FORMAT,
+    REQUIRED_FIELD,
+    VALUE_LE_FIVE
 )
 from task.models import Comment, Evaluation, Task
 from tests.account.test_functional import ApiTestCaseBase
@@ -348,7 +352,6 @@ class TaskApiTestCase(ApiTestCaseBase):
 
 class CommentApiTestCase(ApiTestCaseBase):
 
-    THIS_FIELD_IS_REQUIRED = "This field is required."
 
     @classmethod
     def setUpTestData(cls):
@@ -507,7 +510,7 @@ class CommentApiTestCase(ApiTestCaseBase):
 
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
                 self.assertCountEqual(["text"], comment_data)
-                self.assertEqual(comment_data["text"][0], self.THIS_FIELD_IS_REQUIRED)
+                self.assertEqual(comment_data["text"][0], REQUIRED_FIELD)
 
     def test_create_not_found_task_comment(self):
         for user in self.user_role_all:
@@ -646,7 +649,6 @@ class CommentApiTestCase(ApiTestCaseBase):
 
 class EvaluationApiTestCase(ApiTestCaseBase):
 
-    ENSURE_SCORE = "Ensure this value is less than or equal to 5."
     NO_TASK = "No Task matches the given query."
     NO_EVALUATION = "No Evaluation matches the given query."
 
@@ -817,7 +819,7 @@ class EvaluationApiTestCase(ApiTestCaseBase):
                 )
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
                 self.assertCountEqual(["score"], response.json())
-                self.assertEqual(response.json()["score"][0], self.ENSURE_SCORE)
+                self.assertEqual(response.json()["score"][0], VALUE_LE_FIVE)
 
     def test_create_conflict_has_score_evaluation(self):
         input_data_sub_test = (
@@ -922,7 +924,7 @@ class EvaluationApiTestCase(ApiTestCaseBase):
 
                 response_patch_data = patch_response.json()
                 self.assertCountEqual(["score"], response_patch_data)
-                self.assertEqual(patch_response.json()["score"][0], self.ENSURE_SCORE)
+                self.assertEqual(patch_response.json()["score"][0], VALUE_LE_FIVE)
 
     def test_partial_upd_invalid_task_pk_evaluation(self):
         input_data_sub_test = ((self.user_manager, self.SOME_STR), (self.user_admin, self.SOME_STR))
@@ -952,7 +954,7 @@ class EvaluationApiTestCase(ApiTestCaseBase):
                 self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
                 response_data = response.json()
                 self.assertCountEqual(["detail"], response_data)
-                self.assertEqual(response_data["detail"], self.NO_TASK)
+                self.assertEqual(response_data["detail"], NO_TASK)
 
     def test_partial_upd_not_found_evaluation_pk_evaluation(self):
         input_data_sub_test = ((self.user_manager, self.task_done.id), (self.user_admin, self.task_done1.id))
@@ -968,4 +970,4 @@ class EvaluationApiTestCase(ApiTestCaseBase):
 
                 response_data = response.json()
                 self.assertCountEqual(["detail"], response_data)
-                self.assertEqual(response_data["detail"], self.NO_EVALUATION)
+                self.assertEqual(response_data["detail"], NO_EVALUATION)

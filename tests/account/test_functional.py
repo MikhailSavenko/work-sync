@@ -266,7 +266,12 @@ class WorkerApiTestCase(ApiTestCaseBase):
                 self.assertIsInstance(response.data, list)
                 self.assertGreater(len(response.data), 0)
 
-                worker_data = response.data[1]
+                id_worker_with_team = self.worker_normal.id
+                
+                worker_data_all = response.data
+                for worker in worker_data_all:
+                    if worker["id"] == id_worker_with_team:
+                        worker_data = worker
 
                 self.assertIn("id", worker_data)
                 self.assertIn("team", worker_data)
