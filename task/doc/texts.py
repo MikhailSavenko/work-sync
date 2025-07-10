@@ -1,4 +1,20 @@
-from common.variables import DEADLINE_NOT_WILL_BE_PAST, EVALUATION_CREATE_CONFLICT, NO_VALID_STRING, REQUIRED_FIELD, NO_TASK_COMM_TEXT, NO_TASK_EVAL_TEXT, NO_TASK, FORBIDDEN_403_RUSSIAN, CONFLICT_DATA, FORBIDDEN_403_DESCRIPTION, NOT_FOUND_DESCRIPTION, TASK_UPDATE_CONFLICT, VALIDATION_ERROR_DESCRIPTION, VALUE_LE_FIVE, WRONG_FORMAT_MUST_BE_INT
+from common.variables import (
+    CONFLICT_DATA,
+    DEADLINE_NOT_WILL_BE_PAST,
+    EVALUATION_CREATE_CONFLICT,
+    FORBIDDEN_403_DESCRIPTION,
+    FORBIDDEN_403_RUSSIAN,
+    NO_TASK,
+    NO_TASK_COMM_TEXT,
+    NO_TASK_EVAL_TEXT,
+    NO_VALID_STRING,
+    NOT_FOUND_DESCRIPTION,
+    REQUIRED_FIELD,
+    TASK_UPDATE_CONFLICT,
+    VALIDATION_ERROR_DESCRIPTION,
+    VALUE_LE_FIVE,
+    WRONG_FORMAT_MUST_BE_INT,
+)
 
 TAGS_TASKS = ["Tasks"]
 TAGS_COMMENTS = ["Comments"]
@@ -36,32 +52,38 @@ TASK_TEXTS = {
         "tags": TAGS_TASKS,
         "summary": "Обновление задачи",
         "description": "Позволяет обновить задачу полностью",
-        "responses": {"403": FORBIDDEN_403_DESCRIPTION, "400": VALIDATION_ERROR_DESCRIPTION, "404": NOT_FOUND_DESCRIPTION, "409": CONFLICT_DATA},
+        "responses": {
+            "403": FORBIDDEN_403_DESCRIPTION,
+            "400": VALIDATION_ERROR_DESCRIPTION,
+            "404": NOT_FOUND_DESCRIPTION,
+            "409": CONFLICT_DATA,
+        },
         "example": {
             "400": {"deadline": [DEADLINE_NOT_WILL_BE_PAST]},
             "409": {
-                "task_update_conflict": {
-                    "task_update_conflict": TASK_UPDATE_CONFLICT
-                },
+                "task_update_conflict": {"task_update_conflict": TASK_UPDATE_CONFLICT},
             },
             "403": {"detail": FORBIDDEN_403_RUSSIAN},
-            "404": {"detail": NO_TASK}
+            "404": {"detail": NO_TASK},
         },
     },
     "partial_update": {
         "tags": TAGS_TASKS,
         "summary": "Обновление отдельных полей задачи",
         "description": "Позволяет обновить одно поле у задачи",
-        "responses": {"403": FORBIDDEN_403_DESCRIPTION, "404": NOT_FOUND_DESCRIPTION, "400": VALIDATION_ERROR_DESCRIPTION, "409": CONFLICT_DATA},
+        "responses": {
+            "403": FORBIDDEN_403_DESCRIPTION,
+            "404": NOT_FOUND_DESCRIPTION,
+            "400": VALIDATION_ERROR_DESCRIPTION,
+            "409": CONFLICT_DATA,
+        },
         "example": {
             "400": {"deadline": [DEADLINE_NOT_WILL_BE_PAST]},
             "409": {
-                "task_update_conflict": {
-                    "task_update_conflict": TASK_UPDATE_CONFLICT
-                },
+                "task_update_conflict": {"task_update_conflict": TASK_UPDATE_CONFLICT},
             },
             "403": {"detail": FORBIDDEN_403_RUSSIAN},
-            "404": {"detail": NO_TASK}
+            "404": {"detail": NO_TASK},
         },
     },
     "delete": {
@@ -86,7 +108,11 @@ COMMENT_TEXTS = {
         "tags": TAGS_COMMENTS,
         "summary": "Создать комментарий",
         "description": "Добавить новый комментарий к задаче",
-        "responses": {"403": FORBIDDEN_403_DESCRIPTION, "400": VALIDATION_ERROR_DESCRIPTION, "404": NOT_FOUND_DESCRIPTION},
+        "responses": {
+            "403": FORBIDDEN_403_DESCRIPTION,
+            "400": VALIDATION_ERROR_DESCRIPTION,
+            "404": NOT_FOUND_DESCRIPTION,
+        },
         "example": {
             "400": {"text": [REQUIRED_FIELD]},
             "404": {"detail": NO_TASK},

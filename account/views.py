@@ -1,5 +1,5 @@
-from datetime import datetime
 import logging
+from datetime import datetime
 
 from django.db.models import Prefetch
 from djoser.views import UserViewSet as UserViewSetBase
@@ -35,7 +35,6 @@ from account.services.team import get_worker_with_team, is_your_team
 from account.services.worker import get_calendar_events, get_evaluations_avg
 from account.utils import get_day_bounds, get_month_bounds
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -54,6 +53,7 @@ class TeamViewSet(viewsets.ModelViewSet):
     - DELETE: Удаление команды.
     - OPTIONS, HEAD: Стандартные методы для интроспекции API.
     """
+
     http_method_names = ("get", "post", "put", "delete", "options", "head")
     permission_classes = [IsAdminTeamOwnerOrReadOnly]
     queryset = Team.objects.prefetch_related(Prefetch("workers", queryset=Worker.objects.select_related("user")))
@@ -67,14 +67,14 @@ class TeamViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         serializer = self.serializer_class.get(self.action)
-        
+
         if serializer is None:
             logger.warning(
                 f"Не найден сериализатор для действия '{self.action}' в {self.__class__.__name__}. "
                 f"Используется TeamGetSerializer как запасной."
             )
             return TeamGetSerializer
-        
+
         return serializer
 
     def perform_create(self, serializer):
@@ -161,7 +161,8 @@ class WorkerViewSet(
     - GET: Получение списка всех сотрудников или деталей конкретного сотрудника.
     - PATCH: Частичное обновление данных сотрудника.
     - OPTIONS, HEAD: Стандартные методы для интроспекции API.
-    """  
+    """
+
     http_method_names = ("get", "patch", "options", "head")
     permission_classes = [IsAdminTeamOrReadOnly]
     queryset = Worker.objects.all()
@@ -184,7 +185,7 @@ class WorkerViewSet(
                 f"Используется WorkerGetSerializer как запасной."
             )
             return WorkerGetSerializer
-        
+
         return serializer
 
     @action(

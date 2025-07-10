@@ -1,4 +1,22 @@
-from common.variables import INVALID_PASSWORD, NO_VALID_STRING_LE_255, TEAM_WORKER_CONFLICT, VALIDATION_ERROR_DESCRIPTION, UNAUTHORIZED_REQUEST, FORBIDDEN_403_RUSSIAN, CONFLICT_DATA, NOT_FOUND_DESCRIPTION, FORBIDDEN_DESCRIPTION, NO_VALID_STRING, NO_TEAM, NO_WORKER, NO_ACTIVE_ACCOUNT, NOT_VALID_TOKEN_FOR_ANY_TOKEN_TYPE, REQUIRED_FIELD, TOKEN_BLACKLISTED, TOKEN_IS_INVALID
+from common.variables import (
+    CONFLICT_DATA,
+    FORBIDDEN_403_RUSSIAN,
+    FORBIDDEN_DESCRIPTION,
+    INVALID_PASSWORD,
+    NO_ACTIVE_ACCOUNT,
+    NO_TEAM,
+    NO_VALID_STRING,
+    NO_VALID_STRING_LE_255,
+    NO_WORKER,
+    NOT_FOUND_DESCRIPTION,
+    NOT_VALID_TOKEN_FOR_ANY_TOKEN_TYPE,
+    REQUIRED_FIELD,
+    TEAM_WORKER_CONFLICT,
+    TOKEN_BLACKLISTED,
+    TOKEN_IS_INVALID,
+    UNAUTHORIZED_REQUEST,
+    VALIDATION_ERROR_DESCRIPTION,
+)
 
 TAGS_TEAMS = ["Teams"]
 TAGS_WORKER = ["Workers"]
@@ -28,9 +46,7 @@ TEAM_TEXTS = {
         "responses": {"403": FORBIDDEN_DESCRIPTION, "400": VALIDATION_ERROR_DESCRIPTION, "409": CONFLICT_DATA},
         "example": {
             "400": {"title": [NO_VALID_STRING_LE_255]},
-            "409": {
-                "detail": TEAM_WORKER_CONFLICT
-            },
+            "409": {"detail": TEAM_WORKER_CONFLICT},
             "403": {"detail": FORBIDDEN_403_RUSSIAN},
         },
     },
@@ -38,14 +54,17 @@ TEAM_TEXTS = {
         "tags": TAGS_TEAMS,
         "summary": "Изменение команды",
         "description": "Позволяет изменить существующую команду",
-        "responses": {"400": VALIDATION_ERROR_DESCRIPTION, "404": NOT_FOUND_DESCRIPTION, "403": FORBIDDEN_DESCRIPTION, "409": CONFLICT_DATA},
+        "responses": {
+            "400": VALIDATION_ERROR_DESCRIPTION,
+            "404": NOT_FOUND_DESCRIPTION,
+            "403": FORBIDDEN_DESCRIPTION,
+            "409": CONFLICT_DATA,
+        },
         "example": {
             "400": {"title": [NO_VALID_STRING]},
-            "409": {
-                "detail": TEAM_WORKER_CONFLICT
-            },
+            "409": {"detail": TEAM_WORKER_CONFLICT},
             "403": {"detail": FORBIDDEN_403_RUSSIAN},
-            "404": {"detail": NO_TEAM}
+            "404": {"detail": NO_TEAM},
         },
     },
     "delete": {
@@ -111,7 +130,11 @@ WORKER_TEXTS = {
             "403": FORBIDDEN_DESCRIPTION,
             "404": NOT_FOUND_DESCRIPTION,
         },
-        "example": {"400": {"status": ['Значения "NfM" нет среди допустимых вариантов.']}, "403": {"detail": FORBIDDEN_403_RUSSIAN}, "404": {"detail": NO_WORKER}},
+        "example": {
+            "400": {"status": ['Значения "NfM" нет среди допустимых вариантов.']},
+            "403": {"detail": FORBIDDEN_403_RUSSIAN},
+            "404": {"detail": NO_WORKER},
+        },
     },
 }
 
@@ -182,7 +205,10 @@ USER_REGISTER_TEXTS = {
         "summary": "Регистрация",
         "description": "Создание аккаунта на площадке. Создаем модель User, а также Worker создается автоматически и имеет связь с User OneToOne.",
         "responses": {"201": "Успешная регистрация", "400": VALIDATION_ERROR_DESCRIPTION},
-        "example": {"201": {"email": "user@example.com", "id": 0}, "400": {"email": ["Введите правильный адрес электронной почты."]}},
+        "example": {
+            "201": {"email": "user@example.com", "id": 0},
+            "400": {"email": ["Введите правильный адрес электронной почты."]},
+        },
     },
     "me_update": {
         "tags": TAGS_AUTH,

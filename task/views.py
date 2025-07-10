@@ -173,9 +173,9 @@ class CommentViewSet(viewsets.ModelViewSet):
         :raises Http404: Если задача с указанным `task_pk` не найдена.
         :return: Отфильтрованный QuerySet объектов `Comment`.
         """
-        if getattr(self, 'swagger_fake_view', False):
+        if getattr(self, "swagger_fake_view", False):
             return Comment.objects.none()
-        
+
         queryset = super().get_queryset()
 
         task_pk = self.kwargs.get("task_pk")
@@ -257,9 +257,9 @@ class EvaluationViewSet(
         :raises Http404: Если задача с указанным `task_pk` не найдена.
         :return: Отфильтрованный QuerySet объектов `Evaluation`.
         """
-        if getattr(self, 'swagger_fake_view', False):
+        if getattr(self, "swagger_fake_view", False):
             return Evaluation.objects.none()
-        
+
         queryset = super().get_queryset()
 
         task_pk = self.kwargs.get("task_pk")

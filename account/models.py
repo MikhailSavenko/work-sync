@@ -43,7 +43,14 @@ class Worker(models.Model):
 
     user = models.OneToOneField("User", related_name="worker", on_delete=models.CASCADE)
     role = models.CharField(max_length=2, choices=Role, verbose_name="Роль сотрудника", default=Role.NORMAL)
-    team = models.ForeignKey("Team", related_name="workers", verbose_name="Команда сотрудника", on_delete=models.SET_NULL, null=True, blank=True)
+    team = models.ForeignKey(
+        "Team",
+        related_name="workers",
+        verbose_name="Команда сотрудника",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
 
 
 class Team(models.Model):

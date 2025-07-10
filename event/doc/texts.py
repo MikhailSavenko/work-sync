@@ -1,4 +1,14 @@
-from common.variables import MEETING_WORKER_CONFLICT_DATETIME, NO_VALID_STRING, NO_MEETING, CONFLICT_DATA, FORBIDDEN_DESCRIPTION, FORBIDDEN_403_RUSSIAN, VALIDATION_ERROR_DESCRIPTION, NOT_FOUND_DESCRIPTION, WRONG_PARAM_DONE
+from common.variables import (
+    CONFLICT_DATA,
+    FORBIDDEN_403_RUSSIAN,
+    FORBIDDEN_DESCRIPTION,
+    MEETING_WORKER_CONFLICT_DATETIME,
+    NO_MEETING,
+    NO_VALID_STRING,
+    NOT_FOUND_DESCRIPTION,
+    VALIDATION_ERROR_DESCRIPTION,
+    WRONG_PARAM_DONE,
+)
 
 TAGS_MEETINGS = ["Meetings"]
 
@@ -42,12 +52,17 @@ MEETING_TEXTS = {
         "tags": TAGS_MEETINGS,
         "summary": "Изменение встречи",
         "description": "Позволяет изменить существующую встречу",
-        "responses": {"400": VALIDATION_ERROR_DESCRIPTION, "403": FORBIDDEN_DESCRIPTION, "409": CONFLICT_DATA, "404": NOT_FOUND_DESCRIPTION},
+        "responses": {
+            "400": VALIDATION_ERROR_DESCRIPTION,
+            "403": FORBIDDEN_DESCRIPTION,
+            "409": CONFLICT_DATA,
+            "404": NOT_FOUND_DESCRIPTION,
+        },
         "example": {
             "400": {"non_field_errors": ["Встреча должна включать минимум двух участников."]},
             "409": {"detail": MEETING_WORKER_CONFLICT_DATETIME},
             "403": {"detail": FORBIDDEN_403_RUSSIAN},
-            "404": {"detail": NO_MEETING}
+            "404": {"detail": NO_MEETING},
         },
     },
     "delete": {

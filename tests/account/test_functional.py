@@ -267,7 +267,7 @@ class WorkerApiTestCase(ApiTestCaseBase):
                 self.assertGreater(len(response.data), 0)
 
                 id_worker_with_team = self.worker_normal.id
-                
+
                 worker_data_all = response.data
                 for worker in worker_data_all:
                     if worker["id"] == id_worker_with_team:

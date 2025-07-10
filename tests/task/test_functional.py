@@ -7,9 +7,9 @@ from common.variables import (
     CURRENT_TASK_WILL_BE_DONE_STATUS,
     NO_EVALUATION,
     NO_TASK,
-    SENT_INVALID_FORMAT,
     REQUIRED_FIELD,
-    VALUE_LE_FIVE
+    SENT_INVALID_FORMAT,
+    VALUE_LE_FIVE,
 )
 from task.models import Comment, Evaluation, Task
 from tests.account.test_functional import ApiTestCaseBase
@@ -351,7 +351,6 @@ class TaskApiTestCase(ApiTestCaseBase):
 
 
 class CommentApiTestCase(ApiTestCaseBase):
-
 
     @classmethod
     def setUpTestData(cls):

@@ -97,7 +97,7 @@ class TaskAutoSchema(SwaggerAutoSchema):
             operation.tags = task_text_partial_upd["tags"]
             operation.summary = task_text_partial_upd["summary"]
             operation.description = task_text_partial_upd["description"]
-            
+
             operation.responses["400"] = OpenApiResponse(
                 task_text_partial_upd["responses"]["400"],
                 Schema(

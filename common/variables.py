@@ -45,6 +45,8 @@ TASK_UPDATE_CONFLICT = "Ошибка. Нельзя изменить статус
 EVALUATION_CREATE_CONFLICT = "Задача, за которую выставляется оценка, уже имеет оценку"
 
 INVALID_PASSWORD = "Неправильный пароль."
-TEAM_WORKER_CONFLICT = "Конфликт. Сотрудники ['mi47sav4@gmail.com'], добавляемые в команду, уже состоят в других командах"
+TEAM_WORKER_CONFLICT = (
+    "Конфликт. Сотрудники ['mi47sav4@gmail.com'], добавляемые в команду, уже состоят в других командах"
+)
 WRONG_PARAM_DONE = "Парамтер 'done' может быть 0 или 1"
 MEETING_WORKER_CONFLICT_DATETIME = "mike@gmail.com уже имеет встречу на дату: 2025-07-05 13:31:00+00:00"
