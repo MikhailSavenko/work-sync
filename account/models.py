@@ -7,7 +7,7 @@ from account.managers import CustomUserManager
 
 class User(AbstractUser):
     username = None
-    email = models.EmailField(max_length=40, unique=True)
+    email = models.EmailField(max_length=254, unique=True)
 
     USERNAME_FIELD = "email"
 
@@ -42,8 +42,8 @@ class Worker(models.Model):
         ADMIN_TEAM = "AT", _("Админ команды")
 
     user = models.OneToOneField("User", related_name="worker", on_delete=models.CASCADE)
-    role = models.CharField(max_length=2, choices=Role, default=Role.NORMAL)
-    team = models.ForeignKey("Team", related_name="workers", on_delete=models.SET_NULL, null=True, blank=True)
+    role = models.CharField(max_length=2, choices=Role, verbose_name="Роль сотрудника", default=Role.NORMAL)
+    team = models.ForeignKey("Team", related_name="workers", verbose_name="Команда сотрудника", on_delete=models.SET_NULL, null=True, blank=True)
 
 
 class Team(models.Model):
@@ -62,7 +62,7 @@ class Team(models.Model):
 
     """
 
-    title = models.CharField(max_length=255, verbose_name="Название команды")
+    title = models.CharField(max_length=255, unique=True, verbose_name="Название команды")
     description = models.TextField(verbose_name="Описание команды")
 
     creator = models.ForeignKey(
@@ -73,5 +73,5 @@ class Team(models.Model):
         blank=True,
         related_name="created_teams",
     )
-    created_at = models.DateTimeField(verbose_name="Даты и время создания", auto_now_add=True)
-    updated_at = models.DateTimeField(verbose_name="Даты и время обновления", auto_now=True)
+    created_at = models.DateTimeField(verbose_name="Дата и время создания", auto_now_add=True)
+    updated_at = models.DateTimeField(verbose_name="Дата и время обновления", auto_now=True)
