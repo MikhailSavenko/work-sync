@@ -1,7 +1,6 @@
 import os
 import django
 import logging
-import time
 
 logger = logging.getLogger(__name__)
 
@@ -23,13 +22,13 @@ if not User.objects.filter(email=EMAIL).exists():
     try:
         superuser = User.objects.create_superuser(email=EMAIL, password=PASSWORD)
         logger.info(f"Суперпользователь {superuser.email} создан.")
-        time.sleep(1)
+
         superuser.worker.role = Worker.Role.ADMIN_TEAM
         superuser.worker.save()
         logger.info(f"Суперпользователь сотрудник изменена роль на админа команды {superuser.email}.")
     except IntegrityError as e:
-        logger.error(f"Суперпользователь {superuser.email} не был создан, возможно ошибка в данных. Error: {e}")
+        logger.warning(f"Суперпользователь {EMAIL} не был создан, возможно ошибка в данных. Error: {e}")
     except Exception as e:
-        logger.error(f"Суперпользователь {superuser.email} не был создан, непредвиденная ошибка. Error: {e}")
+        logger.warning(f"Суперпользователь {EMAIL} не был создан, непредвиденная ошибка. Error: {e}")
 else:
-    logger.error(f"Суперпользователь c Email {EMAIL} уже существует")
+    logger.warning(f"Суперпользователь c Email {EMAIL} уже существует")
