@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging
 
 from django.db.models import Prefetch
 from djoser.views import UserViewSet as UserViewSetBase
@@ -35,6 +36,9 @@ from account.services.worker import get_calendar_events, get_evaluations_avg
 from account.utils import get_day_bounds, get_month_bounds
 
 
+logger = logging.getLogger(__name__)
+
+
 class TeamViewSet(viewsets.ModelViewSet):
     """
     API для управления командами.
@@ -62,7 +66,16 @@ class TeamViewSet(viewsets.ModelViewSet):
     swagger_schema = TeamAutoSchema
 
     def get_serializer_class(self):
-        return self.serializer_class.get(self.action, TeamGetSerializer)
+        serializer = self.serializer_class.get(self.action)
+        
+        if serializer is None:
+            logger.warning(
+                f"Не найден сериализатор для действия '{self.action}' в {self.__class__.__name__}. "
+                f"Используется TeamGetSerializer как запасной."
+            )
+            return TeamGetSerializer
+        
+        return serializer
 
     def perform_create(self, serializer):
         """
@@ -163,7 +176,16 @@ class WorkerViewSet(
     swagger_schema = WorkerAutoSchema
 
     def get_serializer_class(self):
-        return self.serializer_class.get(self.action, WorkerGetSerializer)
+        serializer = self.serializer_class.get(self.action)
+
+        if serializer is None:
+            logger.warning(
+                f"Не найден сериализатор для действия '{self.action}' в {self.__class__.__name__}. "
+                f"Используется WorkerGetSerializer как запасной."
+            )
+            return WorkerGetSerializer
+        
+        return serializer
 
     @action(
         detail=True,
@@ -187,7 +209,7 @@ class WorkerViewSet(
         try:
             parce_start = datetime.strptime(start_date, "%Y-%m-%d").date()
             parse_end = datetime.strptime(end_date, "%Y-%m-%d").date()
-        except (ValueError, Exception) as e:
+        except ValueError as e:
             raise ValidationDateError(detail=f"{e}")
 
         start, end = get_day_bounds((parce_start, parse_end))
@@ -222,8 +244,7 @@ class WorkerViewSet(
 
         try:
             parse_date = datetime.strptime(date, "%Y-%m-%d").date()
-        except (ValueError, Exception) as e:
-            print(e)
+        except ValueError as e:
             raise ValidationDateError(detail=f"{e}")
 
         start, end = get_day_bounds(date=parse_date)
@@ -256,7 +277,7 @@ class WorkerViewSet(
 
         try:
             parse_date = datetime.strptime(date, "%Y-%m").date()
-        except (ValueError, Exception) as e:
+        except ValueError as e:
             raise ValidationDateError(detail=f"{e}")
 
         start, end = get_month_bounds(start_date=parse_date)
